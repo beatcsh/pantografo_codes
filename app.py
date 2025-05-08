@@ -3,7 +3,9 @@ from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import os
 import ezdxf
-from ftplib import FTP
+from datetime import datetime
+
+PULSES_POR_MM = 100
 
 # Convertir DXF a GCODE 
 def dxf_a_gcode(dxf_path):
@@ -18,6 +20,20 @@ def dxf_a_gcode(dxf_path):
             gcode_lines.append(f"G1 X{end[0]:.3f} Y{end[1]:.3f}")
     return gcode_lines
 
+# sacar coordenadas
+def sacar_coordenadas(gcode_lines):
+    # generar coordenadas a partir del gcode
+    coord_rectan = []
+    for line in gcode_lines:
+        # solo toma movimientos
+        if line.startswith("G1") or line.startswith("G0"): 
+        # obetenion de coordenadas y remplazo de X y Y
+            coords = line.split(' ')[1:]  
+            x = float(coords[0][1:])  
+            y = float(coords[1][1:])  
+            coord_rectan.append(f"{x*1000:.0f},{y*1000:.0f},0,0,0,0")
+    return coord_rectan
+
 # Convertir GCODE a YASKAWA --- plasma
 def gcode_a_yaskawa_plasma(gcode_lines, nombre_base, output_dir):
     jbi_path = os.path.join(output_dir, f"{nombre_base}.JBI")
@@ -28,26 +44,18 @@ def gcode_a_yaskawa_plasma(gcode_lines, nombre_base, output_dir):
             gf.write("\n".join(gcode_lines))
 
         with open(jbi_path, "w") as f:
+
+            coord_rectan = sacar_coordenadas(gcode_lines)
+
             f.write("/JOB\n")
             f.write(f"//NAME {nombre_base.upper()[:8]}\n")
             f.write("//POS\n")
-            f.write("///NPOS 7,0,0,0,0,0\n")
+            f.write(f"///NPOS {len(coord_rectan) + 1},0,0,0,0,0\n")
             f.write("///TOOL 0\n")
             f.write("///POSTYPE RECTAN\n")  # Rectan o pulse?
             f.write("///RECTAN\n")
+            f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
 
-            # generar coordenadas a partir del gcode
-            coord_rectan = []
-            for line in gcode_lines:
-                # solo toma movimientos
-                if line.startswith("G1") or line.startswith("G0"): 
-                    # obetenion de coordenadas y remplazo de X y Y
-                    coords = line.split(' ')[1:]  
-                    x = float(coords[0][1:])  
-                    y = float(coords[1][1:])  
-                    coord_rectan.append(f"{x*1000:.0f},{y*1000:.0f},0,0,0,0")
-
-            # escribir las coordenadas al archivo JBI
             for idx, coord in enumerate(coord_rectan):
                 f.write(f"C{idx:05d}={coord}\n")
 
