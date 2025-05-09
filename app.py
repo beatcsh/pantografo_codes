@@ -21,7 +21,7 @@ def dxf_a_gcode(dxf_path):
     return gcode_lines
 
 # sacar coordenadas
-def sacar_coordenadas(gcode_lines):
+def sacar_coordenadas(gcode_lines, z):
     # generar coordenadas a partir del gcode
     coord_rectan = []
     for line in gcode_lines:
@@ -31,11 +31,11 @@ def sacar_coordenadas(gcode_lines):
             coords = line.split(' ')[1:]  
             x = float(coords[0][1:])  
             y = float(coords[1][1:])  
-            coord_rectan.append(f"{x*1000:.0f},{y*1000:.0f},0,0,0,0")
+            coord_rectan.append(f"{x*1000:.0f},{y*1000:.0f},{z},0,0,0")
     return coord_rectan
 
 # Convertir GCODE a YASKAWA --- plasma
-def gcode_a_yaskawa_plasma(gcode_lines, nombre_base, output_dir):
+def gcode_a_yaskawa_plasma(gcode_lines, nombre_base, output_dir,velocidad, z):
     jbi_path = os.path.join(output_dir, f"{nombre_base}.JBI")
     gcode_path = os.path.join(output_dir, f"{nombre_base}.gcode") # especificacion de la ruta
 
@@ -45,25 +45,27 @@ def gcode_a_yaskawa_plasma(gcode_lines, nombre_base, output_dir):
 
         with open(jbi_path, "w") as f:
 
-            coord_rectan = sacar_coordenadas(gcode_lines)
+            coord_rectan = sacar_coordenadas(gcode_lines, z)
 
             f.write("/JOB\n")
             f.write(f"//NAME {nombre_base.upper()[:8]}\n")
             f.write("//POS\n")
             f.write(f"///NPOS {len(coord_rectan) + 1},0,0,0,0,0\n")
             f.write("///TOOL 0\n")
-            f.write("///POSTYPE RECTAN\n")  # Rectan o pulse?
-            f.write("///RECTAN\n")
-            f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
+            f.write("///POSTYPE PULSE\n")  # Rectan o pulse?
+            f.write("///PULSE\n")
+            # f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
+
+            f.write("C00000=0,0,0,0,0,0\n")
 
             for idx, coord in enumerate(coord_rectan):
-                f.write(f"C{idx:05d}={coord}\n")
+                f.write(f"C{idx + 1:05d}={coord}\n")
 
+            # Instrucciones
             f.write("//INST\n")
-            f.write("///DATE 2025/03/24 09:03\n")
-            f.write("///ATTR SC,RW\n")
-            f.write("///GROUP1 RB1\n")
-            f.write("NOP\n")
+            f.write(f"///DATE {datetime.now().strftime('%Y/%m/%d %H:%M')}\n")
+            f.write("///ATTR SC,RW\n///GROUP1 RB1\nNOP\n")
+            f.write(f"MOVJ C00000 VJ={velocidad}\n")
 
             # comandos de movimiento
             f.write("MOVJ C00000 VJ=25.00\n")
@@ -104,13 +106,27 @@ def crear_gui():
     tk.Button(ventana, text="Seleccionar archivo DXF", command=seleccionar_archivo, bg="#003366", fg="white", relief="flat").pack(pady=10)
     tk.Entry(ventana, textvariable=ruta_var, width=50, relief="solid").pack(pady=5)
 
+    tk.Label(ventana, text="Altura Z (mm):", bg="white").pack(pady=(20, 5))
+    z_entry = tk.Entry(ventana, width=10, relief="solid")
+    z_entry.pack()
+    z_entry.insert(0, "50")
+
+    tk.Label(ventana, text="Velocidad (V):", bg="white").pack(pady=(10, 5))
+    v_entry = tk.Entry(ventana, width=10, relief="solid")
+    v_entry.pack()
+    v_entry.insert(0, "100.0")
+
     def iniciar_conversion():
         path = ruta_var.get()
+        z_value = z_entry.get()
+        v_value = v_value.get()
         try:
+            z = float(z_value)
+            velocidad = float(v_value)
             gcode_lines = dxf_a_gcode(path)
             nombre_base = os.path.splitext(os.path.basename(path))[0]
             output_dir = os.path.dirname(path)
-            jbi_path, gcode_path = gcode_a_yaskawa_plasma(gcode_lines, nombre_base, output_dir)
+            jbi_path, gcode_path = gcode_a_yaskawa_plasma(gcode_lines, nombre_base, output_dir, velocidad, z)
             messagebox.showinfo("Éxito", f"Archivos generados:\n{jbi_path}\n{gcode_path}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
