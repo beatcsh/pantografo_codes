@@ -23,10 +23,9 @@ def dxf_a_gcode(dxf_path):
 # GCODE a formato JBI PULSE
 
 def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut):
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    nombre_base_con_fecha = f"{nombre_base}{timestamp}"
-    jbi_path = os.path.join(output_dir, f"{nombre_base_con_fecha}.JBI")
-    g_path = os.path.join(output_dir, f"{nombre_base_con_fecha}.gcode")
+    nombre_archivo = f"{nombre_base}" # {timestamp}
+    jbi_path = os.path.join(output_dir, f"{nombre_archivo}.JBI")
+    g_path = os.path.join(output_dir, f"{nombre_archivo}.gcode")
 
     try:
         with open(g_path, "w") as gf:
@@ -34,14 +33,14 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
 
         with open(jbi_path, "w") as f:
             f.write("/JOB\n")
-            f.write(f"//NAME {nombre_base_con_fecha[:8].upper()}\n")
+            f.write(f"//NAME {nombre_archivo.upper()}\n")
             f.write("//POS\n")
             total_pos = sum(1 for line in gcode_lines if line.startswith("G"))
             f.write(f"///NPOS {total_pos},0,0,0,0,0\n")
-            f.write(f"///USER 1\n")
             f.write("///TOOL 0\n")
-            f.write("///POSTYPE USER\n")
-            f.write(f"///RECTAN \n")
+            f.write(f"///USER 1\n")
+            f.write("///POSTYPE USER\n") # tipo de movimiento, supongo que User se usa para que sea personalizado
+            f.write(f"///RECTAN \n") # PULSE = pulsos ||| RECTAN = coordenadas
             f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
 
             idx = 0
@@ -102,7 +101,7 @@ def crear_gui():
     tk.Label(ventana, text="Altura Z (mm):", bg="white").pack(pady=(20, 5))
     z_entry = tk.Entry(ventana, width=10, relief="solid")
     z_entry.pack()
-    z_entry.insert(0, "50")
+    z_entry.insert(0, "7")
 
     tk.Label(ventana, text="User Frame (UF#):", bg="white").pack(pady=(10, 5))
     uf_entry = tk.Entry(ventana, width=10, relief="solid")
@@ -117,7 +116,7 @@ def crear_gui():
     tk.Label(ventana, text="Velocidad (V):", bg="white").pack(pady=(10, 5))
     v_entry = tk.Entry(ventana, width=10, relief="solid")
     v_entry.pack()
-    v_entry.insert(0, "100.0")
+    v_entry.insert(0, "15")
 
     def iniciar_conversion():
         path = ruta_var.get()
