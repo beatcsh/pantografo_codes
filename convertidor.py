@@ -4,10 +4,59 @@ from PIL import Image, ImageTk
 import os
 import ezdxf
 from datetime import datetime
+from ftplib import FTP
 
-PULSES_POR_MM = 100  # Ajustar según el sistema real
+PULSES_POR_MM = 100
 
-# DXF a GCODE (simplificado)
+FTP_SERVER = '192.168.1.31'
+FTP_USER = 'rcmaster'
+FTP_PASS = '9999999999999999'
+FTP_DIR = '/JOB'
+
+ftp = None
+
+def login_ftp():
+    global ftp
+    try:
+        ftp = FTP()
+        ftp.connect(FTP_SERVER, 21)
+        ftp.login(FTP_USER, FTP_PASS)
+        ftp.cwd(FTP_DIR)
+        print('Conectado al servidor FTP.')
+        return ftp
+    except Exception as e:
+        print(f'Error al conectar con FTP: {e}')
+        ftp = None
+        return None
+
+def logout_ftp():
+    global ftp
+    if ftp:
+        try:
+            ftp.quit()
+            print("Sesión FTP cerrada correctamente.")
+        except Exception as e:
+            print(f"Error al cerrar sesión FTP: {e}")
+        finally:
+            ftp = None
+
+def subir_archivo_ftp(archivo_local):
+    global ftp
+    if not ftp:
+        ftp = login_ftp()
+
+    if ftp:
+        try:
+            with open(archivo_local, 'rb') as file:
+                nombre_remoto = os.path.basename(archivo_local)
+                ftp.storbinary(f'STOR {nombre_remoto}', file)
+                print(f"Se subió el archivo correctamente: {nombre_remoto}")
+                messagebox.showinfo("Éxito", f"Archivo '{nombre_remoto}' subido exitosamente.")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo subir el archivo: {e}")
+    else:
+        messagebox.showerror("Error", "No se pudo conectar al servidor FTP.")
+
 def dxf_a_gcode(dxf_path):
     doc = ezdxf.readfile(dxf_path)
     msp = doc.modelspace()
@@ -20,10 +69,8 @@ def dxf_a_gcode(dxf_path):
             gcode_lines.append(f"G1 X{end[0]:.3f} Y{end[1]:.3f}")
     return gcode_lines
 
-# GCODE a formato JBI PULSE
-
 def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut):
-    nombre_archivo = f"{nombre_base}" # {timestamp}
+    nombre_archivo = f"{nombre_base}"
     jbi_path = os.path.join(output_dir, f"{nombre_archivo}.JBI")
     g_path = os.path.join(output_dir, f"{nombre_archivo}.gcode")
 
@@ -39,20 +86,18 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write(f"///NPOS {total_pos},0,0,0,0,0\n")
             f.write("///TOOL 0\n")
             f.write(f"///USER 1\n")
-            f.write("///POSTYPE USER\n") # tipo de movimiento, supongo que User se usa para que sea personalizado
-            f.write(f"///RECTAN \n") # PULSE = pulsos ||| RECTAN = coordenadas
+            f.write("///POSTYPE USER\n")
+            f.write("///RECTAN\n")
             f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
 
             idx = 0
-            posiciones = []
-            for i, line in enumerate(gcode_lines):
-                if line.startswith("G0") or line.startswith("G1"):
+            for line in gcode_lines:
+                if line.startswith("G"):
                     parts = line.split()
                     coords = {p[0]: float(p[1:]) for p in parts[1:] if p[0] in "XY"}
                     x = int(coords.get("X", 0.0) * PULSES_POR_MM)
                     y = int(coords.get("Y", 0.0) * PULSES_POR_MM)
                     z = int(z_altura * PULSES_POR_MM)
-                    posiciones.append((x, y, z))
                     f.write(f"C{idx:05d}={x},{y},{z},0,0,0\n")
                     idx += 1
 
@@ -63,7 +108,7 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("///GROUP1 RB1\n")
             f.write("NOP\n")
             f.write(f"MOVJ C00000 VJ=0.78\n")
-            for i in range(1, len(posiciones)):
+            for i in range(1, idx):
                 f.write(f"MOVL C{i:05d} V={velocidad}\n")
             f.write("END\n")
 
@@ -71,74 +116,36 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
     except Exception as e:
         raise e
 
-# GUI principal
+# interfaz papá
 def crear_gui():
     ventana = tk.Tk()
     ventana.title("Convertidor DXF a YASKAWA")
-    ventana.configure(bg="white")
     ventana.geometry("500x650")
+    ventana.configure(bg="white")
 
-    try:
-        logo_img = Image.open("yaskawa_logo.png")
-        logo_img = logo_img.resize((200, 60), Image.ANTIALIAS)
-        logo = ImageTk.PhotoImage(logo_img)
-        logo_label = tk.Label(ventana, image=logo, bg="white")
-        logo_label.image = logo
-        logo_label.pack(pady=10)
-    except:
-        tk.Label(ventana, text="YASKAWA", font=("Arial", 24), bg="white", fg="#003366").pack(pady=10)
+    def on_close():
+        logout_ftp()
+        ventana.destroy()
+
+    ventana.protocol("WM_DELETE_WINDOW", on_close)
 
     ruta_var = tk.StringVar()
 
-    def seleccionar_archivo():
-        archivo = filedialog.askopenfilename(filetypes=[("Archivos DXF", "*.dxf")])
-        if archivo:
-            ruta_var.set(archivo)
-
-    tk.Button(ventana, text="Seleccionar archivo DXF", command=seleccionar_archivo, bg="#003366", fg="white", relief="flat").pack(pady=10)
+    tk.Button(ventana, text="Seleccionar archivo DXF", command=lambda: ruta_var.set(filedialog.askopenfilename(filetypes=[("Archivos DXF", "*.dxf")])), bg="#003366", fg="white", relief="flat").pack(pady=10)
     tk.Entry(ventana, textvariable=ruta_var, width=50, relief="solid").pack(pady=5)
-
-    tk.Label(ventana, text="Altura Z (mm):", bg="white").pack(pady=(20, 5))
-    z_entry = tk.Entry(ventana, width=10, relief="solid")
-    z_entry.pack()
-    z_entry.insert(0, "7")
-
-    tk.Label(ventana, text="User Frame (UF#):", bg="white").pack(pady=(10, 5))
-    uf_entry = tk.Entry(ventana, width=10, relief="solid")
-    uf_entry.pack()
-    uf_entry.insert(0, "1")
-
-    tk.Label(ventana, text="Tool (UT#):", bg="white").pack(pady=(10, 5))
-    ut_entry = tk.Entry(ventana, width=10, relief="solid")
-    ut_entry.pack()
-    ut_entry.insert(0, "1")
-
-    tk.Label(ventana, text="Velocidad (V):", bg="white").pack(pady=(10, 5))
-    v_entry = tk.Entry(ventana, width=10, relief="solid")
-    v_entry.pack()
-    v_entry.insert(0, "15")
 
     def iniciar_conversion():
         path = ruta_var.get()
-        z_value = z_entry.get()
-        uf_value = uf_entry.get()
-        ut_value = ut_entry.get()
-        v_value = v_entry.get()
-        try:
-            z = float(z_value)
-            uf = int(uf_value)
-            ut = int(ut_value)
-            velocidad = float(v_value)
-            gcode_lines = dxf_a_gcode(path)
-            nombre_base = os.path.splitext(os.path.basename(path))[0]
-            output_dir = os.path.dirname(path)
-            jbi_path, gcode_path = gcode_a_yaskawa(gcode_lines, z, velocidad, nombre_base, output_dir, uf, ut)
-            messagebox.showinfo("Éxito", f"Archivos generados:\n{jbi_path}\n{gcode_path}")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
+        if not path:
+            messagebox.showerror("Error", "No se seleccionó un archivo.")
+            return
+        nombre_base = os.path.splitext(os.path.basename(path))[0]
+        output_dir = os.path.dirname(path)
+        gcode_lines = dxf_a_gcode(path)
+        jbi_path, _ = gcode_a_yaskawa(gcode_lines, 7, 15, nombre_base, output_dir, 1, 1)
+        subir_archivo_ftp(jbi_path)
 
-    tk.Button(ventana, text="Convertir a YASKAWA", command=iniciar_conversion, bg="#007acc", fg="white", font=("Arial", 12), relief="flat", padx=10, pady=5).pack(pady=30)
-
+    tk.Button(ventana, text="Convertir y Subir", command=iniciar_conversion, bg="#007acc", fg="white", font=("Arial", 12)).pack(pady=30)
     ventana.mainloop()
 
 crear_gui()

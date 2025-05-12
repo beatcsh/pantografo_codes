@@ -11,13 +11,13 @@ if ftp.connect('192.168.1.31', 21):
         ftp.cwd('/JOB')
         print(f'Directorio actual: {ftp.pwd()}')
 
-        archivo = 'TRIANGU.JBI'
-        archivo_remoto = 'TRIANGU.JBI'
+        # archivo = 'TRIANGU.JBI'
+        # archivo_remoto = 'TRIANGU.JBI'
 
-        with open(archivo, 'rb') as archivo:
-            ftp.storbinary(f'STOR {archivo_remoto}', archivo)
+        # with open(archivo, 'rb') as archivo:
+        #     ftp.storbinary(f'STOR {archivo_remoto}', archivo)
         
-        print('Archivo subido con exito')
+        # print('Archivo subido con exito')
         ftp.quit()
     else:
         print('error al iniciar sesion')
