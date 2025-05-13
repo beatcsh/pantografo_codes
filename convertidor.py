@@ -1,10 +1,12 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
+from tkinter import Toplevel, Button
 from PIL import Image, ImageTk
 import os
 import ezdxf
 from datetime import datetime
 import ftplib
+import csv  # Importar el módulo csv
 
 PULSES_POR_MM = 1
 FTP_HOST = "192.168.1.31"
@@ -22,6 +24,9 @@ def dxf_a_gcode(dxf_path):
             gcode_lines.append(f"G0 X{start[0]:.3f} Y{start[1]:.3f}")
             gcode_lines.append(f"G1 X{end[0]:.3f} Y{end[1]:.3f}")
     return gcode_lines
+
+predet = 25
+velocidades = predet
 
 def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut, pc, velocidadj):
     nombre_archivo = f"{nombre_base}"
@@ -64,24 +69,27 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("///GROUP1 RB1\n")
             f.write("NOP\n")
             prev_mov = None  # Ningún tipo de movimiento al inicio
-            for j, line in enumerate(gcode_lines):
-                if (line.startswith("G0")) and (prev_mov == "MOVJ"):
-                    f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
-                    prev_mov = "MOVJ"
-                elif (line.startswith("G1")) and (prev_mov == "MOVJ"):
-                    f.write(f"DOUT OT#({pc}) ON\n")
-                    f.write(f"MOVL C{j:05d} V={velocidad}\n")
-                    prev_mov = "MOVL"
-                elif (line.startswith("G1")) and (prev_mov == "MOVL"):
-                    f.write(f"MOVL C{j:05d} V={velocidad}\n")
-                    prev_mov = "MOVL"
-                elif (line.startswith("G0")) and (prev_mov == "MOVL"):
-                    f.write(f"DOUT OT#({pc}) OFF\n")
-                    f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
-                    prev_mov = "MOVJ"
-                else:
-                    f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
-                    prev_mov="MOVJ"
+            if velocidades == predet:
+                for j, line in enumerate(gcode_lines):
+                    if (line.startswith("G0")) and (prev_mov == "MOVJ"):
+                        f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
+                        prev_mov = "MOVJ"
+                    elif (line.startswith("G1")) and (prev_mov == "MOVJ"):
+                        f.write(f"DOUT OT#({pc}) ON\n")
+                        f.write(f"TIMER T=1.000\n")
+                        f.write(f"MOVL C{j:05d} V={velocidad} PL=0\n")
+                        prev_mov = "MOVL"
+                    elif (line.startswith("G1")) and (prev_mov == "MOVL"):
+                        f.write(f"MOVL C{j:05d} V={velocidad} PL=0\n")
+                        prev_mov = "MOVL"
+                    elif (line.startswith("G0")) and (prev_mov == "MOVL"):
+                        f.write(f"DOUT OT#({pc}) OFF\n")
+                        f.write(f"TIMER T=1.000\n")
+                        f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
+                        prev_mov = "MOVJ"
+                    else:
+                        f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
+                        prev_mov="MOVJ"
             f.write(f"DOUT OT#({pc}) OFF\n")
             f.write("END\n")
 
@@ -229,25 +237,96 @@ def crear_gui():
     tk.Label(ventana, text="Tool (UT#):", bg="white").pack(pady=(10, 5))
     ut_entry = tk.Entry(ventana, width=10, relief="solid")
     ut_entry.pack()
-    ut_entry.insert(0, "1")
+    ut_entry.insert(0, "0")
 
     tk.Label(ventana, text="Velocidad (V):", bg="white").pack(pady=(10, 5))
     v_entry = tk.Entry(ventana, width=10, relief="solid")
     v_entry.pack()
-    v_entry.insert(0, "15")
+    v_entry.insert(0, velocidades)
 
     tk.Label(ventana, text="Velocidad (VJ):", bg="white").pack(pady=(10, 5))
     vj_entry = tk.Entry(ventana, width=10, relief="solid")
     vj_entry.pack()
-    vj_entry.insert(0, "85.0") 
+    vj_entry.insert(0, "15") 
+
+    def leer_datos_csv(nombre_archivo):
+        """Lee los datos desde un archivo CSV y devuelve encabezados y datos."""
+        encabezados = []
+        datos = []
+        try:
+            with open(nombre_archivo, 'r', newline='', encoding='utf-8') as archivo_csv:
+                lector_csv = csv.reader(archivo_csv)
+                encabezados = next(lector_csv)  # La primera línea son los encabezados
+                for fila in lector_csv:
+                    datos.append(fila)
+        except FileNotFoundError:
+            print(f"Error: El archivo '{nombre_archivo}' no se encontró.")
+        return encabezados, datos
+
+    def crear_tabla(parent, encabezados, datos):
+        """Crea y devuelve un widget Treeview con encabezados y datos."""
+        tabla = ttk.Treeview(parent, columns=encabezados, show="headings", selectmode="extended")
+
+        for col in encabezados:
+            tabla.heading(col, text=col)
+            tabla.column(col, width=120, anchor=tk.CENTER)
+
+        for fila in datos:
+            tabla.insert("", tk.END, values=fila)
+
+        # Añadir barras de desplazamiento a la tabla
+        scrollbar_vertical = ttk.Scrollbar(parent, orient="vertical", command=tabla.yview)
+        tabla.configure(yscrollcommand=scrollbar_vertical.set)
+        scrollbar_vertical.pack(side="right", fill="y")
+
+        scrollbar_horizontal = ttk.Scrollbar(parent, orient="horizontal", command=tabla.xview)
+        tabla.configure(xscrollcommand=scrollbar_horizontal.set)
+        scrollbar_horizontal.pack(side="bottom", fill="x")
+
+        return tabla
+
+    def mostrar_tabla_seleccionable(encabezados, datos):
+        """Crea una nueva ventana con la tabla y un botón para obtener la selección."""
+        ventana_tabla = Toplevel(ventana)
+        ventana_tabla.title("Tabla Seleccionable")
+
+        tabla = crear_tabla(ventana_tabla, encabezados, datos)
+        tabla.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+        def obtener_seleccion():
+            """Obtiene los IDs de las filas seleccionadas y muestra sus valores."""
+            seleccionados = tabla.selection()
+            if seleccionados:
+                valores = tabla.item(seleccionados[0], 'values')
+                try:
+                    # Asumimos que la velocidad está en la columna con índice 3
+                    velocidades = valores[3]
+                    print(f"Velocidad seleccionada: {velocidades}")
+                    v_entry.delete(0, 5)
+                    v_entry.insert(0, velocidades) 
+                except IndexError:
+                    print("Error: La columna de velocidad no existe en la fila seleccionada.")
+
+        boton_obtener = Button(ventana_tabla, text="Seleccionar Velocidad", command=obtener_seleccion)
+        boton_obtener.pack(pady=10)
+
+    # Nombre del archivo CSV
+    nombre_archivo_csv = 'parametros_corte_laser.csv'
+
+    # Leer los datos del archivo CSV
+    encabezados_tabla, datos_tabla = leer_datos_csv(nombre_archivo_csv)
+
+    # Botón para mostrar la tabla seleccionable
+    boton_mostrar_tabla = Button(ventana, text="Seleccionar velocidad a partir de material",
+                                command=lambda: mostrar_tabla_seleccionable(encabezados_tabla, datos_tabla))
+    boton_mostrar_tabla.pack(pady=20)
 
     tk.Label(ventana, text="Entrada cortador de plasma:", bg="white").pack(pady=(10, 5))
     p_entry = tk.Entry(ventana, width=10, relief="solid")
     p_entry.pack()
-    p_entry.insert(0, "0")
+    p_entry.insert(0, "1")
 
     tk.Label(ventana, text="Nota: Revise que el ancho y largo de su pieza \n concuerde con las medidas de su user frame.", bg="white").pack(pady=(10, 5))
-    
 
     tk.Label(ventana, text="Se recomienda crear la pieza en X y Y positivos.", bg="white").pack(pady=(10, 5))
 
