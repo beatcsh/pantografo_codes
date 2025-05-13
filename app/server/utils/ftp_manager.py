@@ -1,0 +1,34 @@
+import ftplib
+import os
+import time
+
+FTP_HOST = "192.168.1.31"
+FTP_USER = "rcmaster"
+FTP_PASS = "9999999999999999"
+
+class GestorFTP:
+    def __init__(self):
+        self.ftp = ftplib.FTP(FTP_HOST)
+        self.ftp.login(FTP_USER, FTP_PASS)
+    
+    def subir_archivo(self, local_path):
+        file = None
+        try:
+            file = open(local_path, 'rb')
+            self.ftp.storbinary(f"STOR {os.path.basename(local_path)}", file)
+            print(f"Archivo '{os.path.basename(local_path)}' enviado correctamente.")
+            time.sleep(2)
+        except Exception as e:
+            print(f"Error al enviar '{local_path}': {e}")
+        finally:
+            if file and not file.closed:
+                file.close()
+                print("Archivo cerrado correctamente.")
+    
+    def cerrar_conexion(self):
+        try:
+            self.ftp.quit()
+            print("Conexión FTP cerrada correctamente.")
+        except Exception as e:
+            print(f"Error al cerrar la conexión FTP: {e}")
+            self.ftp.close
