@@ -1,41 +1,39 @@
 import streamlit as st
 import requests
+import os
 
-API_URL = "http://localhost:8000"  # Cambia si tu API está desplegada en otro lado
+API_URL = "http://localhost:8000"  
 
-st.set_page_config(page_title="Conversor DXF a G-code/JBI", layout="centered")
-st.title("🔧 Conversor DXF a G-code y archivo .JBI para Yaskawa")
+st.set_page_config(page_title="DXF a Yaskawa", layout="centered")
 
-# Subida del archivo
-uploaded_file = st.file_uploader("📂 Sube tu archivo DXF", type=["dxf"])
+st.title("Convertidor DXF a Yaskawa")
 
-if uploaded_file:
-    st.success(f"Archivo cargado: {uploaded_file.name}")
+st.header("Subir archivo DXF")
 
-    if st.button("🚀 Convertir archivo"):
-        with st.spinner("Procesando conversión..."):
-            files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/octet-stream")}
-            response = requests.post(f"{API_URL}/convert/", files=files)
+uploaded_file = st.file_uploader("Selecciona un archivo .dxf", type=["dxf"])
+velocidad = st.number_input("Velocidad (V)", min_value=0, value=100)
+velocidadj = st.number_input("VelocidadJ (VJ)", min_value=0, value=20)
+z_altura = st.number_input("Altura Z", min_value=0, value=5)
 
-        if response.status_code == 200:
-            result = response.json()
-            st.success("✅ Conversión exitosa")
-
-            st.subheader("📥 Descargas disponibles")
-
-            # st.download_button(
-            #     label="Descargar G-code",
-            #     data=result["gcode"],
-            #     file_name="output.gcode",
-            #     mime="text/plain"
-            # )
-
-            # st.download_button(
-            #     label="Descargar archivo .JBI",
-            #     data=result["jbi"],
-            #     file_name="output.jbi",
-            #     mime="text/plain"
-            # )
-
-        else:
-            st.error(f"❌ Error en la conversión: {response.status_code}\n{response.text}")
+if st.button("Convertir"):
+    if uploaded_file:
+        with st.spinner("Subiendo y convirtiendo archivo..."):
+            files = {"file": (uploaded_file.name, uploaded_file, "application/dxf")}
+            params = {
+                "velocidad": velocidad,
+                "velocidadj": velocidadj,
+                "z_altura": z_altura
+            }
+            try:
+                response = requests.post(f"{API_URL}/convert/", files=files, params=params)
+                if response.status_code == 200:
+                    data = response.json()
+                    st.success("¡Conversión completada!")
+                    st.download_button("Descargar archivo .JBI", data=open(data["jbi_path"], "rb").read(), file_name=os.path.basename(data["jbi_path"]))
+                    st.download_button("Descargar archivo .gcode", data=open(data["gcode_path"], "rb").read(), file_name=os.path.basename(data["gcode_path"]))
+                else:
+                    st.error(f"Error en la conversión: {response.text}")
+            except Exception as e:
+                st.error(f"Error al conectarse a la API: {e}")
+    else:
+        st.warning("Por favor, selecciona un archivo DXF.")
