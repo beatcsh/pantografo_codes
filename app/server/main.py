@@ -1,11 +1,13 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from utils.converter import convertir_dxf_a_yaskawa
+import pandas as pd
 import os
 
 app = FastAPI()
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.post("/convert/")
 async def convertir(file: UploadFile = File(...), velocidad = 0, velocidadj = 0, z_altura = 0):
@@ -38,7 +40,12 @@ async def convertir(file: UploadFile = File(...), velocidad = 0, velocidadj = 0,
         return JSONResponse(content={"error": str(e)}, status_code=500)
     
 @app.get("/tabla")
-def get_tabla():
-    return JSONResponse(content={
-            "message": "hola aqui van a ir las tablas"
-        })
+async def get_tabla():
+    try:
+        archivo_csv = os.path.join(BASE_DIR, 'data', 'parametros_corte_laser.csv')
+        df = pd.read_csv(archivo_csv, sep = ',')
+        df_copy = df.fillna(value="None")
+        response_data = df_copy.to_dict(orient = 'records')
+        return JSONResponse(content = response_data, status_code = 200)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code = 500)
