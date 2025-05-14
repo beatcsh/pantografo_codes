@@ -20,9 +20,20 @@ try:
         st.subheader("Tabla de parámetros")
         st.dataframe(df)
 
-        # Combinar Material + Espesor para mostrar en una sola opción
-        df["Opción"] = df["Material"] + " - " + df["Espesor (mm)"].astype(str) + " mm"
-        opcion_seleccionada = st.selectbox("Selecciona material y espesor", df["Opción"].tolist())
+        # Combinar Material + Espesor + Potencia para mostrar en una sola opción
+        if "Potencia" in df.columns:
+            df["Opción"] = (
+                df["Material"] + " - " +
+                df["Espesor (mm)"].astype(str) + " mm - " +
+                df["Potencia"].astype(str) + " W"
+            )
+        else:
+            df["Opción"] = (
+                df["Material"] + " - " +
+                df["Espesor (mm)"].astype(str) + " mm"
+            )
+
+        opcion_seleccionada = st.selectbox("Selecciona material, espesor y potencia", df["Opción"].tolist())
 
         # Obtener la fila correspondiente
         fila = df[df["Opción"] == opcion_seleccionada].iloc[0]
@@ -31,7 +42,7 @@ try:
         velocidad = int(fila["Velocidad (mm/s)"])
         st.number_input("Velocidad (V)", min_value=0, value=velocidad, key="v")
 
-        velocidadj = st.number_input("Velocidad J",min_value = 0, value=30, key="vj")
+        velocidadj = st.number_input("Velocidad J", min_value=0, value=30, key="vj")
 
         # 🔽 Ingreso manual de Z
         z = st.number_input("Valor Z (altura de corte)", value=7, key="z")
@@ -59,10 +70,10 @@ if st.button("Convertir"):
                 if response.status_code == 200:
                     data = response.json()
                     st.success("¡Conversión completada!")
-                    
+
                     jbi_path = data["jbi_path"]
                     st.download_button("Descargar archivo .JBI", data=open(jbi_path, "rb"), file_name="programa.jbi")
-                    
+
                 else:
                     st.error("Error al convertir el archivo")
             except Exception as e:
