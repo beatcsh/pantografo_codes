@@ -7,7 +7,7 @@ app = FastAPI()
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@app.post("/convertir")
+@app.post("/convert/")
 async def convertir(file: UploadFile = File(...)):
     try:
         # Guardar archivo subido
