@@ -43,6 +43,7 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("//POS\n")
             total_pos = sum(1 for line in gcode_lines if line.startswith("G"))
             f.write(f"///NPOS {total_pos},0,0,0,0,0\n")
+
             f.write(f"///TOOL {ut}\n")
             f.write(f"///USER {uf}\n")
             f.write("///POSTYPE USER\n")
@@ -68,6 +69,7 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("////FRAME USER 1\n")
             f.write("///GROUP1 RB1\n")
             f.write("NOP\n")
+
             prev_mov = None  # Ningún tipo de movimiento al inicio
             if velocidades == predet:
                 for j, line in enumerate(gcode_lines):
