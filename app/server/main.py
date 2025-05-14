@@ -1,8 +1,11 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from utils.converter import convertir_dxf_a_yaskawa
+from utils.ftp_manager import GestorFTP
 import pandas as pd
 import os
+
+gestor = GestorFTP()
 
 app = FastAPI()
 UPLOAD_DIR = "uploads"
@@ -10,7 +13,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.post("/convert/")
-async def convertir(file: UploadFile = File(...), velocidad = 0, velocidadj = 0, z_altura = 7):
+async def convertir(file: UploadFile = File(...), velocidad = 15, velocidadj = 15, z_altura = 7, uf = 1):
     try:
         # Guardar archivo subido
         dxf_path = os.path.join(UPLOAD_DIR, file.filename)
@@ -25,7 +28,7 @@ async def convertir(file: UploadFile = File(...), velocidad = 0, velocidadj = 0,
             velocidad=velocidad,
             nombre_base=nombre_base,
             output_dir=UPLOAD_DIR,
-            uf=1,
+            uf=uf,
             ut=1,
             pc=1,
             velocidadj=velocidadj
@@ -47,5 +50,13 @@ async def get_tabla():
         df_copy = df.fillna(value="None")
         response_data = df_copy.to_dict(orient = 'records')
         return JSONResponse(content = response_data, status_code = 200)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code = 500)
+    
+@app.get("/listar-jobs")
+async def listar_jobs():
+    try:
+        data = gestor.listar_archivos()
+        return JSONResponse(content = data, status_code = 200)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code = 500)
