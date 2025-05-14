@@ -10,7 +10,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.post("/convert/")
-async def convertir(file: UploadFile = File(...), velocidad = 0, velocidadj = 0, z_altura = 0):
+async def convertir(file: UploadFile = File(...), velocidad = 0, velocidadj = 0, z_altura = 7):
     try:
         # Guardar archivo subido
         dxf_path = os.path.join(UPLOAD_DIR, file.filename)
