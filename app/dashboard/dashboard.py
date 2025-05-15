@@ -54,8 +54,8 @@ label,
 </style>
 """, unsafe_allow_html=True)
 
-# --- TÍTULO PRINCIPAL ---
-st.title("Convertidor DXF a Yaskawa")
+# # --- TÍTULO PRINCIPAL ---
+# st.title("Convertidor DXF a Yaskawa")
 
 try:
     response = requests.get(f"{API_URL}/tabla")
@@ -69,7 +69,7 @@ try:
         col1, col2 = st.columns([1.2, 1])
 
         with col1:
-            st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Yaskawa_Electric_logo.svg/512px-Yaskawa_Electric_logo.svg.png", width=200)
+            st.image("yaskawa_logo.png", width=300)
             st.subheader("Tabla de parámetros")
             st.dataframe(df, use_container_width=True)
 
@@ -89,6 +89,7 @@ try:
             fila = df[df["Opción"] == opcion_seleccionada].iloc[0]
 
         with col2:
+            st.subheader("Tabla de parámetros")
             velocidad = int(fila["Velocidad (mm/s)"])
             velocidad = st.number_input("Velocidad (V)", min_value=0, value=velocidad, key="v")
             velocidadj = st.number_input("Velocidad J", min_value=0, value=30, key="vj")
@@ -150,7 +151,7 @@ try:
                                             delete_response = requests.delete(f"{API_URL}/borrar", params={"idx": archivos.index(archivo)})
                                             if delete_response.status_code == 200:
                                                 st.success(f"Archivo '{archivo}' eliminado correctamente.")
-                                                st.experimental_rerun()
+                                                # st.experimental_rerun()
                                             else:
                                                 st.error("No se pudo eliminar el archivo.")
                                         except Exception as e:
