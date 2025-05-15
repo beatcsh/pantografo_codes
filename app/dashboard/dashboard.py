@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 
-API_URL = "http://localhost:8000"  # Cambia si es necesario
+API_URL = "http://localhost:8000"  
 
 st.set_page_config(page_title="DXF a Yaskawa", layout="centered")
 st.title("Convertidor DXF a Yaskawa")
