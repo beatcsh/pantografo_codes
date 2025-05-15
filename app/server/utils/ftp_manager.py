@@ -33,7 +33,19 @@ class GestorFTP:
         except Exception as e:
             print(f"Error al cerrar la conexión FTP: {e}")
             self.ftp.close
-            
+
     def listar_archivos(self):
         self.ftp.cwd(self.directorio_actual)
         return self.ftp.nlst()
+    
+    def eliminar_archivo(self, idx):
+        i = int(idx)
+        self.ftp.cwd(self.directorio_actual)
+        lista_jobs = self.ftp.nlst()
+        for pos, file in enumerate(lista_jobs):
+            print(f"[{pos}] {file}")
+            if i == pos:
+                self.ftp.delete(file)
+                print(f"eliminaste el archivo {file}")
+        lista_jobs = self.ftp.nlst()
+        return lista_jobs
