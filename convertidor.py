@@ -206,15 +206,15 @@ def crear_gui():
     ventana.configure(bg="white")
     ventana.geometry("500x680")
 
-    try:
-        logo_img = Image.open("yaskawa_logo.png")
-        logo_img = logo_img.resize((200, 60), Image.ANTIALIAS)
-        logo = ImageTk.PhotoImage(logo_img)
-        logo_label = tk.Label(ventana, image=logo, bg="white")
-        logo_label.image = logo
-        logo_label.pack(pady=10)
-    except:
-        tk.Label(ventana, text="YASKAWA", font=("Arial", 24), bg="white", fg="#003366").pack(pady=10)
+    # try:
+    #     logo_img = Image.open("yaskawa_logo.png")
+    #     logo_img = logo_img.resize((200, 60), Image.ANTIALIAS)
+    #     logo = ImageTk.PhotoImage(logo_img)
+    #     logo_label = tk.Label(ventana, image=logo, bg="white")
+    #     logo_label.image = logo
+    #     logo_label.pack(pady=10)
+    # except:
+    #     tk.Label(ventana, text="YASKAWA", font=("Arial", 24), bg="white", fg="#003366").pack(pady=10)
 
     ruta_var = tk.StringVar()
 
@@ -364,6 +364,5 @@ def crear_gui():
     tk.Button(ventana, text="Gestionar Archivos en Robot (FTP)", command=gestionar_archivos_ftp, bg="#444444", fg="white", relief="flat").pack(pady=10)
 
     ventana.mainloop()
-
 
 crear_gui()

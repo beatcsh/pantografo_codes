@@ -10,6 +10,7 @@ class GestorFTP:
     def __init__(self):
         self.ftp = ftplib.FTP(FTP_HOST)
         self.ftp.login(FTP_USER, FTP_PASS)
+        self.directorio_actual = "/JOB"    
     
     def subir_archivo(self, local_path):
         file = None
@@ -32,3 +33,7 @@ class GestorFTP:
         except Exception as e:
             print(f"Error al cerrar la conexión FTP: {e}")
             self.ftp.close
+            
+    def listar_archivos(self):
+        self.ftp.cwd(self.directorio_actual)
+        return self.ftp.nlst()
