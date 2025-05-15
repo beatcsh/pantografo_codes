@@ -60,3 +60,11 @@ async def listar_jobs():
         return JSONResponse(content = data, status_code = 200)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code = 500)
+    
+@app.delete("/borrar")
+async def eliminar_job(idx = 0):
+    try:
+        response = gestor.eliminar_archivo(idx)
+        return JSONResponse(content = response, status_code = 200)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code = 500)
