@@ -52,16 +52,21 @@ def linear_lead_in(points, kerf=1.5, clockwise = True):
             kerf_ang = math.radians(0)
         elif cx < 0 and cy == 0:
             kerf_ang = math.radians(180)
-        else:
-            kerf_ang = math.atan(cy/cx)
+    elif (cx < 0) and (cy < 0):
+        kerf_ang = math.atan(cy/cx) + math.radians(180)
+    else:
+        kerf_ang = math.atan(cy/cx)
     
     kerf_x = kerf * math.cos(kerf_ang)
     kerf_y = kerf * math.sin(kerf_ang)
-
+    
     if clockwise == False:
-        lead_start = (-kerf_x, -kerf_y)
+        lead_start = (x+kerf_x, y+kerf_y)
     elif clockwise == True:
-        lead_start = (-kerf_x, -kerf_y)
+        lead_start = (x-kerf_x, y-kerf_y)
+    print(cx, cy)
+    print("tttttttttttttt")
+    print(kerf_ang)
 
     return [lead_start, (x, y)]
 
@@ -133,11 +138,11 @@ def generate_gcode_from_dxf(filename):
 
             # Lead in
             gcode.append(f"( {kind} corte - {entity.dxftype()} )")
-            gcode.append("M03 ; plasma ON")
             if line == 1:
                 gcode.append(f"G0 X{lead[0][0]:.3f} Y{lead[0][1]:.3f}")
             else:
                 gcode.append(f"G0 X{lead[-1][0]:.3f} Y{lead[-1][1]:.3f}")
+            gcode.append("M03 ; plasma ON")
 
             # Contorno principal
             for pt in points:
