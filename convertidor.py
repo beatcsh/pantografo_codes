@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+
 from tkinter import Toplevel, Button                #Tkinter es la libreria para la aplicación
 from PIL import Image, ImageTk                      
 import os     
@@ -158,6 +159,9 @@ def generate_gcode_from_dxf(filename):
 predet = 25
 velocidades = predet
 
+predet = 25
+velocidades = predet
+
 def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut, pc, velocidadj):
     nombre_archivo = f"{nombre_base}"
     jbi_path = os.path.join(output_dir, f"{nombre_archivo}.JBI")
@@ -212,8 +216,7 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
                         f.write(f"TIMER T=1.000\n")
                     elif (line.startswith("M05")):
                         f.write(f"DOUT OT#({pc}) OFF\n")
-                        f.write(f"TIMER T=1.000\n")  
-                    
+                        f.write(f"TIMER T=1.000\n")           
             f.write(f"DOUT OT#({pc}) OFF\n")
             f.write("END\n")
 
@@ -328,15 +331,15 @@ def crear_gui():
     ventana.configure(bg="white")
     ventana.geometry("500x680")
 
-    try:
-        logo_img = Image.open("yaskawa_logo.png")
-        logo_img = logo_img.resize((200, 60), Image.ANTIALIAS)
-        logo = ImageTk.PhotoImage(logo_img)
-        logo_label = tk.Label(ventana, image=logo, bg="white")
-        logo_label.image = logo
-        logo_label.pack(pady=10)
-    except:
-        tk.Label(ventana, text="YASKAWA", font=("Arial", 24), bg="white", fg="#003366").pack(pady=10)
+    # try:
+    #     logo_img = Image.open("yaskawa_logo.png")
+    #     logo_img = logo_img.resize((200, 60), Image.ANTIALIAS)
+    #     logo = ImageTk.PhotoImage(logo_img)
+    #     logo_label = tk.Label(ventana, image=logo, bg="white")
+    #     logo_label.image = logo
+    #     logo_label.pack(pady=10)
+    # except:
+    #     tk.Label(ventana, text="YASKAWA", font=("Arial", 24), bg="white", fg="#003366").pack(pady=10)
 
     ruta_var = tk.StringVar()
 
