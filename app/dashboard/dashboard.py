@@ -1,10 +1,9 @@
-#Hola esto es un comentario para prueba
-
 import streamlit as st
 import pandas as pd
 import requests
+import streamlit.components.v1 as components
 
-API_URL = "http://localhost:8000"  
+API_URL = "http://localhost:8000"
 
 st.set_page_config(page_title="DXF a Yaskawa", layout="wide")
 
@@ -53,9 +52,6 @@ label,
 }
 </style>
 """, unsafe_allow_html=True)
-
-# # --- TÍTULO PRINCIPAL ---
-# st.title("Convertidor DXF a Yaskawa")
 
 try:
     response = requests.get(f"{API_URL}/tabla")
@@ -150,8 +146,11 @@ try:
                                         try:
                                             delete_response = requests.delete(f"{API_URL}/borrar", params={"idx": archivos.index(archivo)})
                                             if delete_response.status_code == 200:
-                                                st.success(f"Archivo '{archivo}' eliminado correctamente.")
-                                                # st.experimental_rerun()
+                                                components.html(f"""
+                                                    <script>
+                                                        alert("El archivo '{archivo}' se eliminó correctamente.");
+                                                    </script>
+                                                """, height=0)
                                             else:
                                                 st.error("No se pudo eliminar el archivo.")
                                         except Exception as e:
