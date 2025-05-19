@@ -5,6 +5,15 @@ from utils.ftp_manager import GestorFTP
 import pandas as pd
 import os
 
+"""
+    .
+░░░░░███████ ]▄▄▄▄▄▄ `~~~~~~ ~~~~ ~~~~ ~~~
+▂▄▅████████▅▄▃ ...............
+Il███████████████████]
+◥⊙▲⊙▲⊙▲⊙▲⊙▲⊙▲⊙◤..
+
+"""
+
 gestor = GestorFTP()
 
 app = FastAPI()

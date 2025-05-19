@@ -54,9 +54,6 @@ label,
 </style>
 """, unsafe_allow_html=True)
 
-# # --- TÍTULO PRINCIPAL ---
-# st.title("Convertidor DXF a Yaskawa")
-
 try:
     response = requests.get(f"{API_URL}/tabla")
     response.raise_for_status()
