@@ -7,7 +7,7 @@ API_URL = "http://localhost:8000"
 
 st.set_page_config(page_title="DXF a Yaskawa", layout="wide")
 
-# --- ESTILOS CSS PERSONALIZADOS ---
+# --- ESTILOS CSS PERSONALIZADOS kakakakak ---
 st.markdown("""
 <style>
 div.stButton > button {
