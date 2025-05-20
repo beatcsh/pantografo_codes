@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 from utils.converter import convertir_dxf_a_yaskawa
 from utils.ftp_manager import GestorFTP
+from utils.users_manage import check_user
 import pandas as pd
 import os
 
@@ -75,5 +76,16 @@ async def eliminar_job(idx = 0):
     try:
         response = gestor.eliminar_archivo(idx)
         return JSONResponse(content = response, status_code = 200)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code = 500)
+    
+@app.post("/login")
+async def login(username = "", password = ""):
+    try:
+        response = check_user(username, password)
+        if response == 'admin':
+            return JSONResponse(content = response, status_code = 200)
+        elif response == 'operator':
+            return JSONResponse(content = response, status_code = 200)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code = 500)
