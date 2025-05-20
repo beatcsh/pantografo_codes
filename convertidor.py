@@ -69,7 +69,7 @@ def linear_lead_in(points, kerf=1.5, clockwise = True):                         
 
 
 def approximate_spline(entity, segments=20):                #* No sabe que hace *
-    return [entity.point(i / segments)[:2] for i in range(segments + 1)]
+    return [entity.points(i / segments)[:2] for i in range(segments + 1)]
 
 def generate_gcode_from_dxf(filename):                      #Empieza a cear el código G
     doc = ezdxf.readfile(filename)                          #Lee el archivo .dxf con ezdxf
@@ -184,95 +184,95 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
 
             idx = 0                                                     
             posiciones = []                                         
-            for i, line in enumerate(gcode_lines):                                      #
-                if line.startswith("G0") or line.startswith("G1"):
+            for i, line in enumerate(gcode_lines):                                      #Genera las coordenadas y su número correspondiente
+                if line.startswith("G0") or line.startswith("G1"):                      #Identifica si es G0 o G1
                     parts = line.split()
                     coords = {p[0]: float(p[1:]) for p in parts[1:] if p[0] in "XY"}
-                    x = round(coords.get("X", 0.0), 4)
+                    x = round(coords.get("X", 0.0), 4)                                  #Redondea los valores a cuatro decimales
                     y = round(coords.get("Y", 0.0), 4)
                     z = round(z_altura, 4)
                     posiciones.append((x, y, z))
-                    f.write(f"C{idx:05d}={x},{y},{z},0,0,0\n")
+                    f.write(f"C{idx:05d}={x},{y},{z},0,0,0\n")                          #Escribe los valores acomodados
                     idx += 1
 
-            f.write("//INST\n")
-            f.write(f"///DATE {datetime.now().strftime('%Y/%m/%d %H:%M')}\n")
-            f.write("///ATTR SC,RW,RJ\n")
-            f.write("////FRAME USER 1\n")
-            f.write("///GROUP1 RB1\n")
+            f.write("//INST\n")                                                         #Instrucciones
+            f.write(f"///DATE {datetime.now().strftime('%Y/%m/%d %H:%M')}\n")           #Fecha
+            f.write("///ATTR SC,RW,RJ\n")                                               #Shared constant, read/write y Relative Job
+            f.write("////FRAME USER 1\n")                                               #User frame 1
+            f.write("///GROUP1 RB1\n")                                                  #Grupo de coordenadas
             f.write("NOP\n")
-
-            if velocidades == predet:
+            #Escribe los movimientos, junto con el prendido y apagado de la antorcha y timers
+            if velocidades == predet:                                                   
                 j = 0
                 i = 0
-                while i < len(gcode_lines):
+                while i < len(gcode_lines):                                                 
                     line = gcode_lines[i]
-                    if line.startswith("G0"):
+                    if line.startswith("G0"):                                           #Si lee un G0, escribe un MOVJ con VJ
                         f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
                         j += 1
-                    elif line.startswith("G1"):
+                    elif line.startswith("G1"):                                         #Si lee un G1, escribe un MOVL con V
                         f.write(f"MOVL C{j:05d} V={velocidad} PL=0\n")
                         j += 1
-                    elif line.startswith("M03"):
-                        f.write(f"DOUT OT#({pc}) ON\n")
+                    elif line.startswith("M03"):                                        #Si lee un M03, escribe el encendido de la antorcha y 
+                        f.write(f"DOUT OT#({pc}) ON\n")                                 #Agrega un pequeño timer de 1 segundo
                         f.write(f"TIMER T=1.000\n")
-                    elif line.startswith("M05"):
+                    elif line.startswith("M05"):                                        #Si lee un M05, apaga la antorcha con un timer
                         f.write(f"DOUT OT#({pc}) OFF\n")
                         f.write(f"TIMER T=1.000\n")
                     else:
-                        pass  # No se incrementa j
+                        pass  # No se incrementa j                                      #Si no lee nada, pasa a la siguiente línea
                     i += 1  # Siempre pasa a la siguiente línea
 
                     
-            f.write(f"DOUT OT#({pc}) OFF\n")
-            f.write("END\n")
+            f.write(f"DOUT OT#({pc}) OFF\n")                                            #Al final del programa, apaga la antorcha
+            f.write("END\n")                                                            #Fin del programa
 
-        return jbi_path, g_path
+        return jbi_path, g_path 
     except Exception as e:
         raise e
 
-class GestorFTP:
+class GestorFTP:                                                                        #Crea la función para la conexión FTP
     def __init__(self):
-        self.ftp = ftplib.FTP(FTP_HOST)
+        self.ftp = ftplib.FTP(FTP_HOST)                                                 #Configura el usuario en el servidor
         self.ftp.login(FTP_USER, FTP_PASS)
         self.directorio_actual = "/"
 
-    def listar_archivos(self):
+    def listar_archivos(self):                                                          #Crea la lista de archivos que estan en el robot
         self.ftp.cwd(self.directorio_actual)
         return self.ftp.nlst()
 
-    def cambiar_directorio(self, nuevo):
+    def cambiar_directorio(self, nuevo):                                                #Cambia la carpeta donde se está actualmente
         if nuevo == "..":
             self.ftp.cwd("..")
         else:
             self.ftp.cwd(nuevo)
         self.directorio_actual = self.ftp.pwd()
 
-    def subir_archivo(self, local_path):
+    def subir_archivo(self, local_path):                                                #Sube un archivo desde la memoria del PC
         with open(local_path, 'rb') as file:
             self.ftp.storbinary(f"STOR {os.path.basename(local_path)}", file)
 
-    def descargar_archivo(self, nombre, destino):
+    def descargar_archivo(self, nombre, destino):                                       #Descarga un archivo del robot al PC
         with open(destino, 'wb') as f:
             self.ftp.retrbinary(f"RETR {nombre}", f.write)
 
-    def eliminar_archivo(self, nombre):
+    def eliminar_archivo(self, nombre):                                                 #Elimina un archivo de la memoria del robot
         self.ftp.delete(nombre)
 
-    def cerrar(self):
+    def cerrar(self):                                                                   #Cierra la conexión
         self.ftp.quit()
 
-def gestionar_archivos_ftp():
+def gestionar_archivos_ftp():                                                           #Función para administrar los archivos
     try:
-        gestor = GestorFTP()
+        gestor = GestorFTP()                                                             
         ventana = tk.Toplevel()
         ventana.title("Gestión de Archivos en Robot")
 
         listbox = tk.Listbox(ventana, width=60)
         listbox.pack(padx=10, pady=10, fill="both", expand=True)
 
-        def actualizar_lista():
-            listbox.delete(0, tk.END)
+        def actualizar_lista():                                                         #Actualización de la lista al subir un archivo o cambiar
+            listbox.delete(0, tk.END)                                                   #De dierctorio
             try:
                 archivos = gestor.listar_archivos()
                 listbox.insert(tk.END, "[..] Subir archivo desde PC")
@@ -280,43 +280,43 @@ def gestionar_archivos_ftp():
                 for archivo in archivos:
                     listbox.insert(tk.END, archivo)
             except Exception as e:
-                messagebox.showerror("FTP Error", f"No se pudo listar archivos: {e}")
+                messagebox.showerror("FTP Error", f"No se pudo listar archivos: {e}")   #Error que regresa al no poder listar los archivos
 
-        def al_seleccionar(event=None):
+        def al_seleccionar(event=None):                                                 #Función para subir archivos
             seleccionado = listbox.get(tk.ACTIVE)
-            if seleccionado == "[..] Subir archivo desde PC":
-                local = filedialog.askopenfilename()
+            if seleccionado == "[..] Subir archivo desde PC":                           #Si se da click en subir archivos:
+                local = filedialog.askopenfilename()                                    #Abre el explorador de archivos
                 if local:
                     try:
-                        gestor.subir_archivo(local)
-                        actualizar_lista()
-                        messagebox.showinfo("Subida", f"'{os.path.basename(local)}' subido correctamente.")
-                    except Exception as e:
-                        messagebox.showerror("Error de subida", str(e))
-            elif seleccionado == "[..] Ir al directorio superior":
-                gestor.cambiar_directorio("..")
-                actualizar_lista()
-            elif "." not in seleccionado:  # Probable carpeta
+                        gestor.subir_archivo(local)                                     #Sube el archivo que se seleccionó
+                        actualizar_lista()                                              #Llama a la función para actualizar la lista
+                        messagebox.showinfo("Subida", f"'{os.path.basename(local)}' subido correctamente.") #Muestra el mensaje que confirma que se subió
+                    except Exception as e:                                                                  #El archivo
+                        messagebox.showerror("Error de subida", str(e))                 #Si ocurre un error, te muestra el mensaje señalandolo
+            elif seleccionado == "[..] Ir al directorio superior":                      #Si se selecciona "Ir al directorio superior"
+                gestor.cambiar_directorio("..")                                         #Regresa al directorio superior
+                actualizar_lista()                                                      #Actualiza la lista
+            elif "." not in seleccionado:  # Probable carpeta                           #Al seleccionar una carpeta, la abre
                 try:
                     gestor.cambiar_directorio(seleccionado)
                     actualizar_lista()
                 except:
                     pass
 
-        def eliminar():
-            seleccionado = listbox.get(tk.ACTIVE)
-            if seleccionado.startswith("[..]"):
+        def eliminar():                                                                 #Función para eliminar archivos
+            seleccionado = listbox.get(tk.ACTIVE)                                       #Selecciona la opción activa
+            if seleccionado.startswith("[..]"):                                         #Si empieza con los 2 puntos, no hace nada
                 return
-            if messagebox.askyesno("Eliminar", f"¿Eliminar '{seleccionado}' del robot?"):
-                gestor.eliminar_archivo(seleccionado)
-                actualizar_lista()
+            if messagebox.askyesno("Eliminar", f"¿Eliminar '{seleccionado}' del robot?"):   #Despliega una ventanilla donde te pregunte si deseas elimnarlo
+                gestor.eliminar_archivo(seleccionado)                                   #Elimina el archivo seleccionado
+                actualizar_lista()                                                      #Actualiza la lista
 
-        def guardar():
-            seleccionado = listbox.get(tk.ACTIVE)
-            if seleccionado.startswith("[..]"):
+        def guardar():                                                                  #Función para guardar un archivo del robot en el PC
+            seleccionado = listbox.get(tk.ACTIVE)                                       #Selecciona la opción activa
+            if seleccionado.startswith("[..]"):                                         #Si empieza con los 2 puntos, no hace nada      
                 return
             destino = filedialog.asksaveasfilename(defaultextension=".JBI", initialfile=seleccionado)
-            if destino:
+            if destino:                                                                 
                 gestor.descargar_archivo(seleccionado, destino)
                 messagebox.showinfo("Guardar", f"Archivo guardado en {destino}")
 
@@ -336,7 +336,7 @@ def crear_gui():
     ventana = tk.Tk()
     ventana.title("Convertidor DXF a YASKAWA")
     ventana.configure(bg="white")
-    ventana.geometry("500x680")
+    ventana.geometry("500x800")
 
     try:
         logo_img = Image.open("yaskawa_logo.png")
@@ -496,6 +496,5 @@ def crear_gui():
     tk.Button(ventana, text="Gestionar Archivos en Robot (FTP)", command=gestionar_archivos_ftp, bg="#444444", fg="white", relief="flat").pack(pady=10)
 
     ventana.mainloop()
-
 
 crear_gui()

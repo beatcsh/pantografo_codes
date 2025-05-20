@@ -1,0 +1,181 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
+from tkinter import Toplevel, Button                        #Tkinter es la libreria para la aplicación
+from PIL import Image, ImageTk   
+import csv   
+from Gcode import generate_gcode_from_dxf      
+import os     
+from Inform2 import gcode_a_yaskawa
+from FTP import GestorFTP, gestionar_archivos_ftp
+
+predet = 25                                                                     #Valores predeterminados de velocidad VJ
+velocidades = predet
+PULSES_POR_MM = 1                                           #Cuando se requiera obtener el valor en pulsos, se cambia esta variable
+kerf = 1.5  
+
+def crear_gui():
+    ventana = tk.Tk()
+    ventana.title("Convertidor DXF a YASKAWA")
+    ventana.configure(bg="white")
+    ventana.geometry("500x800")
+
+    try:
+        logo_img = Image.open("yaskawa_logo.png")
+        logo_img = logo_img.resize((200, 60), Image.ANTIALIAS)
+        logo = ImageTk.PhotoImage(logo_img)
+        logo_label = tk.Label(ventana, image=logo, bg="white")
+        logo_label.image = logo
+        logo_label.pack(pady=10)
+    except:
+        tk.Label(ventana, text="YASKAWA", font=("Arial", 24), bg="white", fg="#003366").pack(pady=10)
+
+    ruta_var = tk.StringVar()
+
+    def seleccionar_archivo():
+        archivo = filedialog.askopenfilename(filetypes=[("Archivos DXF", "*.dxf")])
+        if archivo:
+            ruta_var.set(archivo)
+
+    tk.Button(ventana, text="Seleccionar archivo DXF", command=seleccionar_archivo, bg="#003366", fg="white", relief="flat").pack(pady=10)
+    tk.Entry(ventana, textvariable=ruta_var, width=50, relief="solid").pack(pady=5)
+
+    tk.Label(ventana, text="Altura Z (mm):", bg="white").pack(pady=(20, 5))
+    z_entry = tk.Entry(ventana, width=10, relief="solid")
+    z_entry.pack()
+    z_entry.insert(0, "7")
+
+    tk.Label(ventana, text="User Frame (UF#):", bg="white").pack(pady=(10, 5))
+    uf_entry = tk.Entry(ventana, width=10, relief="solid")
+    uf_entry.pack()
+    uf_entry.insert(0, "1")
+
+    tk.Label(ventana, text="Tool (UT#):", bg="white").pack(pady=(10, 5))
+    ut_entry = tk.Entry(ventana, width=10, relief="solid")
+    ut_entry.pack()
+    ut_entry.insert(0, "0")
+
+    tk.Label(ventana, text="Velocidad (V):", bg="white").pack(pady=(10, 5))
+    v_entry = tk.Entry(ventana, width=10, relief="solid")
+    v_entry.pack()
+    v_entry.insert(0, velocidades)
+
+    tk.Label(ventana, text="Velocidad (VJ):", bg="white").pack(pady=(10, 5))
+    vj_entry = tk.Entry(ventana, width=10, relief="solid")
+    vj_entry.pack()
+    vj_entry.insert(0, "15") 
+
+    def leer_datos_csv(nombre_archivo):
+        """Lee los datos desde un archivo CSV y devuelve encabezados y datos."""
+        encabezados = []
+        datos = []
+        try:
+            with open(nombre_archivo, 'r', newline='', encoding='utf-8') as archivo_csv:
+                lector_csv = csv.reader(archivo_csv)
+                encabezados = next(lector_csv)  # La primera línea son los encabezados
+                for fila in lector_csv:
+                    datos.append(fila)
+        except FileNotFoundError:
+            print(f"Error: El archivo '{nombre_archivo}' no se encontró.")
+        return encabezados, datos
+
+    def crear_tabla(parent, encabezados, datos):
+        """Crea y devuelve un widget Treeview con encabezados y datos."""
+        tabla = ttk.Treeview(parent, columns=encabezados, show="headings", selectmode="extended")
+
+        for col in encabezados:
+            tabla.heading(col, text=col)
+            tabla.column(col, width=120, anchor=tk.CENTER)
+
+        for fila in datos:
+            tabla.insert("", tk.END, values=fila)
+
+        # Añadir barras de desplazamiento a la tabla
+        scrollbar_vertical = ttk.Scrollbar(parent, orient="vertical", command=tabla.yview)
+        tabla.configure(yscrollcommand=scrollbar_vertical.set)
+        scrollbar_vertical.pack(side="right", fill="y")
+
+        scrollbar_horizontal = ttk.Scrollbar(parent, orient="horizontal", command=tabla.xview)
+        tabla.configure(xscrollcommand=scrollbar_horizontal.set)
+        scrollbar_horizontal.pack(side="bottom", fill="x")
+
+        return tabla
+
+    def mostrar_tabla_seleccionable(encabezados, datos):
+        """Crea una nueva ventana con la tabla y un botón para obtener la selección."""
+        ventana_tabla = Toplevel(ventana)
+        ventana_tabla.title("Tabla Seleccionable")
+
+        tabla = crear_tabla(ventana_tabla, encabezados, datos)
+        tabla.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+        def obtener_seleccion():
+            """Obtiene los IDs de las filas seleccionadas y muestra sus valores."""
+            seleccionados = tabla.selection()
+            if seleccionados:
+                valores = tabla.item(seleccionados[0], 'values')
+                try:
+                    # Asumimos que la velocidad está en la columna con índice 3
+                    velocidades = valores[3]
+                    print(f"Velocidad seleccionada: {velocidades}")
+                    v_entry.delete(0, 5)
+                    v_entry.insert(0, velocidades) 
+                except IndexError:
+                    print("Error: La columna de velocidad no existe en la fila seleccionada.")
+
+        boton_obtener = Button(ventana_tabla, text="Seleccionar Velocidad", command=obtener_seleccion)
+        boton_obtener.pack(pady=10)
+
+    # Nombre del archivo CSV
+    nombre_archivo_csv = 'parametros_corte_laser.csv'
+
+    # Leer los datos del archivo CSV
+    encabezados_tabla, datos_tabla = leer_datos_csv(nombre_archivo_csv)
+
+    # Botón para mostrar la tabla seleccionable
+    boton_mostrar_tabla = Button(ventana, text="Seleccionar velocidad a partir de material",
+                                command=lambda: mostrar_tabla_seleccionable(encabezados_tabla, datos_tabla))
+    boton_mostrar_tabla.pack(pady=20)
+
+    tk.Label(ventana, text="Entrada cortador de plasma:", bg="white").pack(pady=(10, 5))
+    p_entry = tk.Entry(ventana, width=10, relief="solid")
+    p_entry.pack()
+    p_entry.insert(0, "1")
+
+    tk.Label(ventana, text="Nota: Revise que el ancho y largo de su pieza \n concuerde con las medidas de su user frame.", bg="white").pack(pady=(10, 5))
+
+    tk.Label(ventana, text="Se recomienda crear la pieza en X y Y positivos.", bg="white").pack(pady=(10, 5))
+
+    def iniciar_conversion():
+        path = ruta_var.get()
+        z_value = z_entry.get()
+        uf_value = uf_entry.get()
+        ut_value = ut_entry.get()
+        v_value = v_entry.get()
+        vj_value = vj_entry.get()
+        p_value = p_entry.get() 
+        try:
+            z = float(z_value)
+            uf = int(uf_value)
+            ut = int(ut_value)
+            pc = int(p_value)
+            velocidad = float(v_value)
+            velocidadj = float(vj_value)
+            gcode_lines = generate_gcode_from_dxf(path, kerf)
+            nombre_base = os.path.splitext(os.path.basename(path))[0]
+            output_dir = os.path.dirname(path)
+            jbi_path, gcode_path = gcode_a_yaskawa(gcode_lines, z, velocidad, nombre_base, output_dir, uf, ut, pc, velocidadj, velocidades, predet)
+            messagebox.showinfo("Éxito", f"Archivos generados:\n{jbi_path}\n{gcode_path}")
+            if messagebox.askyesno("Enviar por FTP", "¿Deseas enviar el archivo JBI al robot ahora?"):
+                gestor = GestorFTP()
+                gestor.subir_archivo(jbi_path)
+                gestor.cerrar()
+                messagebox.showinfo("FTP", "Archivo enviado exitosamente al robot.")
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    tk.Button(ventana, text="Convertir a YASKAWA", command=iniciar_conversion, bg="#007acc", fg="white", font=("Arial", 12), relief="flat", padx=10, pady=5).pack(pady=30)
+    tk.Button(ventana, text="Gestionar Archivos en Robot (FTP)", command=gestionar_archivos_ftp, bg="#444444", fg="white", relief="flat").pack(pady=10)
+
+    ventana.mainloop()
+
+crear_gui()

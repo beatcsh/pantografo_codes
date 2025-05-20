@@ -1,0 +1,51 @@
+Material,Corriente (A),Espesor (mm),Velocidad corte (mm/s),Espesor (mm pulg.),Velocidad corte (pulg/s)
+Acero al carbono,30,0.5,89,0.018,4
+Acero al carbono,30,3.0,19,0.135,1
+Acero al carbono,30,6.0,11,6.35,0
+Acero al carbono,80,3.0,102,0.135,3
+Acero al carbono,80,6.0,51,6.35,2
+Acero al carbono,80,20.0,9,19.05,0
+Acero al carbono,130,6.0,67,6.35,3
+Acero al carbono,130,10.0,45,9.525,2
+Acero al carbono,130,25.0,9,25.4,0
+Acero al carbono,200,6.0,87,6.35,3
+Acero al carbono,200,12.0,51,12.7,2
+Acero al carbono,200,25.0,28,25.4,1
+Acero al carbono,200,50.0,4,50.8,0
+Acero al carbono,260,10.0,74,9.525,3
+Acero al carbono,260,20.0,36,19.05,2
+Acero al carbono,260,64.0,3,63.5,0
+Acero al carbono,400,12.0,74,12.7,3
+Acero al carbono,400,25.0,35,25.4,1
+Acero al carbono,400,50.0,13,50.8,1
+Acero inoxidable,60,3.0,46,2.667,2
+Acero inoxidable,60,4.0,38,3.429,2
+Acero inoxidable,60,5.0,33,4.763,1
+Acero inoxidable,60,6.0,27,6.35,1
+Acero inoxidable,130,10.0,16,9.525,1
+Acero inoxidable,130,12.0,14,12.7,1
+Acero inoxidable,130,25.0,8,25.4,0
+Acero inoxidable,260,12.0,29,12.7,1
+Acero inoxidable,260,20.0,18,19.05,1
+Acero inoxidable,260,25.0,13,25.4,1
+Acero inoxidable,260,50.0,9,50.8,0
+Acero inoxidable,400,20.0,30,9.525,1
+Acero inoxidable,400,40.0,12,38.1,1
+Acero inoxidable,400,80.0,3,76.2,0
+Acero inoxidable,800,75.0,8,76.2,0
+Acero inoxidable,800,125.0,3,127.0,0
+Acero inoxidable,800,160.0,2,158.75,0
+Aluminio,45,1.5,74,0.048,4
+Aluminio,45,4.0,43,0.135,2
+Aluminio,6,1690.0,0,60.0,0
+Aluminio,130,12.0,24,0.5,1
+Aluminio,130,20.0,19,0.75,1
+Aluminio,130,25.0,9,1.0,0
+Aluminio,260,12.0,86,0.5,3
+Aluminio,260,20.0,37,0.75,2
+Aluminio,260,25.0,17,1.0,1
+Aluminio,400,20.0,40,0.75,2
+Aluminio,400,40.0,21,1.5,1
+Aluminio,400,75.0,4,3.0,0
+Aluminio,800,75.0,15,3.0,1
+Aluminio,800,160.0,3,6.25,0
