@@ -4,6 +4,7 @@ import requests
 import streamlit.components.v1 as components
 
 API_URL = "http://localhost:8000"
+YMConnect = "http://localhost:5229"
 
 st.set_page_config(page_title="DXF a Yaskawa", layout="wide")
 
@@ -54,6 +55,10 @@ label,
 """, unsafe_allow_html=True)
 
 try:
+
+    coordinates = requests.get(f"{YMConnect}/Robot/coordinates")
+    print(coordinates.json())
+
     response = requests.get(f"{API_URL}/tabla")
     response.raise_for_status()
     data = response.json()
