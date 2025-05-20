@@ -1,24 +1,25 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from tkinter import Toplevel, Button                #Tkinter es la libreria para la aplicación
+from tkinter import Toplevel, Button                        #Tkinter es la libreria para la aplicación
 from PIL import Image, ImageTk                      
 import os     
-import ezdxf                                                 #Libreria para convertit de dxf a codigo G
+import ezdxf                                                #Libreria para convertit de dxf a codigo G
 import math
 from shapely.geometry import Polygon, Point, LineString
 from shapely.ops import unary_union                                    
 from datetime import datetime                       
 import ftplib   
-import csv  # Importar el módulo csv                #Para poder usar los archivos .csv para las tablas
+import csv                                                  # Importar el módulo csv para poder usar los archivos .csv para las tablas
 
-PULSES_POR_MM = 1
-kerf = 1.5
+PULSES_POR_MM = 1                                           #Cuando se requiera obtener el valor en pulsos, se cambia esta variable
+kerf = 1.5                                                  #Valor compensación de la herramienta
 
-FTP_HOST = "192.168.1.31"
-FTP_USER = "rcmaster"
-FTP_PASS = "9999999999999999"
+#Configuración de usuario para entrar al servidor del robot
+FTP_HOST = "192.168.1.31"                                   #IP del servidor                                
+FTP_USER = "rcmaster"                                       #Nombre de usuario con todos los privilegios
+FTP_PASS = "9999999999999999"                               #Contraseña del modo mantenimiento
 
-def is_clockwise(points):
+def is_clockwise(points):                                   #Función que decide si es un corte exterior o interior dependiendo de la orientacioón
     area = 0
     for i in range(len(points)):
         x1, y1 = points[i]
@@ -26,9 +27,9 @@ def is_clockwise(points):
         area += (x2 - x1) * (y2 + y1)
     return area > 0
 
-def circular_lead_in(start_point, kerf=1.5, clockwise=True):
-    """Devuelve un arco de entrada circular como lista de puntos"""
-    cx, cy = start_point[0] - kerf, start_point[1] if clockwise else start_point[1] + kerf
+def circular_lead_in(start_point, kerf=1.5, clockwise=True):                                    #Crea el lead-in para los cortes circulares
+    """Devuelve un arco de entrada circular como lista de puntos"""                             #Haciendo un arco
+    cx, cy = start_point[0] - kerf, start_point[1] if clockwise else start_point[1] + kerf      #Aún por verificar su funcionamiento
     segments = 10
     angle_step = (math.pi / 2) / segments
     points = []
@@ -39,11 +40,11 @@ def circular_lead_in(start_point, kerf=1.5, clockwise=True):
         points.append((x, y))
     return points
 
-def linear_lead_in(points, kerf=1.5, clockwise = True):
-    x, y = points[0][0], points[0][1]
+def linear_lead_in(points, kerf=1.5, clockwise = True):                         #Crea el lead-in para los cortes lineales
+    x, y = points[0][0], points[0][1]                                           #Haciendo una linea del tamaño del kerf, yendo de afuera a adentro   
     cy, cx = (points[1][1]-points[0][1]), (points[1][0]-points[0][0])
 
-    if (cx == 0) or (cy == 0):
+    if (cx == 0) or (cy == 0):                              #Detecta la dirección a la que corta
         if cx == 0 and cy > 0:
             kerf_ang = math.radians(90)
         elif cx == 0 and cy < 0:
@@ -52,45 +53,45 @@ def linear_lead_in(points, kerf=1.5, clockwise = True):
             kerf_ang = math.radians(0)
         elif cx < 0 and cy == 0:
             kerf_ang = math.radians(180)
-    elif (cx < 0) and (cy < 0):
-        kerf_ang = math.atan(cy/cx) + math.radians(180)
+    elif (cx < 0) and (cy < 0):                             #Detecta cuando corta en menos x y menos y (Para obtener el ángulo correctamente)
+        kerf_ang = math.atan(cy/cx) + math.radians(180)         
     else:
-        kerf_ang = math.atan(cy/cx)
+        kerf_ang = math.atan(cy/cx)                         #Calcula la inclinación de la linea para que el lead + el corte hagan una línea recta
     
-    kerf_x = kerf * math.cos(kerf_ang)
+    kerf_x = kerf * math.cos(kerf_ang)                      
     kerf_y = kerf * math.sin(kerf_ang)
     
-    if clockwise == False:
+    if clockwise == False:                                  #Regresa el valor de x y y cuando es corte interno
         lead_start = (x+kerf_x, y+kerf_y)
     elif clockwise == True:
-        lead_start = (x-kerf_x, y-kerf_y)
+        lead_start = (x-kerf_x, y-kerf_y)                   #Regresa el valor de x y y cuando es corte externo
     return [lead_start, (x, y)]
 
 
-def approximate_spline(entity, segments=20):
+def approximate_spline(entity, segments=20):                #* No sabe que hace *
     return [entity.point(i / segments)[:2] for i in range(segments + 1)]
 
-def generate_gcode_from_dxf(filename):
-    doc = ezdxf.readfile(filename)
-    msp = doc.modelspace()
-    gcode = []
+def generate_gcode_from_dxf(filename):                      #Empieza a cear el código G
+    doc = ezdxf.readfile(filename)                          #Lee el archivo .dxf con ezdxf
+    msp = doc.modelspace()                                  #Crea un modelo en el espacio para ser utilizado
+    gcode = []                                              
 
-    gcode.append("G21 ; mm")
-    gcode.append("G90 ; abs")
-    gcode.append("M05 ; plasma off")
+    gcode.append("G21 ; mm")                                #Declara que las unidades son milimetros
+    gcode.append("G90 ; abs")                               #Las coordenadas serán absolutas
+    gcode.append("M05 ; plasma off")                        #Inicia el programa con el cortador de plasma desenergizado
 
-    for entity in msp:
-        points = []
+    for entity in msp:                                                  #Identifica si la instrucción es una linea, un circulo, una polilinea
+        points = []                                                     #un arco, o un spline
 
-        if entity.dxftype() == 'LINE':
+        if entity.dxftype() == 'LINE':                                  #Si es una linea, regresa el valor inicial y el final
             start = (entity.dxf.start.x, entity.dxf.start.y)
             end = (entity.dxf.end.x, entity.dxf.end.y)
             points = [start, end]
 
-        elif entity.dxftype() in ['LWPOLYLINE', 'POLYLINE']:
+        elif entity.dxftype() in ['LWPOLYLINE', 'POLYLINE']:            #Para cuando es una polilinea
             points = [tuple(p[:2]) for p in entity.get_points()]
 
-        elif entity.dxftype() == 'ARC':
+        elif entity.dxftype() == 'ARC':                                 #Calcula y crea varios puntos para generar el arco
             center = (entity.dxf.center.x, entity.dxf.center.y)
             r = entity.dxf.radius
             start_a = math.radians(entity.dxf.start_angle)
@@ -104,7 +105,7 @@ def generate_gcode_from_dxf(filename):
                 for i in range(steps + 1)
             ]
 
-        elif entity.dxftype() == 'CIRCLE':
+        elif entity.dxftype() == 'CIRCLE':                              #Crea todos los puntos para generar el círculo completo
             center = (entity.dxf.center.x, entity.dxf.center.y)
             r = entity.dxf.radius
             steps = 40
@@ -114,76 +115,76 @@ def generate_gcode_from_dxf(filename):
                 for i in range(steps)
             ]
 
-        elif entity.dxftype() == 'SPLINE':
+        elif entity.dxftype() == 'SPLINE':                              #Calcula los puntos con la función de approximate_spline
             points = approximate_spline(entity)
 
-        if points:
+        if points:                                                      #Empieza a escribir las instrucciones dependiendo del tipo
             line = 0
             # Determinar si es interior o exterior
             is_outer = not is_clockwise(points)
-            kind = 'Exterior' if is_outer else 'Interior'
+            kind = 'Exterior' if is_outer else 'Interior'                  
 
-            if entity.dxftype() == 'LINE':
-                lead = linear_lead_in(points, kerf=1.5, clockwise=is_outer)
+            if entity.dxftype() == 'LINE':                                      #Si es una linea, el valor del lead serán los puntos creados por la función
+                lead = linear_lead_in(points, kerf=1.5, clockwise=is_outer)     #linear_lead_in
                 line = 1 
 
             else:
-                lead = circular_lead_in(points[0], clockwise=is_outer)
-                for pt in lead[1:]:
+                lead = circular_lead_in(points[0], clockwise=is_outer)          #Si es un círculo, el valor del lead serán los puntos creados por la función
+                for pt in lead[1:]:                                             #circular_lead_in
                     gcode.append(f"G1 X{pt[0]:.3f} Y{pt[1]:.3f}")# F600")
 
             # Lead in
-            gcode.append(f"( {kind} corte - {entity.dxftype()} )")
+            gcode.append(f"( {kind} corte - {entity.dxftype()} )")              #Escribe que tipo de corte se realizará
             if line == 1:
-                gcode.append(f"G0 X{lead[0][0]:.3f} Y{lead[0][1]:.3f}")
+                gcode.append(f"G0 X{lead[0][0]:.3f} Y{lead[0][1]:.3f}")         #Usa G00 para posicionamiento rápido en el inicio de la instrucción
             else:
                 gcode.append(f"G0 X{lead[-1][0]:.3f} Y{lead[-1][1]:.3f}")
-            gcode.append("M03 ; plasma ON")
+            gcode.append("M03 ; plasma ON")                                     #Energiza el cortador de plasma
 
             # Contorno principal
-            for pt in points:
+            for pt in points:                                                   #Empieza a escribir todos los movimientos con G01, con corte
                 gcode.append(f"G1 X{pt[0]:.3f} Y{pt[1]:.3f}") #F600")
 
             # Cierra figura si es polígono
-            if len(points) > 2 and points[0] != points[-1]:
-                gcode.append(f"G1 X{points[0][0]:.3f} Y{points[0][1]:.3f}")
+            # if len(points) > 2 and points[0] != points[-1]:
+            #     gcode.append(f"G1 X{points[0][0]:.3f} Y{points[0][1]:.3f}")
 
             # Apagar compensación
             # gcode.append("G40 ; cancelar compensación")
-            gcode.append("M05 ; plasma OFF")
+            gcode.append("M05 ; plasma OFF")                                    #Al terminar, desenergiza el cortador
             # gcode.append("G0 Z5")
 
-    gcode.append("M30 ; fin")
+    gcode.append("M30 ; fin")                                                   #Cuando ya no hallan más instrucciones, finaliza el programa
     return (gcode)
 
-predet = 25
+predet = 25                                                                     #Valores predeterminados de velocidad VJ
 velocidades = predet
 
-def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut, pc, velocidadj):
-    nombre_archivo = f"{nombre_base}"
-    jbi_path = os.path.join(output_dir, f"{nombre_archivo}.JBI")
-    g_path = os.path.join(output_dir, f"{nombre_archivo}.gcode")
+def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut, pc, velocidadj):     #Traducción del codigo G a inform 2
+    nombre_archivo = f"{nombre_base}"                                           #Da al JOB el nombre del archivo                                 
+    jbi_path = os.path.join(output_dir, f"{nombre_archivo}.JBI")                #Dirección y tipo de archivo del programa inform 2 (del robot)
+    g_path = os.path.join(output_dir, f"{nombre_archivo}.gcode")                #Dirección y tipo de archivo del código G
 
     try:
-        with open(g_path, "w") as gf:
+        with open(g_path, "w") as gf:                                           #Abre el archivo del código G para empezar a traducirlo
             gf.write("\n".join(gcode_lines))
 
-        with open(jbi_path, "w") as f:
-            f.write("/JOB\n")
-            f.write(f"//NAME {nombre_archivo.upper()}\n")
-            f.write("//POS\n")
-            total_pos = sum(1 for line in gcode_lines if line.startswith("G"))
-            f.write(f"///NPOS {total_pos},0,0,0,0,0\n")
+        with open(jbi_path, "w") as f:                                                  #Abre el archivo del inform 2 para empezar a escribir
+            f.write("/JOB\n")                                                           #Indica tipo de archivo
+            f.write(f"//NAME {nombre_archivo.upper()}\n")                               #Nombre del JOB
+            f.write("//POS\n")                                                          #Indica posiciones
+            total_pos = sum(1 for line in gcode_lines if line.startswith("G")) -2          #Determina el número total de posiciones
+            f.write(f"///NPOS {total_pos},0,0,0,0,0\n")                                 #Número total de posiciones
 
-            f.write(f"///TOOL {ut}\n")
-            f.write(f"///USER {uf}\n")
-            f.write("///POSTYPE USER\n")
-            f.write("///RECTAN \n")
-            f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
+            f.write(f"///TOOL {ut}\n")                                                  #Número de herramienta
+            f.write(f"///USER {uf}\n")                                                  #Número de usuario
+            f.write("///POSTYPE USER\n")                                                #Indica el tipo de movimiento (Usuario en este caso)
+            f.write("///RECTAN \n")                                                     #Indica las unidades (milimetros en este caso)
+            f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")       #Configuraciones del robot (Por investigar a fondo)
 
-            idx = 0
-            posiciones = []
-            for i, line in enumerate(gcode_lines):
+            idx = 0                                                     
+            posiciones = []                                         
+            for i, line in enumerate(gcode_lines):                                      #
                 if line.startswith("G0") or line.startswith("G1"):
                     parts = line.split()
                     coords = {p[0]: float(p[1:]) for p in parts[1:] if p[0] in "XY"}
@@ -201,19 +202,27 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("///GROUP1 RB1\n")
             f.write("NOP\n")
 
-            prev_mov = None  # Ningún tipo de movimiento al inicio
             if velocidades == predet:
-                for j, line in enumerate(gcode_lines):
-                    if (line.startswith("G0")):
+                j = 0
+                i = 0
+                while i < len(gcode_lines):
+                    line = gcode_lines[i]
+                    if line.startswith("G0"):
                         f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
-                    elif (line.startswith("G1")):
+                        j += 1
+                    elif line.startswith("G1"):
                         f.write(f"MOVL C{j:05d} V={velocidad} PL=0\n")
-                    elif (line.startswith("M03")):
+                        j += 1
+                    elif line.startswith("M03"):
                         f.write(f"DOUT OT#({pc}) ON\n")
                         f.write(f"TIMER T=1.000\n")
-                    elif (line.startswith("M05")):
+                    elif line.startswith("M05"):
                         f.write(f"DOUT OT#({pc}) OFF\n")
-                        f.write(f"TIMER T=1.000\n")  
+                        f.write(f"TIMER T=1.000\n")
+                    else:
+                        pass  # No se incrementa j
+                    i += 1  # Siempre pasa a la siguiente línea
+
                     
             f.write(f"DOUT OT#({pc}) OFF\n")
             f.write("END\n")
