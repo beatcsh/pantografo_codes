@@ -72,7 +72,7 @@ if st.session_state.sidebar_open:
         data = response.json()
         df = pd.DataFrame(data)
 
-        if df.empty or "Material" not in df or "Espesor (mm)" not in df:
+        if df.empty or "Material" not in df or "Espesor (mm)" not in df or "Corriente (A)" not in df:
             st.error("La tabla no contiene los campos necesarios.")
         else:
             col1, col2 = st.columns([1.2, 1])
@@ -82,32 +82,32 @@ if st.session_state.sidebar_open:
                 st.subheader("Tabla de medidas")
                 st.dataframe(df, use_container_width=True)
 
-                if "Potencia" in df.columns:
-                    df["Opción"] = (
-                        df["Material"] + " - " +
-                        df["Espesor (mm)"].astype(str) + " mm - " +
-                        df["Potencia"].astype(str) + " W"
-                    )
-                else:
-                    df["Opción"] = (
-                        df["Material"] + " - " +
-                        df["Espesor (mm)"].astype(str) + " mm"
-                    )
+                df["Opción"] = (
+                    df["Material"] + " - " +
+                    df["Espesor (mm)"].astype(str) + " mm - " +
+                    df["Corriente (A)"].astype(str) + " A"
+                )
 
-                opcion_seleccionada = st.selectbox("Selecciona material, espesor y potencia", df["Opción"].tolist())
+                opcion_seleccionada = st.selectbox("Selecciona material, espesor y corriente", df["Opción"].tolist())
                 fila = df[df["Opción"] == opcion_seleccionada].iloc[0]
 
             with col2:
                 with st.expander("⚙️ Mostrar/ocultar parámetros de corte y subida de archivo", expanded=True):
                     st.subheader("Tabla de parámetros")
-                    velocidad = int(fila["Velocidad (mm/s)"])
-                    velocidad = st.number_input("Velocidad (V)", min_value=0, value=velocidad, key="v")
+
+                    inputs = {}
+                    for columna in df.columns:
+                        if columna != "Opción":
+                            valor = fila[columna]
+                            # Si el valor es numérico (int o float), usar number_input
+                            if isinstance(valor, (int, float)):
+                                inputs[columna] = st.number_input(columna, value=float(valor), key=columna)
+                            else:
+                                inputs[columna] = st.text_input(columna, value=str(valor), key=columna)
+
+                    # Campos adicionales fuera de la tabla
                     velocidadj = st.number_input("Velocidad J", min_value=0, value=30, key="vj")
                     z = st.number_input("Valor Z (altura de corte)", value=7, key="z")
-
-                    st.text(f"Presión de aire: {fila['Presión de aire (MPa)']}")
-                    st.text(f"Gas: {fila['Gas']}")
-                    st.text(f"Enfoque de corte: {fila['enfoque de corte']}")
 
                     st.divider()
                     st.subheader("Subir archivo DXF")
@@ -117,7 +117,11 @@ if st.session_state.sidebar_open:
                         if uploaded_file:
                             with st.spinner("Convirtiendo archivo..."):
                                 files = {"file": (uploaded_file.name, uploaded_file, "application/dxf")}
-                                params = {"velocidad": velocidad, "z_altura": z, "velocidadj": velocidadj}
+                                params = {
+                                    "velocidad": int(inputs.get("Velocidad corte (mm/s)", 100)),
+                                    "z_altura": z,
+                                    "velocidadj": velocidadj
+                                }
                                 try:
                                     response = requests.post(f"{API_URL}/convert/", files=files, params=params)
                                     if response.status_code == 200:
