@@ -70,71 +70,74 @@ if st.session_state.sidebar_open:
         response = requests.get(f"{API_URL}/tabla")
         response.raise_for_status()
         data = response.json()
-        df = pd.DataFrame(data)
 
-        if df.empty or "Material" not in df or "Espesor (mm)" not in df or "Corriente (A)" not in df:
-            st.error("La tabla no contiene los campos necesarios.")
+        # Verificar que la tabla no esté vacía y tenga las columnas necesarias
+        if not data:
+            st.warning("No se encontraron datos en la tabla.")
         else:
-            col1, col2 = st.columns([1.2, 1])
+            df = pd.DataFrame(data)
 
-            with col1:
-                st.image("yaskawa_logo.png", width=300)
-                st.subheader("Tabla de medidas")
-                st.dataframe(df, use_container_width=True)
+            if df.empty or "Material" not in df or "Espesor (mm)" not in df or "Corriente (A)" not in df:
+                st.error("La tabla no contiene los campos necesarios.")
+            else:
+                col1, col2 = st.columns([1.2, 1])
 
-                df["Opción"] = (
-                    df["Material"] + " - " +
-                    df["Espesor (mm)"].astype(str) + " mm - " +
-                    df["Corriente (A)"].astype(str) + " A"
-                )
+                with col1:
+                    st.image("yaskawa_logo.png", width=300)
+                    st.subheader("Tabla de medidas")
+                    st.dataframe(df, use_container_width=True)
 
-                opcion_seleccionada = st.selectbox("Selecciona material, espesor y corriente", df["Opción"].tolist())
-                fila = df[df["Opción"] == opcion_seleccionada].iloc[0]
+                    df["Opción"] = (
+                        df["Material"] + " - " +
+                        df["Espesor (mm)"].astype(str) + " mm - " +
+                        df["Corriente (A)"].astype(str) + " A"
+                    )
 
-            with col2:
-                with st.expander("⚙️ Mostrar/ocultar parámetros de corte y subida de archivo", expanded=True):
-                    st.subheader("Tabla de parámetros")
+                    opcion_seleccionada = st.selectbox("Selecciona material, espesor y corriente", df["Opción"].tolist())
+                    fila = df[df["Opción"] == opcion_seleccionada].iloc[0]
 
-                    inputs = {}
-                    for columna in df.columns:
-                        if columna != "Opción":
-                            valor = fila[columna]
-                            # Si el valor es numérico (int o float), usar number_input
-                            if isinstance(valor, (int, float)):
-                                inputs[columna] = st.number_input(columna, value=float(valor), key=columna)
+                with col2:
+                    with st.expander("⚙️ Mostrar/ocultar parámetros de corte y subida de archivo", expanded=True):
+                        st.subheader("Tabla de parámetros")
+
+                        inputs = {}
+                        for columna in df.columns:
+                            if columna != "Opción":
+                                valor = fila[columna]
+                                if isinstance(valor, (int, float)):
+                                    inputs[columna] = st.number_input(columna, value=float(valor), key=columna)
+                                else:
+                                    inputs[columna] = st.text_input(columna, value=str(valor), key=columna)
+
+                        velocidadj = st.number_input("Velocidad J", min_value=0, value=30, key="vj")
+                        z = st.number_input("Valor Z (altura de corte)", value=7, key="z")
+
+                        st.divider()
+                        st.subheader("Subir archivo DXF")
+                        uploaded_file = st.file_uploader("Selecciona un archivo .dxf", type=["dxf"])
+
+                        if st.button("Convertir"):
+                            if uploaded_file:
+                                with st.spinner("Convirtiendo archivo..."):
+                                    files = {"file": (uploaded_file.name, uploaded_file, "application/dxf")}
+                                    params = {
+                                        "velocidad": int(inputs.get("Velocidad corte (mm/s)", 100)),
+                                        "z_altura": z,
+                                        "velocidadj": velocidadj
+                                    }
+                                    try:
+                                        response = requests.post(f"{API_URL}/convert/", files=files, params=params)
+                                        if response.status_code == 200:
+                                            data = response.json()
+                                            st.success("¡Conversión completada!")
+                                            jbi_path = data["jbi_path"]
+                                            st.download_button("Descargar archivo .JBI", data=open(jbi_path, "rb"), file_name="programa.jbi")
+                                        else:
+                                            st.error("Error al convertir el archivo")
+                                    except Exception as e:
+                                        st.error(f"Error en la solicitud: {e}")
                             else:
-                                inputs[columna] = st.text_input(columna, value=str(valor), key=columna)
-
-                    # Campos adicionales fuera de la tabla
-                    velocidadj = st.number_input("Velocidad J", min_value=0, value=30, key="vj")
-                    z = st.number_input("Valor Z (altura de corte)", value=7, key="z")
-
-                    st.divider()
-                    st.subheader("Subir archivo DXF")
-                    uploaded_file = st.file_uploader("Selecciona un archivo .dxf", type=["dxf"])
-
-                    if st.button("Convertir"):
-                        if uploaded_file:
-                            with st.spinner("Convirtiendo archivo..."):
-                                files = {"file": (uploaded_file.name, uploaded_file, "application/dxf")}
-                                params = {
-                                    "velocidad": int(inputs.get("Velocidad corte (mm/s)", 100)),
-                                    "z_altura": z,
-                                    "velocidadj": velocidadj
-                                }
-                                try:
-                                    response = requests.post(f"{API_URL}/convert/", files=files, params=params)
-                                    if response.status_code == 200:
-                                        data = response.json()
-                                        st.success("¡Conversión completada!")
-                                        jbi_path = data["jbi_path"]
-                                        st.download_button("Descargar archivo .JBI", data=open(jbi_path, "rb"), file_name="programa.jbi")
-                                    else:
-                                        st.error("Error al convertir el archivo")
-                                except Exception as e:
-                                    st.error(f"Error en la solicitud: {e}")
-                        else:
-                            st.warning("Por favor, sube un archivo primero.")
+                                st.warning("Por favor, sube un archivo primero.")
 
                 # --- NUEVA SECCIÓN: ARCHIVOS JBI ---
                 st.divider()
@@ -169,6 +172,7 @@ if st.session_state.sidebar_open:
                                                             alert("El archivo '{archivo}' se eliminó correctamente.");
                                                         </script>
                                                     """, height=0)
+                                                    st.rerun()
                                                 else:
                                                     st.error("No se pudo eliminar el archivo.")
                                             except Exception as e:
@@ -187,3 +191,4 @@ if st.session_state.sidebar_open:
 
 else:
     st.sidebar.write("Pulsa el botón para abrir el dashboard")
+
