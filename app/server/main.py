@@ -1,8 +1,9 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
-from utils.converter import convertir_dxf_a_yaskawa
+from utils.converter import generate_gcode_from_dxf, gcode_a_yaskawa
 from utils.ftp_manager import GestorFTP
 from utils.users_manage import check_user
+
 import pandas as pd
 import os
 
@@ -23,25 +24,35 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.post("/convert/")
-async def convertir(file: UploadFile = File(...), velocidad = 15, velocidadj = 15, z_altura = 7, uf = 1):
+async def convertir(
+        file: UploadFile = File(...),
+        velocidad: int = 15,
+        velocidadj: int = 15,
+        z_altura: float = 7,
+        uf: int = 1,
+        ut: int = 1,
+        pc: int = 1
+    ):
     try:
         # Guardar archivo subido
         dxf_path = os.path.join(UPLOAD_DIR, file.filename)
         with open(dxf_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        # Ejecutar conversión
+        gcode_lines = generate_gcode_from_dxf(dxf_path)
+
         nombre_base = os.path.splitext(file.filename)[0]
-        jbi_path, gcode_path = convertir_dxf_a_yaskawa(
-            dxf_path,
-            z_altura=z_altura,
-            velocidad=velocidad,
-            nombre_base=nombre_base,
-            output_dir=UPLOAD_DIR,
-            uf=uf,
-            ut=1,
-            pc=1,
-            velocidadj=velocidadj
+        
+        jbi_path, gcode_path = gcode_a_yaskawa(
+            gcode_lines = gcode_lines,
+            z_altura = z_altura,
+            velocidad = velocidad,
+            nombre_base = nombre_base,
+            output_dir = UPLOAD_DIR,
+            uf = uf,
+            ut = ut,
+            pc = pc,
+            velocidadj = velocidadj
         )
 
         return JSONResponse(content={

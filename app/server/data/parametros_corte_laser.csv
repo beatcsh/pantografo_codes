@@ -1,52 +1,51 @@
-Potencia,Material,Espesor (mm),Velocidad (mm/s),Presión de aire (MPa),Gas,enfoque de corte
-1000W,Acero carbono,1,275,1,O2,1
-1000W,Acero carbono,2,90,0.5–0.8,O2,1
-1000W,Acero carbono,3,65,0.25–0.4,O2,1
-1000W,Acero carbono,4,43,0.15–0.2,O2,1
-1000W,Acero carbono,5,32,0.15–0.2,O2,1
-1000W,Acero carbono,6,25,0.10–0.15,O2,1
-1000W,Acero carbono,8,17,0.10–0.15,O2,1
-1000W,Acero carbono,10,12,0.10–0.15,O2,1
-1000W,Acero inoxidable,0.5,400,1,N2,0.6
-1000W,Acero inoxidable,1,317,>1.1,N2,0.6
-1000W,Acero inoxidable,2,105,>1.5,N2,0.6
-1000W,Acero inoxidable,3,45,>2.0,N2,0.6
-1000W,Acero inoxidable,4,22,>2.0,N2,0.6
-1000W,Acero inoxidable,5,10,>2.0,N2,0.6
-1200W,Acero inoxidable,1,400,1,N2,0.6
-1200W,Acero inoxidable,2,100,>1.1,N2,0.6
-1200W,Acero inoxidable,3,47,>1.5,N2,0.6
-1200W,Acero inoxidable,4,30,>2.0,N2,0.6
-1200W,Acero inoxidable,5,13,>2.0,N2,0.6
-1200W,Acero carbono,1,300,1,O2,1
-1200W,Acero carbono,2,110,0.5–0.8,O2,1
-1200W,Acero carbono,3,75,0.25–0.4,O2,1
-1200W,Acero carbono,4,33,0.15–0.2,O2,1
-1200W,Acero carbono,5,33,0.15–0.2,O2,1
-1200W,Acero carbono,6,30,0.10–0.15,O2,1
-1200W,Acero carbono,8,22,0.10–0.15,O2,1
-1200W,Acero carbono,10,15,0.10–0.15,O2,1
-1200W,Acero carbono,12,10,0.10–0.16,O2,1
-1200W,Aluminio,2,110,>1.5,N2,0.6
-1200W,Aluminio,3,30,>1.5,N2,0.6
-1400W,Acero inoxidable,1,417,1,N2,0.6
-1400W,Acero inoxidable,2,117,1.4,N2,0.6
-1400W,Acero inoxidable,3,67,1.8,N2,0.6
-1400W,Acero inoxidable,4,33,1.8,N2,0.6
-1400W,Acero inoxidable,5,22,2,N2,0.6
-1400W,Acero inoxidable,6,12,2,N2,0.6
-1400W,Acero carbono,1,417,1,O2,1
-1400W,Acero carbono,3,67,0.12,O2,1
-1400W,Acero carbono,6,27,0.14,O2,1
-1400W,Acero carbono,8,20,0.14,O2,1
-1400W,Acero carbono,10,17,0.16,O2,1
-1400W,Acero carbono,12,13,0.18,O2,1
-1400W,Acero carbono,14,10,0.2,O2,1
-1400W,Acero carbono,16,8,0.05,O2,1
-1400W,Aluminio,1,267,1.2,N2,0.6
-1400W,Aluminio,2,100,1.4,N2,0.6
-1400W,Aluminio,3,42,1.8,N2,0.6
-1400W,Aluminio,4,22,2,N2,0.6
-1400W,Cobre,2,67,1.6,0.6
-1400W,Cobre,3,25,1.8,0.6
-1400W,Bronce,2,33,1,0.6
+Material,Corriente (A),Espesor (mm),Velocidad corte (mm/s),Espesor (mm pulg.),Velocidad corte (pulg/s)
+Acero al carbono,30,0.5,89,0.018,4
+Acero al carbono,30,3.0,19,0.135,1
+Acero al carbono,30,6.0,11,6.35,0
+Acero al carbono,80,3.0,102,0.135,3
+Acero al carbono,80,6.0,51,6.35,2
+Acero al carbono,80,20.0,9,19.05,0
+Acero al carbono,130,6.0,67,6.35,3
+Acero al carbono,130,10.0,45,9.525,2
+Acero al carbono,130,25.0,9,25.4,0
+Acero al carbono,200,6.0,87,6.35,3
+Acero al carbono,200,12.0,51,12.7,2
+Acero al carbono,200,25.0,28,25.4,1
+Acero al carbono,200,50.0,4,50.8,0
+Acero al carbono,260,10.0,74,9.525,3
+Acero al carbono,260,20.0,36,19.05,2
+Acero al carbono,260,64.0,3,63.5,0
+Acero al carbono,400,12.0,74,12.7,3
+Acero al carbono,400,25.0,35,25.4,1
+Acero al carbono,400,50.0,13,50.8,1
+Acero inoxidable,60,3.0,46,2.667,2
+Acero inoxidable,60,4.0,38,3.429,2
+Acero inoxidable,60,5.0,33,4.763,1
+Acero inoxidable,60,6.0,27,6.35,1
+Acero inoxidable,130,10.0,16,9.525,1
+Acero inoxidable,130,12.0,14,12.7,1
+Acero inoxidable,130,25.0,8,25.4,0
+Acero inoxidable,260,12.0,29,12.7,1
+Acero inoxidable,260,20.0,18,19.05,1
+Acero inoxidable,260,25.0,13,25.4,1
+Acero inoxidable,260,50.0,9,50.8,0
+Acero inoxidable,400,20.0,30,9.525,1
+Acero inoxidable,400,40.0,12,38.1,1
+Acero inoxidable,400,80.0,3,76.2,0
+Acero inoxidable,800,75.0,8,76.2,0
+Acero inoxidable,800,125.0,3,127.0,0
+Acero inoxidable,800,160.0,2,158.75,0
+Aluminio,45,1.5,74,0.048,4
+Aluminio,45,4.0,43,0.135,2
+Aluminio,6,1690.0,0,60.0,0
+Aluminio,130,12.0,24,0.5,1
+Aluminio,130,20.0,19,0.75,1
+Aluminio,130,25.0,9,1.0,0
+Aluminio,260,12.0,86,0.5,3
+Aluminio,260,20.0,37,0.75,2
+Aluminio,260,25.0,17,1.0,1
+Aluminio,400,20.0,40,0.75,2
+Aluminio,400,40.0,21,1.5,1
+Aluminio,400,75.0,4,3.0,0
+Aluminio,800,75.0,15,3.0,1
+Aluminio,800,160.0,3,6.25,0

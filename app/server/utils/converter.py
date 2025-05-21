@@ -210,6 +210,18 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write(f"DOUT OT#({pc}) OFF\n")
             f.write("END\n")
 
+        # subir el JOB por el servidor FTP
+        gestor = GestorFTP()
+        jbi_path = os.path.abspath(jbi_path)
+        jbi_path = jbi_path.replace("\\", "/")
+        print(jbi_path)
+        try:
+            gestor.subir_archivo(jbi_path)
+        except Exception as e:
+            print(f"no se pudo enviar el archivo por FTP: {e}")
+        finally:
+            gestor.cerrar_conexion()
+
         return jbi_path, g_path
     except Exception as e:
         raise e
