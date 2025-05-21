@@ -125,10 +125,10 @@ if st.session_state.sidebar_open:
                                 try:
                                     response = requests.post(f"{API_URL}/convert/", files=files, params=params)
                                     if response.status_code == 200:
-                                        data = response.json()
+                                        # data = response.json()
                                         st.success("¡Conversión completada!")
-                                        jbi_path = data["jbi_path"]
-                                        st.download_button("Descargar archivo .JBI", data=open(jbi_path, "rb"), file_name="programa.jbi")
+                                        # jbi_path = data["jbi_path"]
+                                        st.download_button("Descargar archivo .JBI", data = response.content, file_name="programa.jbi")
                                     else:
                                         st.error("Error al convertir el archivo")
                                 except Exception as e:

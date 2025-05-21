@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from utils.converter import generate_gcode_from_dxf, gcode_a_yaskawa
 from utils.ftp_manager import GestorFTP
 from utils.users_manage import check_user
@@ -55,11 +55,7 @@ async def convertir(
             velocidadj = velocidadj
         )
 
-        return JSONResponse(content={
-            "message": "Archivos generados exitosamente",
-            "jbi_path": jbi_path,
-            "gcode_path": gcode_path
-        })
+        return FileResponse(path = jbi_path, media_type = "application/octet-stream", filename = nombre_base)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
     
