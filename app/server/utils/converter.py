@@ -165,18 +165,11 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("/JOB\n")
             f.write(f"//NAME {nombre_archivo.upper()}\n")
             f.write("//POS\n")
-            total_pos = sum(1 for line in gcode_lines if line.startswith("G"))
-            f.write(f"///NPOS {total_pos},0,0,0,0,0\n")
 
-            f.write(f"///TOOL {ut}\n")
-            f.write(f"///USER {uf}\n")
-            f.write("///POSTYPE USER\n")
-            f.write("///RECTAN \n")
-            f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
-
-            idx = 0
+            
             posiciones = []
-            for i, line in enumerate(gcode_lines):
+            movimientos = []  
+            for line in gcode_lines:
                 if line.startswith("G0") or line.startswith("G1"):
                     parts = line.split()
                     coords = {p[0]: float(p[1:]) for p in parts[1:] if p[0] in "XY"}
@@ -184,8 +177,17 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
                     y = round(coords.get("Y", 0.0), 4)
                     z = round(z_altura, 4)
                     posiciones.append((x, y, z))
-                    f.write(f"C{idx:05d}={x},{y},{z},0,0,0\n")
-                    idx += 1
+                    movimientos.append((line, len(posiciones) - 1))
+
+            f.write(f"///NPOS {len(posiciones)},0,0,0,0,0\n")
+            f.write(f"///TOOL {ut}\n")
+            f.write(f"///USER {uf}\n")
+            f.write("///POSTYPE USER\n")
+            f.write("///RECTAN \n")
+            f.write("///RCONF 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
+
+            for idx, (x, y, z) in enumerate(posiciones):
+                f.write(f"C{idx:05d}={x},{y},{z},0,0,0\n")
 
             f.write("//INST\n")
             f.write(f"///DATE {datetime.now().strftime('%Y/%m/%d %H:%M')}\n")
@@ -194,34 +196,39 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("///GROUP1 RB1\n")
             f.write("NOP\n")
 
-            prev_mov = None  # Ningún tipo de movimiento al inicio
-            if velocidades == predet:
-                for j, line in enumerate(gcode_lines):
-                    if (line.startswith("G0")):
-                        f.write(f"MOVJ C{j:05d} VJ={velocidadj}\n")
-                    elif (line.startswith("G1")):
-                        f.write(f"MOVL C{j:05d} V={velocidad} PL=0\n")
-                    elif (line.startswith("M03")):
-                        f.write(f"DOUT OT#({pc}) ON\n")
-                        f.write(f"TIMER T=1.000\n")
-                    elif (line.startswith("M05")):
-                        f.write(f"DOUT OT#({pc}) OFF\n")
-                        f.write(f"TIMER T=1.000\n")           
+            
+            for line in gcode_lines:
+                if line.startswith("M03"):
+                    f.write(f"DOUT OT#({pc}) ON\n")
+                    f.write("TIMER T=1.000\n")
+                elif line.startswith("M05"):
+                    f.write(f"DOUT OT#({pc}) OFF\n")
+                    f.write("TIMER T=1.000\n")
+
+            for line, idx in movimientos:
+                if line.startswith("G0"):
+                    f.write(f"MOVJ C{idx:05d} VJ={velocidadj}\n")
+                elif line.startswith("G1"):
+                    f.write(f"MOVL C{idx:05d} V={velocidad} PL=0\n")
+
+            
             f.write(f"DOUT OT#({pc}) OFF\n")
             f.write("END\n")
 
-        # subir el JOB por el servidor FTP
-        gestor = GestorFTP()
-        jbi_path = os.path.abspath(jbi_path)
-        jbi_path = jbi_path.replace("\\", "/")
-        print(jbi_path)
+        # Subir el archivo por FTP
         try:
-            gestor.subir_archivo(jbi_path)
+            gestor = GestorFTP()
+            jbi_path_abs = os.path.abspath(jbi_path).replace("\\", "/")
+            gestor.subir_archivo(jbi_path_abs)
         except Exception as e:
-            print(f"no se pudo enviar el archivo por FTP: {e}")
+            print(f"No se pudo enviar el archivo por FTP: {e}")
         finally:
-            gestor.cerrar_conexion()
+            try:
+                gestor.cerrar_conexion()
+            except:
+                pass
 
         return jbi_path, g_path
+
     except Exception as e:
         raise e
