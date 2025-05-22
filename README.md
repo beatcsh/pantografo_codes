@@ -1,4 +1,4 @@
-# 🤖 PANTOGRAFO PLASMA - ROBOT YASKAWA: MOTOMAN
+# 🤖 PANTOGRAFO PLASMA
 
 Interfaz de comunicación desarrollado en FastAPI (Python) para control y monitoreo de robots industriales Yaskawa. Permite el manejo de movimientos, lectura de posiciones, conversion de archivos .DXF a .JBI y transferencia de archivos vía FTP. Se integra con otro servicio, el cual se encuentra en https://github.com/beatcsh/YMConnectApi 
 
