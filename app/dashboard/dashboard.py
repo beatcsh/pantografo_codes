@@ -9,6 +9,8 @@ import streamlit.components.v1 as components
 
 API_URL = "http://localhost:8000"
 
+YM_API_URL = "http://localhost:5229"
+
 # Estado para controlar si el sidebar está abierto o cerrado
 if "sidebar_open" not in st.session_state:
     st.session_state.sidebar_open = False
