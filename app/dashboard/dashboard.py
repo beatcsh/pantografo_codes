@@ -6,16 +6,28 @@ st.set_page_config(page_title="DXF a Yaskawa", layout="wide")
 import pandas as pd
 import requests
 import streamlit.components.v1 as components
+import time
+import threading
+from streamlit_autorefresh import st_autorefresh
 
 API_URL = "http://localhost:8000"
+# Cambia este puerto al que realmente use tu API de C#
+YM_API_URL = "http://localhost:5229"  # <-- AJUSTA AQUÍ SI TU API DE C# USA OTRO PUERTO
 
 # Estado para controlar si el sidebar está abierto o cerrado
 if "sidebar_open" not in st.session_state:
     st.session_state.sidebar_open = False
 
+if "ymconnect_open" not in st.session_state:
+    st.session_state.ymconnect_open = False
+
 # Botón para abrir/cerrar la barra lateral
 if st.sidebar.button("Abrir/Cerrar Dashboard"):
     st.session_state.sidebar_open = not st.session_state.sidebar_open
+
+# Botón para abrir/cerrar YMConnect
+if st.sidebar.button("Abrir/Cerrar YMConnect"):
+    st.session_state.ymconnect_open = not st.session_state.ymconnect_open
 
 # Mostrar contenido solo si está abierto
 if st.session_state.sidebar_open:
@@ -191,4 +203,122 @@ if st.session_state.sidebar_open:
 
 else:
     st.sidebar.write("Pulsa el botón para abrir el dashboard")
+
+if st.session_state.ymconnect_open:
+    st.subheader("Dashboard YMConnect")
+    st.title("🤖 Dashboard YMConnect")
+
+    col1, col2, col3 = st.columns(3)
+
+    # --- Columna 1: Estado y coordenadas ---
+    with col1:
+        status_placeholder = st.empty()
+        coords_placeholder = st.empty()
+
+        # Estado del robot (solo una vez por recarga)
+        try:
+            r = requests.get(f"{YM_API_URL}/Robot/status")
+            r.raise_for_status()
+            status = r.json()
+            status_placeholder.markdown(
+                f"""
+                ### Estado del robot
+                **Modo de control:** {status.get('controlMode', -1)}  
+                **Servo:** {status.get('isServoOn', False)}  
+                **Ciclo modo:** {status.get('cycleMode')}  
+                **¿Está corriendo?:** {status.get('isRunning')}  
+                **¿En pausa?:** {status.get('isInHold')}  
+                **¿Alarma?:** {status.get('isAlarming')}  
+                **¿Error?:** {status.get('isErroring')}
+                """
+            )
+        except Exception as e:
+            status_placeholder.error(f"Error al obtener estado: {e}")
+
+        # --- Coordenadas: refresco en hilo aparte ---
+        def actualizar_coordenadas():
+            while st.session_state.ymconnect_open:
+                try:
+                    r = requests.get(f"{YM_API_URL}/Robot/coordinates")
+                    r.raise_for_status()
+                    coords = r.json()
+                    etiquetas = ['S', 'L', 'U', 'R', 'B', 'T', 'E', 'W']
+                    texto = "### Coordenadas\n"
+                    for i, val in enumerate(coords):
+                        texto += f"**{etiquetas[i]}:** {val} pulses  \n"
+                    coords_placeholder.markdown(texto)
+                except Exception as e:
+                    coords_placeholder.error(f"Error al obtener coordenadas: {e}")
+                time.sleep(1)
+
+        if 'coords_thread' not in st.session_state or not st.session_state['coords_thread'].is_alive():
+            t = threading.Thread(target=actualizar_coordenadas, daemon=True)
+            st.session_state['coords_thread'] = t
+            t.start()
+
+        # Información del sistema
+        if st.button("ℹ️ Obtener info sistema (/Robot/information)"):
+            try:
+                r = requests.get(f"{YM_API_URL}/Robot/information")
+                r.raise_for_status()
+                info = r.json()
+                st.write("### Información del sistema")
+                st.write(f"Versión software: {info.get('softwareVersion')}")
+                st.write(f"Nombre modelo: {info.get('modelName')}")
+            except Exception as e:
+                st.error(f"Error al obtener información: {e}")
+
+    # --- Columna 2: Control de trabajo ---
+    with col2:
+        if st.button("▶️ Iniciar trabajo (/Robot/startJob)"):
+            try:
+                r = requests.get(f"{YM_API_URL}/Robot/startJob")
+                r.raise_for_status()
+                resp = r.json()
+                st.success(f"Trabajo iniciado: {resp.get('message', 'OK') if isinstance(resp, dict) else resp}")
+            except Exception as e:
+                st.error(f"Error al iniciar trabajo: {e}")
+
+        if st.button("🛑 Detener trabajo (/Robot/stopJob)"):
+            try:
+                r = requests.get(f"{YM_API_URL}/Robot/stopJob")
+                r.raise_for_status()
+                resp = r.json()
+                st.success(f"Trabajo detenido: {resp.get('message', 'OK') if isinstance(resp, dict) else resp}")
+            except Exception as e:
+                st.error(f"Error al detener trabajo: {e}")
+
+        if st.button("📋 Obtener trabajo en ejecución (/Robot/exeJob)"):
+            try:
+                r = requests.get(f"{YM_API_URL}/Robot/exeJob")
+                r.raise_for_status()
+                job = r.json()
+                st.write("### Trabajo en ejecución")
+                st.write(f"Nombre: {job.get('name', job)}")
+                st.write(f"Línea: {job.get('line', '')}")
+                st.write(f"Paso: {job.get('stepNumber', '')}")
+                st.write(f"Velocidad Override: {job.get('speedOverride', '')}%")
+            except Exception as e:
+                st.error(f"Error al obtener trabajo: {e}")
+
+    # --- Columna 3: Gestión de archivos JBI ---
+    with col3:
+        st.write("### Archivos JBI disponibles")
+        try:
+            resp = requests.get(f"{YM_API_URL}/Robot/jobList")
+            resp.raise_for_status()
+            lista_jobs = resp.json() if resp.status_code == 200 else []
+            if lista_jobs:
+                nombre_job = st.selectbox("Selecciona un job para cargar", lista_jobs)
+                if st.button("Seleccionar job"):
+                    try:
+                        r = requests.get(f"{YM_API_URL}/Robot/setJob/{nombre_job}")
+                        r.raise_for_status()
+                        st.success(f"Job '{nombre_job}' seleccionado correctamente (API C#).")
+                    except Exception as e:
+                        st.error(f"Error al seleccionar job: {e}")
+            else:
+                st.info("No hay archivos jbi disponibles.")
+        except Exception as e:
+            st.error(f"No se pudo obtener la lista de jobs: {e}")
 
