@@ -1,4 +1,3 @@
-./build
-./dxf_codes
-yaskawa_logo.png
+/build
+/dxf_codes
 /app/server/uploads
