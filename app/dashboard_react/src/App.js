@@ -1,25 +1,23 @@
 import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from './layouts/Login';
+import DashboardHome from './layouts/DashboardHome';
+import StatsRobot from './layouts/StatsRobot';
+import Converter from './layouts/Converter';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <h1>Jorge estuvo aqui</h1>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />}></Route>
+          <Route path="/home" element={<DashboardHome />}></Route>
+          <Route path="/stats" element={<StatsRobot />}></Route>
+          <Route path="/converter" element={<Converter />}></Route>
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
