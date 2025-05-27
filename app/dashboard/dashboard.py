@@ -235,26 +235,9 @@ if st.session_state.ymconnect_open:
         except Exception as e:
             status_placeholder.error(f"Error al obtener estado: {e}")
 
-        # --- Coordenadas: refresco en hilo aparte ---
-        def actualizar_coordenadas():
-            while st.session_state.ymconnect_open:
-                try:
-                    r = requests.get(f"{YM_API_URL}/Robot/coordinates")
-                    r.raise_for_status()
-                    coords = r.json()
-                    etiquetas = ['S', 'L', 'U', 'R', 'B', 'T', 'E', 'W']
-                    texto = "### Coordenadas\n"
-                    for i, val in enumerate(coords):
-                        texto += f"**{etiquetas[i]}:** {val} pulses  \n"
-                    coords_placeholder.markdown(texto)
-                except Exception as e:
-                    coords_placeholder.error(f"Error al obtener coordenadas: {e}")
-                time.sleep(1)
-
-        if 'coords_thread' not in st.session_state or not st.session_state['coords_thread'].is_alive():
-            t = threading.Thread(target=actualizar_coordenadas, daemon=True)
-            st.session_state['coords_thread'] = t
-            t.start()
+        # --- Expander con iframe para coordenadas en tiempo real ---
+        with st.expander("📡 Ver coordenadas en tiempo real", expanded=True):
+            components.iframe("http://localhost:8502", height=250)
 
         # Información del sistema
         if st.button("ℹ️ Obtener info sistema (/Robot/information)"):

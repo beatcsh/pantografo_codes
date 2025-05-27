@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from utils.converter import generate_gcode_from_dxf, gcode_a_yaskawa
 from utils.ftp_manager import GestorFTP
 from utils.users_manage import check_user
@@ -107,3 +108,17 @@ async def login(username = "", password = ""):
             return JSONResponse(content = response, status_code = 200)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code = 500)
+    
+@app.get("/enviar-ftp")
+def enviar_ftp(filename: str = ""):  # No async para evitar problemas con ftplib
+    try:
+        # Busca el archivo en la carpeta de uploads
+        jbi_path = os.path.join(UPLOAD_DIR, filename)
+        if not os.path.exists(jbi_path):
+            return JSONResponse(content={"error": "Archivo no encontrado"}, status_code=404)
+        gestor = GestorFTP()
+        gestor.subir_archivo(jbi_path)
+        gestor.cerrar_conexion()
+        return JSONResponse(content={"ok": True}, status_code=200)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
