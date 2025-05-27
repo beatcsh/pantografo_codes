@@ -1,23 +1,45 @@
 import { Container, Row, Navbar, Nav, Badge, Table, Card, Button, Col } from 'react-bootstrap'
+import withReactContent from 'sweetalert2-react-content'
+import Swal from 'sweetalert2'
 import { RiRobot2Fill } from "react-icons/ri"
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import axios from 'axios'
 
+const MySwal = withReactContent(Swal)
 const ymconnectService = "http://localhost:5229"
 const ftp_files = "http://localhost:8000"
 
 const StatsRobot = () => {
+
     const [jobList, setJobList] = useState([])
     const [infoRobot, setInfoRobot] = useState({})
     const [statusRobot, setStatusRobot] = useState({})
     const [coordinates, setCoordinates] = useState([])
+    const [exeJobInfo, setExeJobInfo] = useState({})
+
+    const showSuccessMessage = (message) => {
+        MySwal.fire({
+            icon: "success",
+            title: message,
+            timer: 2000
+        });
+    }
+
+    const showErrorMessage = () => {
+        MySwal.fire({
+            icon: "error",
+            title: "Conexion perdida.",
+            timer: 2000
+        });
+    }
 
     const listarJobs = async () => {
         try {
             const res = await axios.get(`${ftp_files}/listar-jobs`)
             setJobList(res.data)
+            showSuccessMessage("Archivos traidos con exito.")
         } catch (error) {
-            console.error("Error al listar jobs:", error)
+            showErrorMessage()
         }
     }
 
@@ -25,8 +47,9 @@ const StatsRobot = () => {
         try {
             const res = await axios.get(`${ymconnectService}/Robot/information`)
             setInfoRobot(res.data)
+            showSuccessMessage("Informacion devuelta con exito.")
         } catch (error) {
-            console.error("Error al obtener información del robot:", error)
+            showErrorMessage()
         }
     }
 
@@ -34,8 +57,9 @@ const StatsRobot = () => {
         try {
             const res = await axios.get(`${ymconnectService}/Robot/status`)
             setStatusRobot(res.data)
+            showSuccessMessage("Estado consultado con exito.")
         } catch (error) {
-            console.error("Error al obtener estado del robot:", error)
+            showErrorMessage()
         }
     }
 
@@ -44,7 +68,7 @@ const StatsRobot = () => {
             const res = await axios.get(`${ymconnectService}/Robot/coordinates`)
             setCoordinates(res.data)
         } catch (error) {
-            console.error("Error al obtener coordenadas:", error)
+            showErrorMessage()
         }
     }
 
@@ -54,20 +78,25 @@ const StatsRobot = () => {
                 ? file.substring(0, file.lastIndexOf('.'))
                 : file
 
-            const confirmar = window.confirm(`Seleccionaste el archivo "${selected}". ¿Quieres dejarlo listo?`)
+            const confirmar = Swal.fire({
+                text: "¿Estas seguro de cargar este archivo al robot?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ok"
+            })
 
             if (confirmar) {
                 const reqUrl = `${ymconnectService}/Robot/setJob/${selected}`
                 const res = await axios.get(reqUrl)
 
                 if (res.data.statusCode === 0) {
-                    alert("El archivo se estableció correctamente.")
-                } else {
-                    alert("Ocurrió un problema al establecer el archivo.")
+                    showSuccessMessage("Archivos configurado con exito.")
                 }
             }
         } catch (error) {
-            console.error("Error al cambiar al archivo:", error)
+            showErrorMessage()
         }
     }
 
@@ -76,13 +105,11 @@ const StatsRobot = () => {
             const reqUrl = `${ymconnectService}/Robot/startJob`
             const res = await axios.get(reqUrl)
             if (res.data.statusCode === 0) {
-                alert("Ejecutado correctamente.")
-            } else {
-                alert("Error al ejecutar el archivo.")
+                showSuccessMessage("Archivos ejecutado con exito.")
             }
             getStatusRobot()
         } catch (error) {
-            console.error("Error al cambiar al archivo:", error)
+            showErrorMessage()
         }
     }
 
@@ -93,12 +120,10 @@ const StatsRobot = () => {
             const res = await axios.get(reqUrl)
             if (res.data.statusCode === 0) {
                 alert("Detenido correctamente.")
-            } else {
-                alert("Error al detener el archivo.")
             }
             getStatusRobot()
         } catch (error) {
-            console.error("Error al cambiar al archivo:", error)
+            showErrorMessage()
         }
     }
 
