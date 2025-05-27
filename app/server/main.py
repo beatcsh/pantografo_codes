@@ -8,6 +8,8 @@ from utils.users_manage import check_user
 import pandas as pd
 import os
 
+from fastapi.middleware.cors import CORSMiddleware
+
 """
     .
 ░░░░░███████ ]▄▄▄▄▄▄ `~~~~~~ ~~~~ ~~~~ ~~~
@@ -21,10 +23,10 @@ gestor = GestorFTP()
 
 app = FastAPI()
 
-# --- CORS para permitir peticiones desde React ---
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Puedes restringir a ["http://localhost:3000"] si prefieres
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
