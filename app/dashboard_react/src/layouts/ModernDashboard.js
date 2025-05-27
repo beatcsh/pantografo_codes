@@ -167,169 +167,218 @@ const ModernDashboard = () => {
 
   // --- UI ---
   return (
-    <div style={{ minHeight: '100vh', background: '#f6f8fb', padding: 0, fontFamily: 'Inter, Segoe UI, Arial, sans-serif' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: '#f3f4f8',
+      padding: 0,
+      fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+      color: '#1a3e7a',
+      position: 'relative',
+      overflowX: 'hidden',
+    }}>
       {/* Header superior */}
-      <div style={{ background: '#fff', padding: '24px 0 0 0', borderBottom: '1px solid #e3e8f0', boxShadow: '0 2px 8px 0 #0001' }}>
+      <div style={{
+        background: '#fff',
+        borderBottom: '2px solid #e0e3ea',
+        boxShadow: '0 4px 16px 0 #0001',
+        padding: '18px 0 0 0',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10
+      }}>
         <Container fluid>
           <Row className="align-items-center">
             <Col xs="auto">
-              <img src="/logo192.png" alt="Logo" style={{ height: 48, borderRadius: 12, background: '#e3e8f0', padding: 4 }} />
+              <img src="/logo192.png" alt="Logo" style={{ height: 44, borderRadius: 12, background: '#fff', padding: 2 }} />
             </Col>
             <Col>
-              <div style={{ display: 'flex', gap: 16 }}>
-                <Button variant="link" style={{ color: '#2563eb', fontWeight: 700, background: '#e8f0fe', borderRadius: 20, padding: '6px 24px' }}>Dashboard</Button>
-                <Button variant="link" style={{ color: '#64748b', fontWeight: 600, background: 'none' }}>Convertidor</Button>
-                <Button variant="link" style={{ color: '#64748b', fontWeight: 600, background: 'none' }}>Archivos</Button>
-                <Button variant="link" style={{ color: '#64748b', fontWeight: 600, background: 'none' }}>Reportes</Button>
+              <div style={{ display: 'flex', gap: 24 }}>
+                <Button variant="light" style={{ color: '#1a3e7a', fontWeight: 700, background: '#fff', borderRadius: 16, padding: '6px 28px', border: 'none', boxShadow: '0 2px 8px #0001' }}>Home Screen</Button>
+                <Button variant="primary" style={{ color: '#fff', fontWeight: 700, background: 'linear-gradient(90deg,#1a3e7a,#2d6be6)', borderRadius: 16, padding: '6px 28px', border: 'none', boxShadow: '0 2px 8px #2d6be633' }}>Converter</Button>
+                <Button variant="light" style={{ color: '#1a3e7a', fontWeight: 700, background: '#fff', borderRadius: 16, padding: '6px 28px', border: 'none', boxShadow: '0 2px 8px #0001' }}>Robot Status</Button>
               </div>
             </Col>
             <Col xs="auto">
-              <Button variant="primary" style={{ borderRadius: 20, fontWeight: 600, padding: '8px 24px', background: '#2563eb', border: 'none' }}>+ Nuevo</Button>
-            </Col>
-            <Col xs="auto">
-              <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" style={{ height: 40, width: 40, borderRadius: '50%' }} />
+              <Button variant="light" style={{ borderRadius: 16, background: '#fff', border: 'none', boxShadow: '0 2px 8px #0001', marginRight: 8 }}><i className="bi bi-gear"></i></Button>
+              <Button variant="light" style={{ borderRadius: 16, background: '#fff', border: 'none', boxShadow: '0 2px 8px #0001' }}><i className="bi bi-bell"></i></Button>
             </Col>
           </Row>
         </Container>
       </div>
 
-      {/* Saludo y acciones */}
+      {/* Saludo */}
       <Container fluid style={{ marginTop: 32 }}>
-        <Row className="align-items-center mb-4">
-          <Col md={8}>
-            <h2 style={{ color: '#2563eb', fontWeight: 700, marginBottom: 0 }}>¡Hola, Operador!</h2>
-            <div style={{ color: '#64748b', fontSize: 18 }}>Panel de control del convertidor y gestión de archivos JBI</div>
-          </Col>
-          <Col md={4} className="text-end">
-            <Button variant="outline-primary" style={{ borderRadius: 20, fontWeight: 600, marginRight: 12 }}>Filtrar</Button>
-            <Button variant="outline-primary" style={{ borderRadius: 20, fontWeight: 600, marginRight: 12 }}>Descargar datos</Button>
-            <Button variant="outline-secondary" style={{ borderRadius: 20, fontWeight: 600 }}>Cambiar vista</Button>
+        <Row>
+          <Col xs={12}>
+            <h2 style={{ color: '#1a3e7a', fontWeight: 900, marginBottom: 0, fontFamily: 'Montserrat, Inter, Segoe UI, Arial, sans-serif', letterSpacing: 1.5 }}>
+              <span style={{ color: '#0066cc', fontWeight: 900 }}>GOOD DAY</span><span style={{ color: '#1a3e7a', fontWeight: 700 }}>, Admin!</span>
+            </h2>
           </Col>
         </Row>
 
-        {/* Tarjetas principales */}
-        <Row className="g-4 mb-4">
-          <Col md={4}>
-            <Card style={{ borderRadius: 18, boxShadow: '0 2px 12px 0 #2563eb11', border: 'none', background: '#fff' }}>
-              <Card.Body>
-                <div style={{ color: '#64748b', fontWeight: 600 }}>Parámetros de corte</div>
-                <div style={{ maxHeight: 180, overflowY: 'auto', marginTop: 8 }}>
-                  <Table bordered size="sm" style={{ fontSize: '0.98em', color: '#2563eb', background: '#f8fafc', borderRadius: 12 }}>
+        {/* Layout principal: tabla izq, convertidor der */}
+        <Row className="mt-4" style={{ minHeight: 480 }}>
+          {/* Tabla de parámetros a la izquierda */}
+          <Col md={4} lg={3}>
+            <div style={{
+              background: '#fff',
+              borderRadius: 22,
+              boxShadow: '0 4px 24px #1a3e7a22',
+              padding: 24,
+              marginBottom: 24,
+              border: '2px solid #e0e3ea',
+              minHeight: 380
+            }}>
+              <div style={{ color: '#1a3e7a', fontWeight: 800, fontSize: 20, marginBottom: 12, letterSpacing: 1 }}>PARAMETERS</div>
+              <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+                <Table bordered size="sm" style={{ fontSize: '1em', color: '#1a3e7a', background: '#f3f4f8', borderRadius: 12 }}>
+                  <thead>
+                    <tr>
+                      {tablaHeaders.map(h => <th key={h} style={{ background: '#e0e3ea', color: '#1a3e7a', fontWeight: 700 }}>{h}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tabla.map((row, i) => (
+                      <tr key={i} style={{ cursor: 'pointer', background: selectedRow === row ? '#b3d1ff' : 'transparent' }} onClick={() => handleRowSelect(row)}>
+                        {tablaHeaders.map(h => (
+                          <td key={h}>{row[h]}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            </div>
+          </Col>
+
+          {/* Convertidor a la derecha, cuadro azul */}
+          <Col md={8} lg={5} className="offset-lg-1">
+            <div style={{
+              background: '#1565c0',
+              borderRadius: 22,
+              boxShadow: '0 8px 32px #1a3e7a33',
+              padding: 32,
+              minWidth: 340,
+              maxWidth: 420,
+              margin: '0 auto',
+              color: '#fff',
+              position: 'relative',
+              marginBottom: 24
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: -32,
+                right: 24,
+                fontWeight: 900,
+                fontSize: 28,
+                color: '#1a3e7a',
+                textShadow: '2px 2px 0 #00cfff, 0 2px 8px #fff',
+                letterSpacing: 2
+              }}>.DXF FILE</div>
+              <Form onSubmit={handleConvert} className="mt-4">
+                <Form.Group className="mb-3">
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <Form.Label style={{ fontWeight: 700, color: '#fff', marginRight: 8, marginBottom: 0 }}>SELECT FILE</Form.Label>
+                    <div style={{ flex: 1, background: '#fff', color: '#1565c0', borderRadius: 12, padding: '4px 12px', fontWeight: 700, minWidth: 120, textAlign: 'center' }}>
+                      {file ? file.name : 'Ningún archivo seleccionado'}
+                    </div>
+                  </div>
+                  <Form.Control type="file" accept=".dxf" onChange={e => setFile(e.target.files[0])} ref={fileInputRef} style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, marginTop: 8 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Label style={{ color: '#fff', fontWeight: 700 }}>MATERIAL:</Form.Label>
+                  <Form.Control name="Material" value={form['Material']} onChange={handleFormChange} style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="Corriente (A)" value={form['Corriente (A)']} onChange={handleFormChange} placeholder="Corriente (A)" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="Espesor (mm)" value={form['Espesor (mm)']} onChange={handleFormChange} placeholder="Espesor (mm)" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="Velocidad corte (mm/s)" value={form['Velocidad corte (mm/s)']} onChange={handleFormChange} placeholder="Velocidad corte (mm/s)" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="Velocidad J" value={form['Velocidad J']} onChange={handleFormChange} placeholder="Velocidad J" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="Z" value={form['Z']} onChange={handleFormChange} placeholder="Z (altura corte)" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="User Frame" value={form['User Frame']} onChange={handleFormChange} placeholder="User Frame" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="Tool" value={form['Tool']} onChange={handleFormChange} placeholder="Tool" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                <Form.Group className="mb-2">
+                  <Form.Control name="Plasma" value={form['Plasma']} onChange={handleFormChange} placeholder="Plasma" style={{ background: '#fff', color: '#1565c0', border: 'none', borderRadius: 12, fontWeight: 700, marginBottom: 12 }} />
+                </Form.Group>
+                {convertError && <Alert variant="danger" className="mt-2">{convertError}</Alert>}
+                <Button type="submit" variant="primary" className="w-100 mt-2" style={{ fontWeight: 900, color: '#fff', background: 'linear-gradient(90deg,#1a3e7a,#2d6be6)', borderRadius: 12, border: 'none', boxShadow: '0 2px 8px #2d6be633', fontSize: 18 }}>Convertir y descargar JBI</Button>
+                {downloadUrl && (
+                  <a href={downloadUrl} download="programa.jbi" className="btn btn-primary w-100 mt-2" style={{ fontWeight: 900, color: '#fff', background: 'linear-gradient(90deg,#1a3e7a,#2d6be6)', borderRadius: 12, border: 'none', boxShadow: '0 2px 8px #2d6be633', fontSize: 18 }}>Descargar archivo .JBI</a>
+                )}
+              </Form>
+            </div>
+
+            {/* Gestión de archivos JBI debajo del convertidor */}
+            <div style={{
+              background: '#fff',
+              borderRadius: 18,
+              boxShadow: '0 4px 24px #1a3e7a22',
+              padding: 24,
+              marginTop: 32,
+              color: '#1a3e7a',
+              border: '2px solid #e0e3ea',
+              minHeight: 180
+            }}>
+              <div style={{ color: '#1565c0', fontWeight: 800, fontSize: 20, marginBottom: 12, letterSpacing: 1 }}>ARCHIVOS JBI EN EL ROBOT</div>
+              <div style={{ display: 'flex', marginBottom: 12 }}>
+                <input
+                  type="text"
+                  placeholder="Buscar archivo..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  style={{
+                    flex: 1,
+                    borderRadius: 12,
+                    border: '1.5px solid #b3d1ff',
+                    padding: '4px 12px',
+                    fontWeight: 600,
+                    color: '#1565c0',
+                    background: '#f3f4f8',
+                    marginRight: 8
+                  }}
+                />
+              </div>
+              <div style={{ maxHeight: 160, overflowY: 'auto' }}>
+                {jobsLoading ? <Spinner animation="border" /> : (
+                  <Table bordered size="sm" style={{ fontSize: '0.98em', color: '#1565c0', background: '#f3f4f8', borderRadius: 12 }}>
                     <thead>
                       <tr>
-                        {tablaHeaders.map(h => <th key={h} style={{ background: '#e8f0fe', color: '#2563eb', fontWeight: 700 }}>{h}</th>)}
+                        <th style={{ background: '#e0e3ea', color: '#1565c0', fontWeight: 700 }}>#</th>
+                        <th style={{ background: '#e0e3ea', color: '#1565c0', fontWeight: 700 }}>Archivo</th>
+                        <th style={{ background: '#e0e3ea', color: '#1565c0', fontWeight: 700 }}>Acción</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {tabla.map((row, i) => (
-                        <tr key={i} style={{ cursor: 'pointer', background: selectedRow === row ? '#dbeafe' : 'transparent' }} onClick={() => handleRowSelect(row)}>
-                          {tablaHeaders.map(h => (
-                            <td key={h}>{row[h]}</td>
-                          ))}
+                      {jobs.filter(j => j.toLowerCase().includes(search.toLowerCase())).map((j, i) => (
+                        <tr key={j} style={{ background: i % 2 === 0 ? '#e3f0ff' : 'transparent' }}>
+                          <td>{i + 1}</td>
+                          <td>{j}</td>
+                          <td>
+                            <Button variant="outline-danger" size="sm" style={{ borderRadius: 8, fontWeight: 600, border: '1.5px solid #e53935', color: '#e53935', background: 'rgba(229,57,53,0.08)' }} disabled={deleteLoading === i} onClick={() => handleDelete(i)}>
+                              {deleteLoading === i ? <Spinner size="sm" animation="border" /> : 'Eliminar'}
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </Table>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={4}>
-            <Card style={{ borderRadius: 18, boxShadow: '0 2px 12px 0 #2563eb11', border: 'none', background: '#2563eb', color: '#fff' }}>
-              <Card.Body>
-                <div style={{ fontWeight: 700, fontSize: 18 }}>Conversión DXF → JBI</div>
-                <Form onSubmit={handleConvert} className="mt-3">
-                  <Form.Group className="mb-2">
-                    <Form.Label>Archivo DXF</Form.Label>
-                    <Form.Control type="file" accept=".dxf" onChange={e => setFile(e.target.files[0])} ref={fileInputRef} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                  </Form.Group>
-                  <Row>
-                    <Col xs={6}>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Material</Form.Label>
-                        <Form.Control name="Material" value={form['Material']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Corriente (A)</Form.Label>
-                        <Form.Control name="Corriente (A)" value={form['Corriente (A)']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Espesor (mm)</Form.Label>
-                        <Form.Control name="Espesor (mm)" value={form['Espesor (mm)']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Velocidad corte (mm/s)</Form.Label>
-                        <Form.Control name="Velocidad corte (mm/s)" value={form['Velocidad corte (mm/s)']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                    </Col>
-                    <Col xs={6}>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Velocidad J</Form.Label>
-                        <Form.Control name="Velocidad J" value={form['Velocidad J']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Z (altura corte)</Form.Label>
-                        <Form.Control name="Z" value={form['Z']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                      <Form.Group className="mb-2">
-                        <Form.Label>User Frame</Form.Label>
-                        <Form.Control name="User Frame" value={form['User Frame']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Tool</Form.Label>
-                        <Form.Control name="Tool" value={form['Tool']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Plasma</Form.Label>
-                        <Form.Control name="Plasma" value={form['Plasma']} onChange={handleFormChange} style={{ background: '#fff', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  {convertError && <Alert variant="danger" className="mt-2">{convertError}</Alert>}
-                  <Button type="submit" variant="light" className="w-100 mt-2" style={{ fontWeight: 700, color: '#2563eb', borderRadius: 8 }}>Convertir y descargar JBI</Button>
-                  {downloadUrl && (
-                    <a href={downloadUrl} download="programa.jbi" className="btn btn-light w-100 mt-2" style={{ fontWeight: 700, color: '#2563eb', borderRadius: 8 }}>Descargar archivo .JBI</a>
-                  )}
-                </Form>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={4}>
-            <Card style={{ borderRadius: 18, boxShadow: '0 2px 12px 0 #2563eb11', border: 'none', background: '#fff' }}>
-              <Card.Body>
-                <div style={{ color: '#64748b', fontWeight: 600 }}>Archivos JBI en el robot</div>
-                <InputGroup className="mb-2 mt-2">
-                  <Form.Control placeholder="Buscar archivo..." value={search} onChange={e => setSearch(e.target.value)} style={{ background: '#f8fafc', color: '#2563eb', border: '1px solid #93c5fd', borderRadius: 8 }} />
-                </InputGroup>
-                <div style={{ maxHeight: 120, overflowY: 'auto', marginTop: 8 }}>
-                  {jobsLoading ? <Spinner animation="border" /> : (
-                    <Table bordered size="sm" style={{ fontSize: '0.98em', color: '#2563eb', background: '#f8fafc', borderRadius: 12 }}>
-                      <thead>
-                        <tr>
-                          <th style={{ background: '#e8f0fe', color: '#2563eb', fontWeight: 700 }}>#</th>
-                          <th style={{ background: '#e8f0fe', color: '#2563eb', fontWeight: 700 }}>Archivo</th>
-                          <th style={{ background: '#e8f0fe', color: '#2563eb', fontWeight: 700 }}>Acción</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {jobs.filter(j => j.toLowerCase().includes(search.toLowerCase())).map((j, i) => (
-                          <tr key={j} style={{ background: i % 2 === 0 ? '#f1f5f9' : 'transparent' }}>
-                            <td>{i + 1}</td>
-                            <td>{j}</td>
-                            <td>
-                              <Button variant="outline-danger" size="sm" style={{ borderRadius: 8, fontWeight: 600 }} disabled={deleteLoading === i} onClick={() => handleDelete(i)}>
-                                {deleteLoading === i ? <Spinner size="sm" animation="border" /> : 'Eliminar'}
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  )}
-                  {jobsError && <Alert variant="danger">{jobsError}</Alert>}
-                </div>
-              </Card.Body>
-            </Card>
+                )}
+                {jobsError && <Alert variant="danger">{jobsError}</Alert>}
+              </div>
+            </div>
           </Col>
         </Row>
       </Container>
