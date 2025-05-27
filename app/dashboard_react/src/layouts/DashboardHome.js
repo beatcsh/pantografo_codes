@@ -1,39 +1,135 @@
-import { Container, Row, Navbar, Nav, Badge } from 'react-bootstrap';
-import { IoHomeSharp } from "react-icons/io5";
-import CardsHome from '../components/CardsHome';
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../App.css';
 
 const DashboardHome = () => {
-    return (
-        <>
-            <Navbar
-                expand="lg"
-                bg="dark"
-                variant="dark"
-                className="px-4 shadow"
-                style={{ background: "#414345" }}
-            >
-                <Navbar.Brand className="fw-bold fs-4">Usuario</Navbar.Brand>
-                <Nav className="ms-auto">
-                    <Badge bg="primary" className="p-2 mt-2 mt-lg-0"><IoHomeSharp size={20} /></Badge>
-                </Nav>
-            </Navbar>
+  const [hover, setHover] = useState(null); // 'left' | 'right' | null
+  const navigate = useNavigate();
 
-            <Container
-                fluid
-                className="d-flex justify-content-center align-items-center"
-                style={{
-                    minHeight: '100vh',
-                    background: '#232526',
-                    padding: '2.5em 2em',
-                    backdropFilter: 'blur(2px)',
-                }}
-            >
-                <Row className="text-center w-100 justify-content-center">
-                    <CardsHome />
-                </Row>
-            </Container>
-        </>
-    );
+  return (
+    <div style={{
+      minHeight: '100vh',
+      width: '100vw',
+      position: 'relative',
+      fontFamily: 'Montserrat, Inter, Arial, sans-serif',
+      background: '#fff',
+      overflow: 'hidden',
+      display: 'flex',
+    }}>
+      {/* Lado izquierdo: robots */}
+      <div
+        onMouseEnter={() => setHover('left')}
+        onMouseLeave={() => setHover(null)}
+        onClick={() => navigate('/ymconnect')}
+        style={{
+          width: '100vw',
+          minWidth: 0,
+          height: '100vh',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          cursor: 'pointer',
+          zIndex: 2,
+          transition: 'box-shadow 0.3s, filter 0.3s',
+          boxShadow: hover === 'left' ? '0 0 40px 0 #0050c8cc' : 'none',
+          clipPath: 'polygon(0 0, 58vw 0, 48vw 100vh, 0 100vh)',
+          overflow: 'hidden',
+        }}
+      >
+        <img
+          src={process.env.PUBLIC_URL + '/assets/Imagen_robots.jpeg'}
+          alt="robots"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'brightness(0.7) grayscale(0.1)',
+            opacity: 0.85,
+            transition: 'all 0.35s cubic-bezier(.4,2,.3,1)',
+            transform: hover === 'left' ? 'scale(1.04)' : 'scale(1)',
+          }}
+        />
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(180deg, #0050c8cc 0%, #003366cc 100%)',
+          zIndex: 1,
+        }} />
+        <div style={{
+          position: 'absolute',
+          top: 48,
+          left: 48,
+          zIndex: 2,
+        }}>
+          <h1 style={{ color: '#fff', fontWeight: 900, fontSize: '2.5em', letterSpacing: 1 }}>YMCONNECT</h1>
+          <div style={{ color: '#e0e6f7', fontWeight: 400, fontSize: 22, marginTop: 8, maxWidth: 420 }}>
+            This section allows you to see<br />the robot's data, as well as its status.
+          </div>
+        </div>
+        <div style={{ position: 'absolute', left: 32, bottom: 24, color: '#fff', fontWeight: 900, fontSize: 22, letterSpacing: 1, zIndex: 2 }}>YASKAWA</div>
+      </div>
+
+      {/* Lado derecho: código */}
+      <div
+        onMouseEnter={() => setHover('right')}
+        onMouseLeave={() => setHover(null)}
+        onClick={() => navigate('/converter')}
+        style={{
+          width: '100vw',
+          minWidth: 0,
+          height: '100vh',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          cursor: 'pointer',
+          zIndex: 1,
+          clipPath: 'polygon(58vw 0, 100vw 0, 100vw 100vh, 48vw 100vh)',
+          overflow: 'hidden',
+          boxShadow: hover === 'right' ? '0 0 40px 0 #0050c8cc' : 'none',
+        }}
+      >
+        <img
+          src={process.env.PUBLIC_URL + '/assets/Imagen_codigo.jpeg'}
+          alt="codigo"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'brightness(0.85) grayscale(0.1)',
+            opacity: 0.82,
+            transition: 'all 0.35s cubic-bezier(.4,2,.3,1)',
+            transform: hover === 'right' ? 'scale(1.04)' : 'scale(1)',
+          }}
+        />
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(255,255,255,0.82)',
+          zIndex: 1,
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: 48,
+          right: 64,
+          zIndex: 2,
+          textAlign: 'right',
+        }}>
+          <h1 style={{ color: '#0066cc', fontWeight: 900, fontSize: '2.2em', letterSpacing: 1 }}>CONVERTER</h1>
+          <div style={{ color: '#222', fontWeight: 400, fontSize: 18, marginTop: 8, maxWidth: 420 }}>
+            It is an application that allows the<br />conversion of .dxf files to inform II language.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
 };
 
 export default DashboardHome;

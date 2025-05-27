@@ -1,0 +1,75 @@
+/* Sticky header SOLO para la tabla de parámetros, máxima compatibilidad */
+.sticky-table th, .sticky-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #111 !important;
+  color: #aeeaff !important;
+  border-bottom: 2px solid #4fc3f7 !important;
+  box-shadow: 0 2px 8px 0 #0006;
+  /* Elimina padding/margin conflictivo */
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  margin: 0 !important;
+}
+
+.sticky-thead th {
+  position: sticky !important;
+  top: 0;
+  background: #111 !important;
+  color: #aeeaff !important;
+  z-index: 20;
+  border-bottom: 2px solid #222 !important;
+}
+
+.sticky-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.sticky-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 19;
+  background: #111 !important;
+}
+
+/* Elimina cualquier display:block/overflow en thead/table (solo el div externo debe tener overflow) */
+.sticky-table thead, .sticky-table {
+  display: table-header-group !important;
+  overflow: visible !important;
+}
+
+/* Efecto de iluminación al pasar el mouse por la fila (morado suave) */
+.sticky-table tr.row-hover {
+  background: linear-gradient(90deg, #2d1a3a 0%, #a259f7 100%, #2d1a3a 100%);
+  box-shadow: 0 0 10px 0 #a259f780;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+
+/* Efecto animado al seleccionar una fila (morado) */
+.sticky-table tr.row-selected {
+  animation: selected-glow 0.5s;
+  background: linear-gradient(90deg, #2d1a3a 0%, #a259f7 100%);
+  box-shadow: 0 0 16px 0 #a259f780;
+  transition: background 0.25s, box-shadow 0.25s;
+}
+
+.sticky-table tr {
+  background: transparent;
+}
+
+@keyframes selected-glow {
+  0% {
+    box-shadow: 0 0 0 0 #a259f780;
+    background: #111;
+  }
+  60% {
+    box-shadow: 0 0 24px 6px #a259f780;
+    background: #a259f7;
+  }
+  100% {
+    box-shadow: 0 0 16px 0 #a259f780;
+    background: linear-gradient(90deg, #2d1a3a 0%, #a259f7 100%);
+  }
+}
