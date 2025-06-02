@@ -7,7 +7,6 @@ import axios from 'axios'
 
 const MySwal = withReactContent(Swal)
 const ymconnectService = "http://localhost:5229"
-const ftp_files = "http://localhost:8000"
 
 const StatsRobot = () => {
 
@@ -15,7 +14,8 @@ const StatsRobot = () => {
     const [infoRobot, setInfoRobot] = useState({})
     const [statusRobot, setStatusRobot] = useState({})
     const [coordinates, setCoordinates] = useState([])
-    const [exeJobInfo, setExeJobInfo] = useState({})
+    const [alarms, setAlarms] = useState([])
+    // const [exeJobInfo, setExeJobInfo] = useState({})
 
     const showSuccessMessage = (message) => {
         MySwal.fire({
@@ -35,7 +35,7 @@ const StatsRobot = () => {
 
     const listarJobs = async () => {
         try {
-            const res = await axios.get(`${ftp_files}/listar-jobs`)
+            const res = await axios.get(`${ymconnectService}/Robot/jobList`)
             setJobList(res.data)
             showSuccessMessage("Archivos traidos con exito.")
         } catch (error) {
@@ -78,23 +78,13 @@ const StatsRobot = () => {
                 ? file.substring(0, file.lastIndexOf('.'))
                 : file
 
-            const confirmar = Swal.fire({
-                text: "¿Estas seguro de cargar este archivo al robot?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Ok"
-            })
+            const reqUrl = `${ymconnectService}/Robot/setJob/${selected}`
+            const res = await axios.get(reqUrl)
 
-            if (confirmar) {
-                const reqUrl = `${ymconnectService}/Robot/setJob/${selected}`
-                const res = await axios.get(reqUrl)
-
-                if (res.data.statusCode === 0) {
-                    showSuccessMessage("Archivos configurado con exito.")
-                }
+            if (res.data.statusCode === 0) {
+                showSuccessMessage("Archivos configurado con exito.")
             }
+
         } catch (error) {
             showErrorMessage()
         }
@@ -113,15 +103,29 @@ const StatsRobot = () => {
         }
     }
 
-
     const stopJob = async () => {
         try {
             const reqUrl = `${ymconnectService}/Robot/stopJob`
             const res = await axios.get(reqUrl)
             if (res.data.statusCode === 0) {
-                alert("Detenido correctamente.")
+                showSuccessMessage("Detenido correctamente.")
             }
             getStatusRobot()
+        } catch (error) {
+            showErrorMessage()
+        }
+    }
+
+    const getAlarms = async () => {
+        try {
+            const reqUrl = `${ymconnectService}/Robot/activeAlarms`
+            const res = await axios.get(reqUrl)
+            if (res.data.count === 0) {
+                showSuccessMessage("No hay alarmas activas.")
+            } else {
+                showSuccessMessage("Alarmas detectadas.")
+                setAlarms(res.data.alarms)
+            }
         } catch (error) {
             showErrorMessage()
         }
@@ -152,7 +156,7 @@ const StatsRobot = () => {
                         <Button variant="primary" className="m-2" onClick={listarJobs}>Listar Jobs</Button>
                         <Button variant="success" className="m-2" onClick={getInfoRobot}>Info del Robot</Button>
                         <Button variant="warning" className="m-2" onClick={getStatusRobot}>Estado del Robot</Button>
-                        <Button variant="info" className="m-2" onClick={getCoordinates}>Coordenadas</Button>
+                        <Button variant="danger" className="m-2" onClick={getAlarms}>Alarmas</Button>
                     </div>
 
                     <Row className='text-center w-100 justify-content-center mb-5'>
@@ -167,10 +171,10 @@ const StatsRobot = () => {
                                         <tbody>
                                             {
                                                 jobList?.map((job, idx) => (
-                                                    <tr onClick={() => changeJob(job)} key={idx}>
-                                                        <td>{idx + 1}</td>
-                                                        <td>{job}</td>
-                                                    </tr>
+                                                    job !== "" && <tr onClick={() => changeJob(job)} key={idx}>
+                                                                        <td>{idx + 1}</td>
+                                                                        <td>{job}</td>
+                                                                  </tr>
                                                 ))
                                             }
                                         </tbody>
@@ -188,6 +192,7 @@ const StatsRobot = () => {
                                     ))}
                                 </Card.Body>
                             </Card>
+                            <Button variant="info" className="m-2" onClick={getCoordinates}>Coordenadas</Button>
                         </Col>
                         <Col>
                             <Card className='m-3' bg='dark' style={{ color: '#ffffff' }}>
@@ -212,6 +217,17 @@ const StatsRobot = () => {
                                     <Card.Text>Errores activos: {statusRobot.isErroring ? "Hay errores activos" : "Sin errores"}</Card.Text>
                                     <Card.Text>Servos: {statusRobot.isServoOn ? "Servos encendidos" : "Servos apagados"}</Card.Text>
                                     <Card.Text>Hold: {statusRobot.isInHold ? "En espera" : "Modo en espera desactivado"}</Card.Text>
+                                </Card.Body>
+                            </Card>
+
+                            <Card className='m-3' bg='dark' style={{ color: '#ffffff' }}>
+                                <Card.Body>
+                                    <Card.Title>Alarmas activas</Card.Title>
+                                    {
+                                        alarms?.map((alarm, idx) => (
+                                            <Card.Text>{alarm}</Card.Text>
+                                        ))
+                                    }
                                 </Card.Body>
                             </Card>
                         </Col>
