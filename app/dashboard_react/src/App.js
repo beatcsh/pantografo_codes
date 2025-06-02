@@ -6,6 +6,7 @@ import DashboardHome from './layouts/DashboardHome';
 import StatsRobot from './layouts/StatsRobot';
 import Converter from './layouts/Converter';
 import ModernDashboard from './layouts/ModernDashboard';
+import YMConnect from './layouts/YMConnect/YMConnect';
 import { useEffect } from 'react';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/stats" element={<StatsRobot />}></Route>
           <Route path="/converter" element={<Converter />}></Route>
           <Route path="/ModernDashboard" element={<ModernDashboard />}></Route>
+          <Route path="/ymconnect" element={<YMConnect />}></Route>
         </Routes>
       </BrowserRouter>
     </>
