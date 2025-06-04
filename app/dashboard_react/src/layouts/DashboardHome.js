@@ -4,7 +4,17 @@ import '../App.css';
 
 const DashboardHome = () => {
   const [hover, setHover] = useState(null); // 'left' | 'right' | null
+  const [animating, setAnimating] = useState(null); // 'left' | 'right' | null
   const navigate = useNavigate();
+
+  // Maneja el click con animación
+  const handleClick = (side) => {
+    setAnimating(side);
+    setTimeout(() => {
+      if (side === 'left') navigate('/ymconnect');
+      if (side === 'right') navigate('/converter');
+    }, 650); // Duración de la animación de expansión
+  };
 
   return (
     <div style={{
@@ -20,7 +30,7 @@ const DashboardHome = () => {
       <div
         onMouseEnter={() => setHover('left')}
         onMouseLeave={() => setHover(null)}
-        onClick={() => navigate('/ymconnect')}
+        onClick={() => !animating && handleClick('left')}
         style={{
           width: '100vw',
           minWidth: 0,
@@ -28,12 +38,13 @@ const DashboardHome = () => {
           position: 'absolute',
           top: 0,
           left: 0,
-          cursor: 'pointer',
+          cursor: animating ? 'default' : 'pointer',
           zIndex: 2,
           transition: 'box-shadow 0.3s, filter 0.3s',
           boxShadow: hover === 'left' ? '0 0 40px 0 #0050c8cc' : 'none',
           clipPath: 'polygon(0 0, 58vw 0, 48vw 100vh, 0 100vh)',
           overflow: 'hidden',
+          pointerEvents: animating && animating !== 'left' ? 'none' : 'auto',
         }}
       >
         <img
@@ -76,7 +87,7 @@ const DashboardHome = () => {
       <div
         onMouseEnter={() => setHover('right')}
         onMouseLeave={() => setHover(null)}
-        onClick={() => navigate('/converter')}
+        onClick={() => !animating && handleClick('right')}
         style={{
           width: '100vw',
           minWidth: 0,
@@ -84,11 +95,12 @@ const DashboardHome = () => {
           position: 'absolute',
           top: 0,
           left: 0,
-          cursor: 'pointer',
+          cursor: animating ? 'default' : 'pointer',
           zIndex: 1,
           clipPath: 'polygon(58vw 0, 100vw 0, 100vw 100vh, 48vw 100vh)',
           overflow: 'hidden',
           boxShadow: hover === 'right' ? '0 0 40px 0 #0050c8cc' : 'none',
+          pointerEvents: animating && animating !== 'right' ? 'none' : 'auto',
         }}
       >
         <img
@@ -126,10 +138,59 @@ const DashboardHome = () => {
           </div>
         </div>
       </div>
+
+      {/* Overlay animado de expansión */}
+      {animating && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 99,
+            pointerEvents: 'none',
+            background: animating === 'left'
+              ? 'linear-gradient(180deg, #0050c8cc 0%, #003366cc 100%)'
+              : 'rgba(255,255,255,0.82)',
+            animation: `${animating === 'left' ? 'expandLeft' : 'expandRight'} 0.65s cubic-bezier(.4,2,.3,1) forwards`,
+          }}
+        />
+      )}
+
+      {/* Animaciones keyframes globales */}
+      <style>{`
+        @keyframes expandLeft {
+          0% {
+            clip-path: polygon(0 0, 58vw 0, 48vw 100vh, 0 100vh);
+            opacity: 1;
+          }
+          80% {
+            clip-path: polygon(0 0, 100vw 0, 100vw 100vh, 0 100vh);
+            opacity: 1;
+          }
+          100% {
+            clip-path: polygon(0 0, 100vw 0, 100vw 100vh, 0 100vh);
+            opacity: 1;
+          }
+        }
+        @keyframes expandRight {
+          0% {
+            clip-path: polygon(58vw 0, 100vw 0, 100vw 100vh, 48vw 100vh);
+            opacity: 1;
+          }
+          80% {
+            clip-path: polygon(0 0, 100vw 0, 100vw 100vh, 0 100vh);
+            opacity: 1;
+          }
+          100% {
+            clip-path: polygon(0 0, 100vw 0, 100vw 100vh, 0 100vh);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
-
-
 };
 
 export default DashboardHome;

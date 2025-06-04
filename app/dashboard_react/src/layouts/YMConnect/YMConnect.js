@@ -16,9 +16,15 @@ const menu = [
   { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
 ];
 
-const YMConnect = () => {
+const YMConnect = (props) => {
+  const { onContentReady } = props;
   const [active, setActive] = useState('home');
   const sidebarWidth = 290;
+
+  // Llama a onContentReady al montar (puedes mejorar para esperar datos reales)
+  React.useEffect(() => {
+    if (onContentReady) onContentReady();
+  }, [onContentReady]);
 
   return (
     <div style={{
