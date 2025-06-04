@@ -20,7 +20,7 @@ const DashboardHome = () => {
       <div
         onMouseEnter={() => setHover('left')}
         onMouseLeave={() => setHover(null)}
-        onClick={() => navigate('/stats')}
+        onClick={() => navigate('/ymconnect')}
         style={{
           width: '100vw',
           minWidth: 0,
