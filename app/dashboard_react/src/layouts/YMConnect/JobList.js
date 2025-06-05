@@ -1,142 +1,197 @@
-import React from 'react';
-import { FaDownload } from 'react-icons/fa';
+import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
+import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
+import { CiFileOn } from "react-icons/ci";
+import withReactContent from 'sweetalert2-react-content'
+import { GrConfigure } from "react-icons/gr"
+import { useState, useEffect } from "react"
+import ModalJob from "../../components/ModalJob"
+import Swal from 'sweetalert2'
+import axios from 'axios'
+import AOS from "aos"
+import 'aos/dist/aos.css'
 
-const jobs = Array(8).fill({
-  name: 'ExampleNameJob.JBI',
-  download: true,
-  start: true,
-  stop: true,
-});
+const MySwal = withReactContent(Swal)
+const ymConnectService = "http://localhost:5229"
 
-const JobList = () => (
-  <div style={{
-    width: '100%',
-    minHeight: '100vh',
-    background: '#f3f3f3',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    padding: '0',
-  }}>
-    <div style={{
-      width: '100%',
-      padding: '48px 0 0 60px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '18px',
-    }}>
-      <span style={{
-        fontSize: '2.3em',
-        fontWeight: 700,
-        color: '#1976d2',
-        fontFamily: 'Arial Black',
-        letterSpacing: 1,
-      }}>Job List</span>
-      <span style={{
-        background: '#fff',
-        border: '1.5px solid #aaa',
-        borderRadius: 6,
-        fontWeight: 600,
-        fontSize: '1.1em',
-        padding: '6px 22px',
-        marginLeft: 18,
-        color: '#444',
-        boxShadow: '0 2px 8px #0001',
-      }}>32 active jobs</span>
-    </div>
-    <div style={{
-      width: '90%',
-      margin: '32px auto 0 60px',
-      background: '#fff',
-      borderRadius: 18,
-      boxShadow: '0 4px 24px #0001',
-      padding: '32px 0',
-      minHeight: 420,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      overflowX: 'auto',
-      overflowY: 'auto',
-      maxHeight: 480,
-    }}>
-      <table style={{
-        width: '96%',
-        borderCollapse: 'collapse',
-        fontSize: '1.13em',
-        fontFamily: 'Inter, Arial, sans-serif',
-        color: '#222',
-      }}>
-        <thead>
-          <tr style={{fontWeight:700, fontSize:'1.08em'}}>
-            <th style={{padding: '8px 0', textAlign:'left'}}>Job name</th>
-            <th style={{padding: '8px 0', textAlign:'center'}}>download</th>
-            <th style={{padding: '8px 0', textAlign:'center'}}>start</th>
-            <th style={{padding: '8px 0', textAlign:'center'}}>stop</th>
-          </tr>
-        </thead>
-        <tbody>
-          {jobs.map((job, i) => (
-            <tr key={i} style={{height:48}}>
-              <td style={{textAlign:'left'}}>{job.name}</td>
-              <td style={{textAlign:'center'}}>
-                <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:2}}>
-                  <span style={{fontSize:'0.95em', color:'#888'}}>download</span>
-                  <button style={{
-                    background:'#444d5c',
-                    border:'none',
-                    borderRadius: '50%',
-                    width:36,
-                    height:36,
-                    display:'flex',
-                    alignItems:'center',
-                    justifyContent:'center',
-                    boxShadow:'0 2px 8px #0002',
-                    cursor:'pointer',
-                  }}>
-                    <FaDownload color="#fff" size={18} />
-                  </button>
-                </div>
-              </td>
-              <td style={{textAlign:'center'}}>
-                <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:2}}>
-                  <span style={{fontSize:'0.95em', color:'#888'}}>start</span>
-                  <span style={{
-                    background:'#2ecc40',
-                    color:'#fff',
-                    borderRadius:'50%',
-                    width:32,
-                    height:32,
-                    display:'flex',
-                    alignItems:'center',
-                    justifyContent:'center',
-                    fontSize:'1.4em',
-                    fontWeight:700,
-                  }}>✓</span>
-                </div>
-              </td>
-              <td style={{textAlign:'center'}}>
-                <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:2}}>
-                  <span style={{fontSize:'0.95em', color:'#888'}}>stop</span>
-                  <span style={{
-                    background:'#ff2d2d',
-                    color:'#fff',
-                    borderRadius:'50%',
-                    width:32,
-                    height:32,
-                    display:'flex',
-                    alignItems:'center',
-                    justifyContent:'center',
-                    fontSize:'1.4em',
-                    fontWeight:700,
-                  }}>✕</span>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
+const JobList = () => {
 
-export default JobList;
+  const [jobs, setJobs] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [modalContent, setModalContent] = useState("")
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        AOS.init()
+        const res = await axios.get(`${ymConnectService}/Jobs/jobList`)
+        setJobs(res.data)
+
+        MySwal.fire({
+          icon: "success",
+          title: "Archivos traídos con éxito",
+          timer: 10000,
+          showConfirmButton: false
+        })
+      } catch (error) {
+        MySwal.fire({
+          icon: "error",
+          title: "Conexión perdida.",
+          timer: 10000,
+          showConfirmButton: false
+        })
+      }
+    }
+
+    fetchJobs()
+  }, [])
+
+  const setJob = async (file) => {
+    try {
+      const selected = file.includes('.')
+        ? file.substring(0, file.lastIndexOf('.'))
+        : file
+
+      const reqUrl = `${ymConnectService}/Process/setJob/${selected}`
+      const res = await axios.get(reqUrl)
+
+      if (res.data.statusCode === 0) {
+        MySwal.fire({
+          icon: "success",
+          title: "Archivo seleccionado con éxito",
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        timer: 10000,
+        showConfirmButton: false
+      })
+    }
+  }
+
+  const startJob = async () => {
+    try {
+      const reqUrl = `${ymConnectService}/Process/startJob`
+      const res = await axios.get(reqUrl)
+      if (res.data.statusCode === 0) {
+        MySwal.fire({
+          icon: "success",
+          title: "Archivo ejecutado con éxito",
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        timer: 10000,
+        showConfirmButton: false
+      })
+    }
+  }
+
+  const stopJob = async () => {
+    try {
+      const reqUrl = `${ymConnectService}/Process/stopJob`
+      const res = await axios.get(reqUrl)
+      if (res.data.statusCode === 0) {
+        MySwal.fire({
+          icon: "success",
+          title: "Archivo detenido",
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        timer: 10000,
+        showConfirmButton: false
+      })
+    }
+  }
+
+  const getStringJob = async (job) => {
+    try {
+      const reqUrl = `${ymConnectService}/Jobs/getStringJob/${job}`
+      const res = await axios.get(reqUrl)
+
+      setModalContent(res.data.content)
+      setShowModal(true)
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        timer: 10000,
+        showConfirmButton: false
+      })
+    }
+  }
+
+  return (
+    <Container data-aos="zoom-in" fluid style={{ backgroundColor: "#010923", minHeight: "100vh", padding: "5rem" }}>
+      {/* Título y contador */}
+      <Row className="mb-4 mt-5">
+        <Col>
+          <h1 style={{ color: "white", marginTop: '30px' }}>Lista de trabajos</h1>
+          <Badge bg="secondary">{jobs.length - 1} archivos encontrados <CiFileOn /></Badge>
+        </Col>
+      </Row>
+
+      {/* Tabla de trabajos */}
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8}>
+          <div style={{ marginBottom: '25px' }}>
+            <Button variant="success" className="m-2 pr-1" onClick={startJob}><FaPlay /> Play</Button>
+            <Button variant="danger" className="m-2 pr-1" onClick={stopJob}><FaStop /> Stop</Button>
+          </div>
+          <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem" }}>
+            <Table responsive borderless style={{ width: '90%' }}>
+              <thead>
+                <tr>
+                  <th><h5>Job name</h5></th>
+                  <th><h5>Set</h5></th>
+                  <th><h5>Watch</h5></th>
+                  <th><h5>Download</h5></th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobs.map((job, index) => (
+                  index < jobs.length - 1 ? (
+                    <tr key={index}>
+                      <td><h7>{job}</h7></td>
+                      <td>
+                        <Button onClick={() => setJob(job)} variant="primary" size="sm">
+                          <GrConfigure />
+                        </Button>
+                      </td>
+                      <td>
+                        <Button onClick={() => getStringJob(job)} variant="warning" size="sm">
+                          <FaEye />
+                        </Button>
+                      </td>
+                      <td>
+                        <Button variant="dark" size="sm">
+                          <FaDownload />
+                        </Button>
+                      </td>
+                    </tr>
+                  ) : null
+                ))}
+                {/*  */}
+              </tbody>
+            </Table>
+          </div>
+        </Col>
+      </Row>
+      <ModalJob show={showModal} close={() => setShowModal(false)} content={modalContent} />
+    </Container>
+  )
+}
+
+export default JobList

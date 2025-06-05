@@ -1,9 +1,7 @@
-import logo from './logo.svg';
 import './App.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from './layouts/Login';
 import DashboardHome from './layouts/DashboardHome';
-import StatsRobot from './layouts/StatsRobot';
 import Converter from './layouts/Converter';
 import ModernDashboard from './layouts/ModernDashboard';
 import YMConnect from './layouts/YMConnect/YMConnect';
@@ -33,7 +31,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />}></Route>
           <Route path="/home" element={<DashboardHome />}></Route>
-          <Route path="/stats" element={<StatsRobot />}></Route>
           <Route path="/converter" element={<Converter />}></Route>
           <Route path="/ModernDashboard" element={<ModernDashboard />}></Route>
           <Route path="/ymconnect" element={<YMConnect />}></Route>
