@@ -134,7 +134,7 @@ const JobList = () => {
   }
 
   return (
-    <Container fluid style={{ backgroundColor: "#010923", minHeight: "100vh", padding: "5rem" }}>
+    <Container data-aos="zoom-in" fluid style={{ backgroundColor: "#010923", minHeight: "100vh", padding: "5rem" }}>
       {/* Título y contador */}
       <Row className="mb-4 mt-5">
         <Col>

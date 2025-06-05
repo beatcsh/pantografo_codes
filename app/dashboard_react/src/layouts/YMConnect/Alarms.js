@@ -1,7 +1,7 @@
 import { Container, Table, Row, Col, Badge, Button } from "react-bootstrap"
 import withReactContent from "sweetalert2-react-content"
 import { CiWarning } from "react-icons/ci"
-import { FaFileCsv } from "react-icons/fa";
+import { FaFileCsv } from "react-icons/fa"
 import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
 import axios from "axios"
@@ -87,7 +87,7 @@ const Alarms = () => {
   }
 
   return (
-    <Container fluid style={{ backgroundColor: "#010923", minHeight: "100vh", padding: "2rem 1rem" }}>
+    <Container data-aos="zoom-in" fluid style={{ backgroundColor: "#010923", minHeight: "100vh", padding: "2rem 1rem" }}>
       <Row className="mb-4 mt-5 justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <h1 style={{ color: "white" }}>Alarms History</h1>
@@ -135,11 +135,8 @@ const Alarms = () => {
           </Button>
         </Col>
       </Row>
-
-
     </Container>
   )
-
 }
 
 export default Alarms
