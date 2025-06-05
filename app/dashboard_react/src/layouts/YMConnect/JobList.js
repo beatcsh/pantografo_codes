@@ -1,5 +1,6 @@
 import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
 import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
+import { CiFileOn } from "react-icons/ci";
 import withReactContent from 'sweetalert2-react-content'
 import { GrConfigure } from "react-icons/gr"
 import { useState, useEffect } from "react"
@@ -138,7 +139,7 @@ const JobList = () => {
       <Row className="mb-4 mt-5">
         <Col>
           <h1 style={{ color: "white", marginTop: '30px' }}>Lista de trabajos</h1>
-          <Badge bg="secondary">{jobs.length - 1} archivos encontrados</Badge>
+          <Badge bg="secondary">{jobs.length - 1} archivos encontrados <CiFileOn /></Badge>
         </Col>
       </Row>
 
