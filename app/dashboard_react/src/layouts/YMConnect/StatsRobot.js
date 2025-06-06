@@ -25,12 +25,12 @@ const StatsRobot = () => {
           </div>
           <Card style={{ background: 'rgb(1,9,35)', color: '#ffffff', padding: '20px', fontSize: '20px' }}>
             <Card.Body>
-              Bienvenido. En esta pantalla podrás ver las estadísticas del robot en tiempo real y manipular todos los archivos.
-              Siendo operario podras previsualizar los JOBS antes de ejecutarlos y preparar la celda para evitar errores.
-              Despliega el menu de la izquierda para ver todas las opciones disponibles.
+              Welcome. In this screen you will be able to see the robot statistics in real time and manipulate all the files.
+              As an operator you can preview the JOBS before executing them and prepare the cell to avoid errors.
+              Scroll down the menu on the left to see all the available options.
             </Card.Body>
           </Card>
-          <Image src="/assets/fondoHomeYM.png" style={{ width: '400px', margin: '30px' }} rounded />
+          {/* <Image src="/assets/fondoHomeYM.png" style={{ width: '400px', margin: '30px' }} rounded /> */}
           {/* `url('/assets/fondoHomeYM.png') center center/cover no-repeat fixed` */}
         </Col>
       </Row>
