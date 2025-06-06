@@ -23,6 +23,7 @@ const StatsRobot = () => {
           }}>
             YMConnect Service
           </div>
+          <hr/>
           <Card style={{ background: 'rgb(1,9,35)', color: '#ffffff', padding: '20px', fontSize: '20px' }}>
             <Card.Body>
               Welcome. In this screen you will be able to see the robot statistics in real time and manipulate all the files.
