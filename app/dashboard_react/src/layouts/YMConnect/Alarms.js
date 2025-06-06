@@ -1,107 +1,144 @@
-import React from 'react';
+import { Container, Table, Row, Col, Badge, Button } from "react-bootstrap"
+import withReactContent from "sweetalert2-react-content"
+import { CiWarning } from "react-icons/ci"
+import { FaFileCsv } from "react-icons/fa"
+import { useState, useEffect } from "react"
+import Swal from "sweetalert2"
+import axios from "axios"
+import AOS from "aos"
+import 'aos/dist/aos.css'
 
-const alarms = Array(8).fill({
-  name: 'alarm_example',
-  code: 'alarm_example_code 02941',
-  subcode: 'alarm_example',
-  date: 'alarm_example',
-  action: 'Active',
-});
+const MySwal = withReactContent(Swal)
+const ymConnectService = "http://localhost:5229"
 
-const Alarms = () => (
-  <div style={{
-    width: '100%',
-    minHeight: '100vh',
-    background: '#f3f3f3',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    padding: '0',
-  }}>
-    <div style={{
-      width: '100%',
-      padding: '48px 0 0 60px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '18px',
-    }}>
-      <span style={{
-        fontSize: '2.3em',
-        fontWeight: 700,
-        color: '#1976d2',
-        fontFamily: 'Arial Black',
-        letterSpacing: 1,
-      }}>Alarms</span>
-      <button style={{
-        background: '#1976d2',
-        color: '#fff',
-        border: 'none',
-        borderRadius: 18,
-        fontWeight: 600,
-        fontSize: '1em',
-        padding: '6px 22px',
-        marginLeft: 8,
-        cursor: 'pointer',
-        boxShadow: '0 2px 8px #1976d222',
-        outline: 'none',
-        transition: 'background 0.18s',
-      }}>Reset</button>
-    </div>
-    <div style={{
-      width: '90%',
-      margin: '32px auto 0 60px',
-      background: '#fff',
-      borderRadius: 18,
-      boxShadow: '0 4px 24px #0001',
-      padding: '32px 0',
-      minHeight: 420,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    }}>
-      <table style={{
-        width: '96%',
-        borderCollapse: 'collapse',
-        fontSize: '1.13em',
-        fontFamily: 'Inter, Arial, sans-serif',
-        color: '#222',
-      }}>
-        <thead>
-          <tr style={{fontWeight:700, fontSize:'1.08em'}}>
-            <th style={{padding: '8px 0'}}>alarm name</th>
-            <th style={{padding: '8px 0'}}>code</th>
-            <th style={{padding: '8px 0'}}>subcode</th>
-            <th style={{padding: '8px 0'}}>date</th>
-            <th style={{padding: '8px 0'}}>action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {alarms.map((alarm, i) => (
-            <tr key={i} style={{textAlign:'center', height:48}}>
-              <td>{alarm.name}</td>
-              <td>{alarm.code}</td>
-              <td>{alarm.subcode}</td>
-              <td>{alarm.date}</td>
-              <td>
-                <span style={{
-                  background: '#00d100',
-                  color: '#fff',
-                  borderRadius: 6,
-                  padding: '4px 18px',
-                  fontWeight: 700,
-                  fontSize: '1em',
-                  display: 'inline-block',
-                  boxShadow: '0 2px 8px #00d10033',
-                }}>
-                  {alarm.action}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
+const Alarms = () => {
+  const [almHistory, setAlmHistory] = useState([])
 
-export default Alarms;
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        AOS.init()
+        const res = await axios.get(`${ymConnectService}/Alarms/getAlarmsHistory`)
+        parseAlarmHistory(res.data)
+        MySwal.fire({
+          icon: "success",
+          title: "Historial traido con exito",
+          timer: 2000,
+          showConfirmButton: false
+        })
+      } catch (error) {
+        MySwal.fire({
+          icon: "error",
+          title: "Conexión perdida.",
+          text: error.message,
+          timer: 10000,
+          showConfirmButton: false
+        })
+      }
+    }
+
+    fetchHistory()
+  }, [])
+
+  function parseAlarmHistory(data) {
+    const lines = data.split("\n").map(l => l.trim()).filter(l => l.length > 0)
+    const alarmEntries = []
+    let i = 0
+
+    while (i < lines.length) {
+      const line = lines[i]
+      if (/^\d{4},/.test(line)) {
+        const [code, description, , location, , mode] = line.split(",")
+        if (i + 9 < lines.length) {
+          i += 9
+          const timestamp = lines[i]?.trim() || "Sin fecha"
+          alarmEntries.push({
+            code,
+            description,
+            location: location?.replace(/\[|\]/g, '').trim() || null,
+            mode: mode?.replace(",", "").trim() || null,
+            timestamp
+          })
+        }
+      }
+      i++
+    }
+
+    setAlmHistory(alarmEntries)
+  }
+
+  const alarmsCSV = (alarms, file_name = "alarms_history.csv") => {
+    const header = 'N°,Code,Description,Location,Mode,Datetime\n';
+    const rows = alarms.map((a, i) =>
+      `${i + 1},"${a.code}","${a.description}","${a.location}","${a.mode}","${a.timestamp}"`
+    ).join('\n');
+
+    const content = header + rows;
+
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file_name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link)
+  }
+
+  // backgroundColor: "#010923",
+  
+  return (
+    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem" }}>
+      <Row className="mb-4 mt-5 justify-content-center">
+        <Col xs={12} md={10} lg={8}>
+          <h1 style={{ color: "white" }}>Alarms History</h1>
+          <Badge bg="secondary">{almHistory.length} alarms found <CiWarning /></Badge>
+        </Col>
+      </Row>
+
+      <Row className="justify-content-center">
+        <Col xs={12} md={10} lg={8}>
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "1rem",
+              padding: "1rem",
+              maxHeight: "500px",  // Altura máxima visible
+              overflowY: "auto",   // Scroll vertical si se excede
+              boxShadow: "0 0 10px rgba(0,0,0,0.1)"
+            }}
+          >
+            <Table responsive borderless className="mb-0">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Description</th>
+                  <th>Location</th>
+                  <th>Mode</th>
+                  <th>Datetime</th>
+                </tr>
+              </thead>
+              <tbody>
+                {almHistory.map((alarm, idx) => (
+                  <tr key={idx}>
+                    <td>{alarm.code}</td>
+                    <td>{alarm.description}</td>
+                    <td>{alarm.location}</td>
+                    <td>{alarm.mode}</td>
+                    <td>{alarm.timestamp}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+          <Button className="mt-3" variant="success" onClick={() => alarmsCSV(almHistory)}>
+            <FaFileCsv /> Download CSV
+          </Button>
+        </Col>
+      </Row>
+    </Container>
+  )
+}
+
+export default Alarms
