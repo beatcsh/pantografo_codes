@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaSignOutAlt } from 'react-icons/fa';
 import '../App.css';
 
-const DashboardHome = () => {
+const DashboardHome = ({ user, onLogout }) => {
   const [hover, setHover] = useState(null); // 'left' | 'right' | null
   const [animating, setAnimating] = useState(null); // 'left' | 'right' | null
   const navigate = useNavigate();
@@ -26,6 +27,33 @@ const DashboardHome = () => {
       overflow: 'hidden',
       display: 'flex',
     }}>
+      {/* Logout button top right */}
+      <button
+        onClick={onLogout}
+        style={{
+          position: 'fixed',
+          top: 24,
+          right: 24,
+          zIndex: 1000,
+          background: 'rgba(255,255,255,0.92)',
+          border: '2px solid #1976d2',
+          color: '#1976d2',
+          borderRadius: 12,
+          fontWeight: 700,
+          fontSize: 18,
+          padding: '8px 18px 8px 14px',
+          boxShadow: '0 2px 12px #1976d211',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          cursor: 'pointer',
+          transition: 'background 0.18s',
+        }}
+        title="Logout"
+      >
+        <FaSignOutAlt size={20} /> Logout
+      </button>
+
       {/* Lado izquierdo: robots */}
       <div
         onMouseEnter={() => setHover('left')}

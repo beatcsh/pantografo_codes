@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Button, Spinner, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Converter.css';
-import { FaUpload, FaTrashAlt } from 'react-icons/fa';
+import { FaUpload, FaTrashAlt, FaSignOutAlt } from 'react-icons/fa';
 
 const API_URL = 'http://localhost:8000';
 
 const Converter = (props) => {
-  const { onContentReady } = props;
+  const { onContentReady, user, onLogout } = props;
   // Estados para la tabla de parámetros
   const [tabla, setTabla] = useState([]);
   const [tablaHeaders, setTablaHeaders] = useState([]);
@@ -191,6 +191,32 @@ const Converter = (props) => {
         background: "url('/assets/fondo.jpeg') center center/cover no-repeat fixed"
       }}
     >
+      {/* Logout button top left */}
+      <button
+        onClick={onLogout}
+        style={{
+          position: 'fixed',
+          top: 24,
+          right: 24,
+          zIndex: 1000,
+          background: 'rgba(255,255,255,0.92)',
+          border: '2px solid #1976d2',
+          color: '#1976d2',
+          borderRadius: 12,
+          fontWeight: 700,
+          fontSize: 18,
+          padding: '8px 18px 8px 14px',
+          boxShadow: '0 2px 12px #1976d211',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          cursor: 'pointer',
+          transition: 'background 0.18s',
+        }}
+        title="Logout"
+      >
+        <FaSignOutAlt size={20} /> Logout
+      </button>
       {view === 'select' && (
         <div className="converter-select-container converter-select-bottom-exact">
           <div className="converter-select-row-exact">
@@ -479,6 +505,5 @@ CSS extra sugerido para Converter.css:
 ⬜🟧⬛⬛⬛🟧🟧⬛⬛⬛⬛🟧⬛⬛⬛⬛🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧⬛⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛🟧⬛⬛⬛⬛🟧🟧🟧⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛🟧🟧🟧⬛⬛🟧⬜🟧⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛⬛⬛⬛⬛🟧🟧⬜🟧🟧⬛⬛⬛⬛⬛⬛🟧🟧🟧⬛⬛⬛⬛⬛⬛🟧🟧⬜🟧⬛⬛🟧⬜🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛⬛⬛⬛🟧🟧⬜⬜⬜🟧🟧⬛⬛⬛⬛🟧🟧⬜🟧🟧⬛⬛⬛⬛🟧🟧⬜⬜🟧🟧⬛🟧⬜🟧⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧⬛🟧⬜
 ⬜🟧🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧🟧🟧⬜*/

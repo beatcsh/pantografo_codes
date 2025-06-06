@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Dummy data para ejemplo (puedes reemplazar por fetch a API real)
 const dummyIO = [
-  { num: 1, type: 'Input', active: true },
-  { num: 2, type: 'Input', active: false },
-  { num: 3, type: 'Input', active: true },
-  { num: 4, type: 'Input', active: false },
-  { num: 5, type: 'Output', active: true },
-  { num: 6, type: 'Output', active: false },
-  { num: 7, type: 'Output', active: false },
-  { num: 8, type: 'Output', active: true },
+  { num: 1, type: 'Input', active: false },
+  { num: 2, type: 'Output', active: true },
+  { num: 3, type: 'Output', active: false },
+  { num: 4, type: 'Output', active: true },
+  { num: 5, type: 'Input', active: false },
+  { num: 6, type: 'Input', active: true },
 ];
 
 const Diagnostics = () => {
@@ -21,86 +19,111 @@ const Diagnostics = () => {
 
   return (
     <div style={{
-      width: '100vw',
-      height: '100vh',
-      background: '#fff',
-      margin: 0,
-      padding: 0,
       display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
+      justifyContent: 'center', // Centra horizontalmente
+      alignItems: 'center', // Centra verticalmente
+      width: '100%',
+      minHeight: '100vh',
+      padding: 32,
+      backgroundColor: '#f4f4f8'
     }}>
       <div style={{
-        marginLeft: 290, // igual al ancho de la sidebar
         width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        padding: '0 24px',
+        maxWidth: 900, // Máximo ancho para el contenido
+        background: '#fff',
+        borderRadius: 8,
+        boxShadow: '0 2px 10px #0001',
+        padding: 16,
       }}>
-        <h2 style={{
-          color: '#1976d2',
-          fontWeight: 900,
-          fontSize: '2.1em',
-          letterSpacing: 1,
-          margin: '0 0 32px 0',
-          textAlign: 'left',
-          fontFamily: 'Montserrat, Inter, Arial, sans-serif',
-        }}>Entradas y Salidas</h2>
-        <div style={{
-          maxWidth: 600,
+        <table style={{
           width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 18,
-          maxHeight: '70vh',
-          overflowY: 'auto',
+          background: '#fff',
+          borderRadius: 8,
+          boxShadow: '0 2px 10px #0001'
         }}>
-          {ioList.map((io) => (
-            <div key={io.num} style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: '#f7faff',
-              borderRadius: 16,
-              boxShadow: '0 2px 12px #0033660a',
-              padding: '18px 28px',
-              fontFamily: 'Montserrat, Inter, Arial, sans-serif',
-              fontWeight: 600,
-              fontSize: 18,
-              color: '#222',
-              letterSpacing: 0.5,
-            }}>
-              <span style={{ color: '#1976d2', fontWeight: 900, fontSize: 20, minWidth: 40 }}>#{io.num}</span>
-              <span style={{ color: io.type === 'Input' ? '#1976d2' : '#ffb300', fontWeight: 700, fontSize: 18, minWidth: 90, textAlign: 'center' }}>
-                {io.type === 'Input' ? 'Entrada' : 'Salida'}
-              </span>
-              <span style={{
-                display: 'inline-block',
-                minWidth: 110,
-                padding: '8px 22px',
-                borderRadius: 18,
-                fontWeight: 800,
-                fontSize: 16,
-                background: io.active ? 'linear-gradient(90deg,#43ea7a 0%,#1de982 100%)' : 'linear-gradient(90deg,#ff5252 0%,#ff1744 100%)',
-                color: '#fff',
-                boxShadow: io.active ? '0 2px 8px #43ea7a33' : '0 2px 8px #ff525233',
-                letterSpacing: 1,
-                border: 'none',
-                transition: 'background 0.2s',
-                textShadow: '0 1px 4px #0001',
+          <thead>
+            <tr>
+              <th style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: '#29a6ff',
                 textAlign: 'center',
+                padding: 16,
+                borderBottom: '2px solid #eee',
+                fontFamily: 'Montserrat, sans-serif'
               }}>
-                {io.active ? 'ACTIVA' : 'INACTIVA'}
-              </span>
-            </div>
-          ))}
-        </div>
+                Inputs/outputs
+              </th>
+              <th style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: '#29a6ff',
+                textAlign: 'center',
+                padding: 16,
+                borderBottom: '2px solid #eee',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                Number
+              </th>
+              <th style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: '#29a6ff',
+                textAlign: 'center',
+                padding: 16,
+                borderBottom: '2px solid #eee',
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                Estado
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {ioList.map((io, idx) => (
+              <tr key={idx}>
+                <td style={{
+                  textAlign: 'center',
+                  padding: 16,
+                  fontSize: 18,
+                  fontWeight: 600,
+                  fontFamily: 'Arial, sans-serif'
+                }}>
+                  {io.type}
+                </td>
+                <td style={{
+                  textAlign: 'center',
+                  padding: 16,
+                  fontSize: 20,
+                  fontWeight: 600,
+                  fontFamily: 'Courier New, monospace',
+                  letterSpacing: 2
+                }}>
+                  {'#'.repeat(20)}
+                </td>
+                <td style={{ textAlign: 'center', padding: 16 }}>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '8px 20px',
+                    borderRadius: 999,
+                    backgroundColor: io.active ? '#7CFC00' : '#FF4444',
+                    color: io.active ? '#003300' : '#fff',
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    fontFamily: 'Arial',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.2)'
+                  }}>
+                    {io.active ? 'Active' : 'Unabled'}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
 export default Diagnostics;
+
+

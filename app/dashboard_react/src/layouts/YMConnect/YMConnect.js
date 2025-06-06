@@ -5,7 +5,7 @@ import JobList from './JobList';
 import Diagnostics from './Diagnostics';
 import RobotInfo from './RobotInfo';
 import AboutUs from './AboutUs';
-import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle } from 'react-icons/fa';
+import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaSignOutAlt } from 'react-icons/fa';
 
 const menu = [
   { key: 'home', label: 'Home', icon: <FaHome size={22} />, component: <StatsRobot /> },
@@ -17,7 +17,7 @@ const menu = [
 ];
 
 const YMConnect = (props) => {
-  const { onContentReady } = props;
+  const { onContentReady, user, onLogout } = props;
   const [active, setActive] = useState('home');
   const sidebarWidth = 290;
 
@@ -34,6 +34,32 @@ const YMConnect = (props) => {
       position: 'relative',
       background: `url('/assets/fondoHomeYM.png') center center/cover no-repeat fixed`,
     }}>
+      {/* Logout button top right */}
+      <button
+        onClick={onLogout}
+        style={{
+          position: 'fixed',
+          top: 24,
+          right: 24,
+          zIndex: 2001,
+          background: 'rgba(255,255,255,0.92)',
+          border: '2px solid #1976d2',
+          color: '#1976d2',
+          borderRadius: 12,
+          fontWeight: 700,
+          fontSize: 18,
+          padding: '8px 18px 8px 14px',
+          boxShadow: '0 2px 12px #1976d211',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          cursor: 'pointer',
+          transition: 'background 0.18s',
+        }}
+        title="Logout"
+      >
+        <FaSignOutAlt size={20} /> Logout
+      </button>
       {/* Overlay oscuro sobre todo el fondo */}
       <div style={{
         position: 'absolute',
