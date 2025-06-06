@@ -2,11 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Container, Row, Col, Table, Button, Form, Spinner, InputGroup, Alert, Card, Badge } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
+import { FaSignOutAlt } from 'react-icons/fa';
 
 // Usa la misma API que Converter.js
 const API_URL = 'http://localhost:8000';
 
-const ModernDashboard = () => {
+const ModernDashboard = ({ user, onLogout }) => {
   // Estados para la tabla de parámetros
   const [tabla, setTabla] = useState([]);
   const [tablaHeaders, setTablaHeaders] = useState([]);
@@ -176,6 +177,33 @@ const ModernDashboard = () => {
       position: 'relative',
       overflowX: 'hidden',
     }}>
+      {/* Logout button top left */}
+      <button
+        onClick={onLogout}
+        style={{
+          position: 'fixed',
+          top: 24,
+          right: 24,
+          zIndex: 1000,
+          background: 'rgba(255,255,255,0.92)',
+          border: '2px solid #1976d2',
+          color: '#1976d2',
+          borderRadius: 12,
+          fontWeight: 700,
+          fontSize: 18,
+          padding: '8px 18px 8px 14px',
+          boxShadow: '0 2px 12px #1976d211',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          cursor: 'pointer',
+          transition: 'background 0.18s',
+        }}
+        title="Logout"
+      >
+        <FaSignOutAlt size={20} /> Logout
+      </button>
+
       {/* Header superior */}
       <div style={{
         background: '#fff',

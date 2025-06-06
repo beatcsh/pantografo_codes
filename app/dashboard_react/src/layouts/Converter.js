@@ -2,11 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Button, Spinner, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Converter.css';
-import { FaUpload, FaTrashAlt } from 'react-icons/fa';
+import { FaUpload, FaTrashAlt, FaSignOutAlt } from 'react-icons/fa';
 
 const API_URL = 'http://localhost:8000';
 
-const Converter = () => {
+const Converter = (props) => {
+  const { onContentReady, user, onLogout } = props;
   // Estados para la tabla de parámetros
   const [tabla, setTabla] = useState([]);
   const [tablaHeaders, setTablaHeaders] = useState([]);
@@ -44,10 +45,11 @@ const Converter = () => {
         if (Array.isArray(data) && data.length > 0) {
           setTabla(data);
           setTablaHeaders(Object.keys(data[0]));
+          if (onContentReady) onContentReady(); // Llama aquí cuando la info está lista
         }
       })
       .catch(() => setTabla([]));
-  }, []);
+  }, [onContentReady]);
 
   // Cargar archivos JBI
   const fetchJobs = () => {
@@ -64,6 +66,14 @@ const Converter = () => {
       });
   };
   useEffect(fetchJobs, []);
+
+  // Efecto para llamar a onContentReady cuando los datos están listos
+  useEffect(() => {
+    if (tabla.length > 0 && jobs.length > 0 && props.onContentReady) {
+      props.onContentReady();
+    }
+    // eslint-disable-next-line
+  }, [tabla, jobs]);
 
   // Selección de fila de tabla
   const handleRowSelect = (row) => {
@@ -181,6 +191,32 @@ const Converter = () => {
         background: "url('/assets/fondo.jpeg') center center/cover no-repeat fixed"
       }}
     >
+      {/* Logout button top left */}
+      <button
+        onClick={onLogout}
+        style={{
+          position: 'fixed',
+          top: 24,
+          right: 24,
+          zIndex: 1000,
+          background: 'rgba(255,255,255,0.92)',
+          border: '2px solid #1976d2',
+          color: '#1976d2',
+          borderRadius: 12,
+          fontWeight: 700,
+          fontSize: 18,
+          padding: '8px 18px 8px 14px',
+          boxShadow: '0 2px 12px #1976d211',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          cursor: 'pointer',
+          transition: 'background 0.18s',
+        }}
+        title="Logout"
+      >
+        <FaSignOutAlt size={20} /> Logout
+      </button>
       {view === 'select' && (
         <div className="converter-select-container converter-select-bottom-exact">
           <div className="converter-select-row-exact">
@@ -465,16 +501,9 @@ CSS extra sugerido para Converter.css:
 ⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧⬛🟧⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛🟧🟧⬛⬛⬛⬛🟧⬛⬛⬛⬛🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧⬛⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛🟧⬛⬛⬛⬛🟧🟧🟧⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛🟧🟧🟧⬛⬛🟧⬜🟧⬛⬛⬛🟧⬜
 ⬜🟧⬛⬛⬛⬛⬛⬛⬛🟧🟧⬜🟧🟧⬛⬛⬛⬛⬛⬛🟧🟧🟧⬛⬛⬛⬛⬛⬛🟧🟧⬜🟧⬛⬛🟧⬜🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛⬛⬛⬛🟧🟧⬜⬜⬜🟧🟧⬛⬛⬛⬛🟧🟧⬜🟧🟧⬛⬛⬛⬛🟧🟧⬜⬜🟧🟧⬛🟧⬜🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛⬛⬛🟧🟧⬜⬜⬜⬜⬜🟧🟧⬛⬛🟧🟧⬜⬜⬜🟧🟧⬛⬛🟧🟧⬜⬜⬜⬜🟧🟧🟧⬜🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛⬛🟧🟧⬜⬜⬜⬜⬜⬜⬜🟧🟧🟧🟧⬜⬜⬜⬜⬜🟧🟧🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧🟧⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧⬛⬛🟧⬜
-⬜🟧⬛⬛🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧🟧⬛🟧⬜
-⬜🟧⬛🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧⬛🟧⬜
+⬜🟧⬛⬛🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧⬛🟧⬜
 ⬜🟧🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧🟧🟧⬜*/

@@ -3,23 +3,29 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Container, Row, Col } from 'react-bootstrap';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const USERS = {
   admin: { password: 'admin', type: 'admin' },
-  user: { password: 'user', type: 'user' }
+  operator: { password: 'operator', type: 'user' }
 };
 
 const Login = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (USERS[username] && USERS[username].password === password) {
-            onLogin({ username, type: USERS[username].type });
+            const userObj = { username, type: USERS[username].type };
+            if (onLogin) onLogin(userObj);
+            // Redirigir según tipo de usuario
+            if (USERS[username].type === 'admin') navigate('/home', { replace: true });
+            else navigate('/ymconnect', { replace: true });
         } else {
-            setError('Usuario o contraseña incorrectos');
+            setError('Please enter a valid username and password.');
         }
     };
 

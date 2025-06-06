@@ -5,7 +5,8 @@ import JobList from './JobList';
 import Diagnostics from './Diagnostics';
 import RobotInfo from './RobotInfo';
 import AboutUs from './AboutUs';
-import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaBars, FaTimes } from 'react-icons/fa';
+
+import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaSignOutAlt } from 'react-icons/fa';
 
 const menu = [
   { key: 'home', label: 'Home', icon: <FaHome size={22} />, component: <StatsRobot /> },
@@ -16,7 +17,8 @@ const menu = [
   { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
 ];
 
-const YMConnect = () => {
+const YMConnect = (props) => {
+  const { onContentReady, user, onLogout } = props;
   const [active, setActive] = useState('home');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [sidebarOpen, setSidebarOpen] = useState(false); // default abierto
@@ -29,6 +31,11 @@ const YMConnect = () => {
   }, []);
 
   const sidebarWidth = isMobile ? 240 : 321;
+
+  // Llama a onContentReady al montar (puedes mejorar para esperar datos reales)
+  React.useEffect(() => {
+    if (onContentReady) onContentReady();
+  }, [onContentReady]);
 
   return (
     <div style={{
@@ -62,6 +69,7 @@ const YMConnect = () => {
       </button>
 
       {/* Sidebar flotante */}
+
       <div style={{
         width: sidebarWidth,
         background: '#fff',

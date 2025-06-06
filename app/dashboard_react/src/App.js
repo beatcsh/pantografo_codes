@@ -1,42 +1,72 @@
 import './App.css';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from './layouts/Login';
 import DashboardHome from './layouts/DashboardHome';
 import Converter from './layouts/Converter';
 import ModernDashboard from './layouts/ModernDashboard';
 import YMConnect from './layouts/YMConnect/YMConnect';
-import { useEffect } from 'react';
+import PageTransitionWrapper from './components/PageTransitionWrapper';
+
+// ProtectedRoute component
+function ProtectedRoute({ user, allowed, children, redirectTo }) {
+  if (!user) return <Navigate to="/" replace />;
+  if (!allowed.includes(user.type)) return <Navigate to={redirectTo} replace />;
+  return children;
+}
 
 function App() {
-  // Llama al API de la tabla al cargar la app para debug/chequeo
+  const [user, setUser] = useState(null); // { username, type }
+
+  // Persist login in sessionStorage (optional)
   useEffect(() => {
-    fetch('http://localhost:8000/tabla')
-      .then(async res => {
-        const text = await res.text();
-        try {
-          const data = JSON.parse(text);
-          console.log('Tabla de parámetros:', data);
-        } catch (e) {
-          console.error('Respuesta no es JSON válido:', text);
-        }
-      })
-      .catch(err => {
-        console.error('Error al llamar /tabla:', err);
-      });
+    const stored = sessionStorage.getItem('user');
+    if (stored) setUser(JSON.parse(stored));
   }, []);
+  useEffect(() => {
+    if (user) sessionStorage.setItem('user', JSON.stringify(user));
+    else sessionStorage.removeItem('user');
+  }, [user]);
+
+  // Login handler
+  const handleLogin = (userObj) => {
+    setUser(userObj);
+  };
+
+  // Logout handler
+  const handleLogout = () => setUser(null);
 
   return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />}></Route>
-          <Route path="/home" element={<DashboardHome />}></Route>
-          <Route path="/converter" element={<Converter />}></Route>
-          <Route path="/ModernDashboard" element={<ModernDashboard />}></Route>
-          <Route path="/ymconnect" element={<YMConnect />}></Route>
-        </Routes>
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={
+          user
+            ? (user.type === 'admin' ? <Navigate to="/home" replace /> : <Navigate to="/ymconnect" replace />)
+            : <Login onLogin={handleLogin} />
+        } />
+        <Route path="/home" element={
+          <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
+            <DashboardHome user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        } />
+        <Route path="/converter" element={
+          <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
+            <PageTransitionWrapper><Converter user={user} onLogout={handleLogout} /></PageTransitionWrapper>
+          </ProtectedRoute>
+        } />
+        <Route path="/ModernDashboard" element={
+          <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
+            <ModernDashboard user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        } />
+        <Route path="/ymconnect" element={
+          <ProtectedRoute user={user} allowed={['admin', 'user']} redirectTo={user?.type === 'admin' ? '/home' : '/ymconnect'}>
+            <PageTransitionWrapper><YMConnect user={user} onLogout={handleLogout} /></PageTransitionWrapper>
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
