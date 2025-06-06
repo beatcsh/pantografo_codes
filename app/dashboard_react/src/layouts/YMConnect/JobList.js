@@ -134,12 +134,12 @@ const JobList = () => {
   }
 
   return (
-    <Container data-aos="zoom-in" fluid style={{ backgroundColor: "#010923", minHeight: "100vh", padding: "5rem" }}>
+    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "5rem" }}>
       {/* Título y contador */}
       <Row className="mb-4 mt-5">
         <Col>
-          <h1 style={{ color: "white", marginTop: '30px' }}>Lista de trabajos</h1>
-          <Badge bg="secondary">{jobs.length - 1} archivos encontrados <CiFileOn /></Badge>
+          <h1 style={{ color: "white", marginTop: '30px' }}>Job List</h1>
+          <Badge bg="secondary">{jobs.length - 1} jobs found <CiFileOn /></Badge>
         </Col>
       </Row>
 

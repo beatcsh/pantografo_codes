@@ -93,8 +93,10 @@ const YMConnect = () => {
           {menu.map(item => (
             <button
               key={item.key}
-              onClick={() => {setActive(item.key) 
-                setSidebarOpen(prev => !prev)}}
+              onClick={() => {
+                setActive(item.key)
+                setSidebarOpen(prev => !prev)
+              }}
               style={{
                 width: '90%',
                 margin: '0 auto 10px auto',
@@ -132,6 +134,10 @@ const YMConnect = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundImage: 'url("../assets/bg.jpeg")',
+        backgroundSize: 'cover',        
+        backgroundPosition: 'center',      
+        backgroundRepeat: 'no-repeat'
       }}>
         {menu.find(m => m.key === active)?.component}
       </div>

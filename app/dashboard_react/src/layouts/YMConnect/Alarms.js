@@ -86,12 +86,14 @@ const Alarms = () => {
     document.body.removeChild(link)
   }
 
+  // backgroundColor: "#010923",
+  
   return (
-    <Container data-aos="zoom-in" fluid style={{ backgroundColor: "#010923", minHeight: "100vh", padding: "2rem 1rem" }}>
+    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem" }}>
       <Row className="mb-4 mt-5 justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <h1 style={{ color: "white" }}>Alarms History</h1>
-          <Badge bg="secondary">{almHistory.length} alarmas encontradas <CiWarning /></Badge>
+          <Badge bg="secondary">{almHistory.length} alarms found <CiWarning /></Badge>
         </Col>
       </Row>
 
@@ -131,7 +133,7 @@ const Alarms = () => {
             </Table>
           </div>
           <Button className="mt-3" variant="success" onClick={() => alarmsCSV(almHistory)}>
-            <FaFileCsv /> Descargar CSV
+            <FaFileCsv /> Download CSV
           </Button>
         </Col>
       </Row>
