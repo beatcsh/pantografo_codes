@@ -67,7 +67,7 @@ const JobList = ({ setActive }) => {
 
   const startJob = async () => {
     try {
-      const ioCheckUrl = `${ymConnectService}/Alarms/readIO/80026`;
+      const ioCheckUrl = `${ymConnectService}/Alarms/readSpecificIO/80026`;
       const jobStartUrl = `${ymConnectService}/Process/startJob`;
 
       const { data: ioData } = await axios.get(ioCheckUrl);
