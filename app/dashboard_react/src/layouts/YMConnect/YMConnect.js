@@ -5,23 +5,24 @@ import JobList from './JobList';
 import Diagnostics from './Diagnostics';
 import RobotInfo from './RobotInfo';
 import AboutUs from './AboutUs';
+import React from 'react';
 
-import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaSignOutAlt } from 'react-icons/fa';
-
-const menu = [
-  { key: 'home', label: 'Home', icon: <FaHome size={22} />, component: <StatsRobot /> },
-  { key: 'joblist', label: 'Job List', icon: <FaList size={22} />, component: <JobList /> },
-  { key: 'alarms', label: 'Alarms', icon: <FaBell size={22} />, component: <Alarms /> },
-  { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics /> },
-  { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo /> },
-  { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
-];
+import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa';
 
 const YMConnect = (props) => {
-  const { onContentReady, user, onLogout } = props;
+  const { onContentReady } = props;
   const [active, setActive] = useState('home');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [sidebarOpen, setSidebarOpen] = useState(false); // default abierto
+
+  const menu = [
+    { key: 'home', label: 'Home', icon: <FaHome size={22} />, component: <StatsRobot /> },
+    { key: 'joblist', label: 'Job List', icon: <FaList size={22} />, component: <JobList setActive={setActive} /> },
+    { key: 'alarms', label: 'Alarms', icon: <FaBell size={22} />, component: <Alarms /> },
+    { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo /> },
+    { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics /> },
+    { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
+  ];
 
   const handleResize = () => setIsMobile(window.innerWidth <= 768);
 
@@ -143,8 +144,8 @@ const YMConnect = (props) => {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundImage: 'url("../assets/bg.jpeg")',
-        backgroundSize: 'cover',        
-        backgroundPosition: 'center',      
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}>
         {menu.find(m => m.key === active)?.component}

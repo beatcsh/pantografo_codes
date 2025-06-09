@@ -13,7 +13,7 @@ import 'aos/dist/aos.css'
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"
 
-const JobList = () => {
+const JobList = ({ setActive }) => {
 
   const [jobs, setJobs] = useState([])
   const [showModal, setShowModal] = useState(false)
@@ -25,13 +25,6 @@ const JobList = () => {
         AOS.init()
         const res = await axios.get(`${ymConnectService}/Jobs/jobList`)
         setJobs(res.data)
-
-        MySwal.fire({
-          icon: "success",
-          title: "Archivos traídos con éxito",
-          timer: 10000,
-          showConfirmButton: false
-        })
       } catch (error) {
         MySwal.fire({
           icon: "error",
@@ -74,25 +67,50 @@ const JobList = () => {
 
   const startJob = async () => {
     try {
-      const reqUrl = `${ymConnectService}/Process/startJob`
-      const res = await axios.get(reqUrl)
-      if (res.data.statusCode === 0) {
+      const ioCheckUrl = `${ymConnectService}/Alarms/readSpecificIO/80026`;
+      const jobStartUrl = `${ymConnectService}/Process/startJob`;
+
+      const { data: ioData } = await axios.get(ioCheckUrl);
+
+      if (!ioData) {
+        return MySwal.fire({
+          icon: "error",
+          title: "El robot se encuentra en paro por una emergencia.",
+          timer: 10000,
+          showConfirmButton: false
+        });
+      }
+
+      const { data: jobRes } = await axios.get(jobStartUrl);
+
+      if (jobRes?.statusCode === 0) {
         MySwal.fire({
           icon: "success",
           title: "Archivo ejecutado con éxito",
           timer: 2000,
           showConfirmButton: false
-        })
+        });
+        // setActive('robotinfo');
+      } else {
+        MySwal.fire({
+          icon: "error",
+          title: "Error al ejecutar el archivo.",
+          text: jobRes?.message || "Respuesta inesperada del servidor.",
+          timer: 8000,
+          showConfirmButton: false
+        });
       }
+
     } catch (error) {
       MySwal.fire({
         icon: "error",
         title: "Conexión perdida.",
+        text: error?.message || "No se pudo establecer comunicación con el robot.",
         timer: 10000,
         showConfirmButton: false
-      })
+      });
     }
-  }
+  };
 
   const stopJob = async () => {
     try {
@@ -136,13 +154,13 @@ const JobList = () => {
   return (
     <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "5rem" }}>
       {/* Título y contador */}
-      <Row className="mb-4 mt-5">
-        <Col>
+      <Row className="mb-4 mt-5 justify-content-center">
+        <Col xs={12} md={10} lg={8}>
           <h1 style={{ color: "white", marginTop: '30px' }}>Job List</h1>
           <Badge bg="secondary">{jobs.length - 1} jobs found <CiFileOn /></Badge>
+          <hr />
         </Col>
       </Row>
-
       {/* Tabla de trabajos */}
       <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8}>
