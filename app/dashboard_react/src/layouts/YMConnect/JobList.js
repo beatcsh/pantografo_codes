@@ -25,13 +25,6 @@ const JobList = ({ setActive }) => {
         AOS.init()
         const res = await axios.get(`${ymConnectService}/Jobs/jobList`)
         setJobs(res.data)
-
-        MySwal.fire({
-          icon: "success",
-          title: "Archivos traídos con éxito",
-          timer: 10000,
-          showConfirmButton: false
-        })
       } catch (error) {
         MySwal.fire({
           icon: "error",
@@ -97,7 +90,7 @@ const JobList = ({ setActive }) => {
           timer: 2000,
           showConfirmButton: false
         });
-        setActive('robotinfo');
+        // setActive('robotinfo');
       } else {
         MySwal.fire({
           icon: "error",
