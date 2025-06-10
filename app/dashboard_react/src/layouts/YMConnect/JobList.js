@@ -151,6 +151,35 @@ const JobList = ({ setActive }) => {
     }
   }
 
+  const downloadJob = async (job) => {
+    try {
+      const reqUrl = `${ymConnectService}/Jobs/getStringJob/${job}`;
+      const res = await axios.get(reqUrl);
+
+      const content = res.data.content;
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${job}.JBI`;
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        timer: 10000,
+        showConfirmButton: false
+      });
+    }
+  };
+
+
   return (
     <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "5rem" }}>
       {/* Título y contador */}
@@ -194,7 +223,7 @@ const JobList = ({ setActive }) => {
                         </Button>
                       </td>
                       <td>
-                        <Button variant="dark" size="sm">
+                        <Button onClick={() => downloadJob(job)} variant="dark" size="sm">
                           <FaDownload />
                         </Button>
                       </td>

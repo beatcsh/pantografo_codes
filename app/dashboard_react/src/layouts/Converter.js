@@ -22,7 +22,9 @@ const Converter = (props) => {
     'Z': 7,
     'User Frame': 1,
     'Tool': 0,
-    'Plasma': 1
+    'Plasma': 1,
+    'Kerf': 10,
+    'Uso': 0
   });
   const [file, setFile] = useState(null);
   const [convertLoading, setConvertLoading] = useState(false);
@@ -124,7 +126,9 @@ const Converter = (props) => {
       z_altura: form['Z'] || 7,
       uf: form['User Frame'] || 1,
       ut: form['Tool'] || 0,
-      pc: form['Plasma'] || 1
+      pc: form['Plasma'] || 1,
+      kerf: form['Kerf'] || 10,
+      uso: form['Uso'] || 0
     });
     try {
       const res = await fetch(`${API_URL}/convert/?${params.toString()}`, {
@@ -223,12 +227,12 @@ const Converter = (props) => {
             <div className="converter-btn-card-exact" tabIndex={0} onClick={() => setView('files')}>
               <img src="/assets/File_browser.png" alt="Files" className="converter-btn-img-exact" />
               <div className="converter-btn-title-exact">FILES</div>
-              <div className="converter-btn-desc-exact">Here you can view and manage<br/>the files uploaded to the robot.</div>
+              <div className="converter-btn-desc-exact">Here you can view and manage<br />the files uploaded to the robot.</div>
             </div>
             <div className="converter-btn-card-exact" tabIndex={0} onClick={() => setView('convert')}>
               <img src="/assets/Converter.png" alt="Converter" className="converter-btn-img-exact" />
               <div className="converter-btn-title-exact">CONVERTER</div>
-              <div className="converter-btn-desc-exact">It is an application that allows the<br/>conversion of .dxf files to inform II language.</div>
+              <div className="converter-btn-desc-exact">It is an application that allows the<br />conversion of .dxf files to inform II language.</div>
             </div>
           </div>
         </div>
@@ -272,7 +276,7 @@ const Converter = (props) => {
             <div className="converter-form-file-row">
               <label className="converter-form-file-btn">
                 SELECT YOUR FILE
-                <input type="file" accept=".dxf" style={{display:'none'}} onChange={e => setFile(e.target.files[0])} />
+                <input type="file" accept=".dxf" style={{ display: 'none' }} onChange={e => setFile(e.target.files[0])} />
               </label>
               <div className="converter-form-file-name">{file ? file.name : ''}</div>
             </div>
@@ -313,9 +317,25 @@ const Converter = (props) => {
                 <label className="converter-form-label">PLASMA</label>
                 <input className="converter-form-input" name="Plasma" value={form['Plasma']} onChange={handleFormChange} />
               </div>
+              <div className="converter-form-field-group">
+                <label className="converter-form-label">Kerf</label>
+                <input className="converter-form-input" name="Plasma" value={form['Kerf']} onChange={handleFormChange} />
+              </div>
+              <div className="converter-form-field-group">
+                <label className="converter-form-label">Tipo de herramienta</label>
+                <select
+                  name='Uso'
+                  className="converter-form-input"
+                  value={form['Uso']}
+                  onChange={handleFormChange}
+                >
+                  <option value="0">Plasma</option>
+                  <option value="1">Demel</option>
+                </select>
+              </div>
             </form>
             <button className="converter-form-submit-btn" type="submit" onClick={handleConvert} disabled={convertLoading}>
-              CONVERT & UPLOAD <FaUpload style={{marginLeft:10, marginBottom:-3}} />
+              CONVERT & UPLOAD <FaUpload style={{ marginLeft: 10, marginBottom: -3 }} />
             </button>
             {convertError && <div className="converter-form-error">{convertError}</div>}
             {downloadUrl && (
@@ -357,8 +377,8 @@ const Converter = (props) => {
           >
             ← Back
           </button>
-          <div style={{clear:'both'}}></div>
-          <div style={{fontWeight: 900, fontSize: '2.1em', color: '#1976d2', letterSpacing: 1, marginBottom: 10, fontFamily: 'Arial Black, Arial, sans-serif', textAlign: 'left'}}>
+          <div style={{ clear: 'both' }}></div>
+          <div style={{ fontWeight: 900, fontSize: '2.1em', color: '#1976d2', letterSpacing: 1, marginBottom: 10, fontFamily: 'Arial Black, Arial, sans-serif', textAlign: 'left' }}>
             JBI FILES IN TO THE ROBOT
           </div>
           <input
@@ -394,9 +414,9 @@ const Converter = (props) => {
             letterSpacing: 1,
             fontFamily: 'Arial Black, Arial, sans-serif',
           }}>
-            <div style={{flex: '0 0 60px', textAlign: 'center'}}>ID</div>
-            <div style={{flex: 2, textAlign: 'center'}}>FILE NAME</div>
-            <div style={{flex: 1, textAlign: 'center'}}>ACTION</div>
+            <div style={{ flex: '0 0 60px', textAlign: 'center' }}>ID</div>
+            <div style={{ flex: 2, textAlign: 'center' }}>FILE NAME</div>
+            <div style={{ flex: 1, textAlign: 'center' }}>ACTION</div>
           </div>
           <div style={{
             maxHeight: 320,
@@ -406,7 +426,7 @@ const Converter = (props) => {
             boxShadow: '0 8px 18px 0 #0002',
           }}>
             {jobsLoading ? (
-              <div style={{textAlign:'center', padding: 30}}><Spinner animation="border" /></div>
+              <div style={{ textAlign: 'center', padding: 30 }}><Spinner animation="border" /></div>
             ) : (
               jobs.filter(j => j.toLowerCase().includes(search.toLowerCase())).map((j, i) => (
                 <div key={j} style={{
@@ -417,13 +437,13 @@ const Converter = (props) => {
                   fontSize: '1.25em',
                   fontFamily: 'Roboto Mono, Consolas, monospace',
                   color: '#222',
-                  background: i%2===0 ? '#fff' : '#f3f3f3',
+                  background: i % 2 === 0 ? '#fff' : '#f3f3f3',
                   padding: '0 0',
                   minHeight: 54,
                 }}>
-                  <div style={{flex: '0 0 60px', textAlign: 'center', fontWeight: 700}}>{i+1}</div>
-                  <div style={{flex: 2, textAlign: 'center', fontWeight: 700, letterSpacing: 1}}>{j}</div>
-                  <div style={{flex: 1, textAlign: 'center'}}>
+                  <div style={{ flex: '0 0 60px', textAlign: 'center', fontWeight: 700 }}>{i + 1}</div>
+                  <div style={{ flex: 2, textAlign: 'center', fontWeight: 700, letterSpacing: 1 }}>{j}</div>
+                  <div style={{ flex: 1, textAlign: 'center' }}>
                     <Button
                       variant="danger"
                       size="sm"
@@ -444,10 +464,10 @@ const Converter = (props) => {
                         height: 38,
                         margin: '0 auto',
                       }}
-                      disabled={deleteLoading===i}
+                      disabled={deleteLoading === i}
                       onClick={() => handleDelete(i)}
                     >
-                      {deleteLoading===i ? <Spinner size="sm" animation="border" /> : <FaTrashAlt size={20} />}
+                      {deleteLoading === i ? <Spinner size="sm" animation="border" /> : <FaTrashAlt size={20} />}
                     </Button>
                   </div>
                 </div>
@@ -487,23 +507,3 @@ CSS extra sugerido para Converter.css:
   opacity: 1;
 }
 */
-
-
-
-/*🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧🟧
-🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛⬛🟧
-🟧🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧🟧
-⬜🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛🟧⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧⬛🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧🟧⬛⬛⬛⬛🟧⬛⬛⬛⬛🟧🟧⬛⬛⬛🟧⬛⬛⬛🟧🟧⬛⬛⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛🟧⬛⬛⬛⬛🟧🟧🟧⬛⬛⬛⬛⬛⬛⬛⬛🟧⬛⬛⬛⬛⬛⬛⬛⬛🟧🟧🟧⬛⬛🟧⬜🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛⬛⬛⬛⬛⬛🟧🟧⬜🟧🟧⬛⬛⬛⬛⬛⬛🟧🟧🟧⬛⬛⬛⬛⬛⬛🟧🟧⬜🟧⬛⬛🟧⬜🟧⬛⬛⬛🟧⬜
-⬜🟧⬛⬛🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧⬛🟧⬜
-⬜🟧🟧🟧⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜🟧🟧🟧⬜*/
