@@ -5,8 +5,9 @@ import JobList from './JobList';
 import Diagnostics from './Diagnostics';
 import RobotInfo from './RobotInfo';
 import AboutUs from './AboutUs';
+import React from 'react';
 
-import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars, FaSignOutAlt } from 'react-icons/fa';
 
 const menu = [
   { key: 'home', label: 'Home', icon: <FaHome size={22} />, component: <StatsRobot /> },
