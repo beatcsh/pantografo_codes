@@ -1,129 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect, useState } from 'react'
+import { Container, Table, Badge, Button } from 'react-bootstrap'
+import { GiHealingShield } from "react-icons/gi"
+import { IoMdRefresh } from "react-icons/io";
+import 'bootstrap/dist/css/bootstrap.min.css'
+import axios from 'axios'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
-const dummyIO = [
-  { num: 1, type: 'Input', active: false },
-  { num: 2, type: 'Output', active: true },
-  { num: 3, type: 'Output', active: false },
-  { num: 4, type: 'Output', active: true },
-  { num: 5, type: 'Input', active: false },
-  { num: 6, type: 'Input', active: true },
-];
+const MySwal = withReactContent(Swal)
+const ymConnectService = 'http://localhost:5229'
 
-const Diagnostics = () => {
-  const [ioList, setIoList] = useState([]);
+const stopKeys = ['pendantStop', 'externalStop', 'doorEmergencyStop', 'hold']
+
+const RobotInfo = () => {
+  const [ioList, setIoList] = useState([])
 
   useEffect(() => {
-    setIoList(dummyIO);
-  }, []);
+    AOS.init()
+    fetchDiagnostic()
+  }, [])
+
+  const fetchDiagnostic = async () => {
+    try {
+      const res = await axios.get(`${ymConnectService}/Alarms/readIO`)
+      const data = res.data
+
+      if (typeof data === 'object' && data !== null) {
+        const ioArray = Object.entries(data).map(([key, value]) => ({
+          name: key,
+          active: stopKeys.includes(key) ? !value : value // inverso para los stop
+        }))
+        setIoList(ioArray)
+      } else {
+        throw new Error('Respuesta inesperada del servidor')
+      }
+
+    } catch (error) {
+      console.error(error)
+      MySwal.fire({
+        icon: 'error',
+        title: 'Conexión perdida.',
+        text: error.message,
+        timer: 10000,
+        showConfirmButton: false,
+      })
+    }
+  }
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center', // Centra horizontalmente
-      alignItems: 'center', // Centra verticalmente
-      width: '100%',
-      minHeight: '100vh',
-      padding: 32,
-      backgroundColor: '#f4f4f8'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: 900, // Máximo ancho para el contenido
-        background: '#fff',
-        borderRadius: 8,
-        boxShadow: '0 2px 10px #0001',
-        padding: 16,
-      }}>
-        <table style={{
-          width: '100%',
-          background: '#fff',
-          borderRadius: 8,
-          boxShadow: '0 2px 10px #0001'
-        }}>
-          <thead>
-            <tr>
-              <th style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: '#29a6ff',
-                textAlign: 'center',
-                padding: 16,
-                borderBottom: '2px solid #eee',
-                fontFamily: 'Montserrat, sans-serif'
-              }}>
-                Inputs/outputs
-              </th>
-              <th style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: '#29a6ff',
-                textAlign: 'center',
-                padding: 16,
-                borderBottom: '2px solid #eee',
-                fontFamily: 'Montserrat, sans-serif'
-              }}>
-                Number
-              </th>
-              <th style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: '#29a6ff',
-                textAlign: 'center',
-                padding: 16,
-                borderBottom: '2px solid #eee',
-                fontFamily: 'Montserrat, sans-serif'
-              }}>
-                Estado
-              </th>
+    <Container
+      data-aos="zoom-in"
+      style={{
+        maxWidth: '800px',
+        background: '#ffffff',
+        borderRadius: '16px',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+        padding: '40px 30px',
+        margin: '50px auto',
+      }}
+      className='mt-5'
+    >
+      <h2 className="text-center mb-4 text-primary d-flex align-items-center justify-content-center gap-3">
+        <GiHealingShield />
+        Diagnostics
+      </h2>
+
+      <Table bordered hover responsive>
+        <thead className="table-light">
+          <tr>
+            <th className="text-center">Name</th>
+            <th className="text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.isArray(ioList) && ioList.map((io, idx) => (
+            <tr key={idx}>
+              <td className="text-center text-uppercase">{io.name}</td>
+              <td className="text-center">
+                <Badge bg={io.active ? 'primary' : 'secondary'} pill>
+                  {io.active ? 'ACTIVE' : 'INACTIVE'}
+                </Badge>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {ioList.map((io, idx) => (
-              <tr key={idx}>
-                <td style={{
-                  textAlign: 'center',
-                  padding: 16,
-                  fontSize: 18,
-                  fontWeight: 600,
-                  fontFamily: 'Arial, sans-serif'
-                }}>
-                  {io.type}
-                </td>
-                <td style={{
-                  textAlign: 'center',
-                  padding: 16,
-                  fontSize: 20,
-                  fontWeight: 600,
-                  fontFamily: 'Courier New, monospace',
-                  letterSpacing: 2
-                }}>
-                  {'#'.repeat(20)}
-                </td>
-                <td style={{ textAlign: 'center', padding: 16 }}>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '8px 20px',
-                    borderRadius: 999,
-                    backgroundColor: io.active ? '#7CFC00' : '#FF4444',
-                    color: io.active ? '#003300' : '#fff',
-                    fontWeight: 'bold',
-                    fontSize: 16,
-                    fontFamily: 'Arial',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.2)'
-                  }}>
-                    {io.active ? 'Active' : 'Unabled'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
+          ))}
+        </tbody>
+      </Table>
+      <Button variant="success" className="m-2 pr-1" onClick={() => fetchDiagnostic()}>
+        <IoMdRefresh /> Refresh
+      </Button>
+    </Container>
+  )
+}
 
-export default Diagnostics;
-
-
+export default RobotInfo

@@ -87,16 +87,16 @@ const Alarms = () => {
   }
 
   // backgroundColor: "#010923",
-  
+
   return (
-    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem" }}>
+    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem" , marginTop: '200px',marginBottom: '50px' }}>
       <Row className="mb-4 mt-5 justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <h1 style={{ color: "white" }}>Alarms History</h1>
           <Badge bg="secondary">{almHistory.length} alarms found <CiWarning /></Badge>
+          <hr />
         </Col>
       </Row>
-
       <Row className="justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <div

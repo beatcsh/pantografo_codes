@@ -7,9 +7,9 @@ Interfaz de comunicación desarrollado en FastAPI (Python) para control y monito
 ## 🧩 Tecnologías utilizadas
 
 - 🐍 FastAPI - Python
-- 🐍 Streamlit - Python
 - 📤 FTP (transferencia de archivos)
 - 🪛 Tecnologia de robots industriales de Yaskawa
+- 🕸️ ReactJS
 
 ---
 
@@ -22,11 +22,12 @@ Interfaz de comunicación desarrollado en FastAPI (Python) para control y monito
 - Shapely (`pip install shapely`)
 - EZDXF (`pip install ezdxf`)
 - Ftplib (`pip install ftplib`)
-- Streamlit (`pip install streamlit`)
+- Node [^20.15.0]
+- ReactJS y dependencias instaladas (`npm install` dentro de la carpeta /dashboard_react)
 - Acceso FTP al robot (revisar el manual de conexiones segun el controlador usado)
 
 ### 🏃 Iniciar servidores
 
 ```PowerShell o CMD
 cd app/server ------ python -m uvicorn main:app --reload
-cd app/dashboard ------ python -m streamlit run dashboard
+cd app/dashboard_react ------ npm start
