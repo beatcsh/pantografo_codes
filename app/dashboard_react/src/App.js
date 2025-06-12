@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from './layouts/Login';
 import DashboardHome from './layouts/DashboardHome';
-import Converter from './layouts/Converter';
-import ModernDashboard from './layouts/ModernDashboard';
+import Converter from './layouts/Converter/Converter';
 import YMConnect from './layouts/YMConnect/YMConnect';
 import PageTransitionWrapper from './components/PageTransitionWrapper';
 
@@ -52,11 +51,6 @@ function App() {
         <Route path="/converter" element={
           <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
             <PageTransitionWrapper><Converter user={user} onLogout={handleLogout} /></PageTransitionWrapper>
-          </ProtectedRoute>
-        } />
-        <Route path="/ModernDashboard" element={
-          <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
-            <ModernDashboard user={user} onLogout={handleLogout} />
           </ProtectedRoute>
         } />
         <Route path="/ymconnect" element={
