@@ -92,14 +92,15 @@ const YMConnect = (props) => {
         borderBottomRightRadius: isMobile ? 16 : 0,
         overflowY: 'auto',
       }}>
-        <div style={{
+        <img src='../assets/yaskawa.png' style={{
+          width: '180px',
+          margin: '40px 40px 40px 20px',
           fontWeight: 900,
           fontSize: '2em',
           color: '#1976d2',
           letterSpacing: 1,
-          margin: '32px 0 28px 32px',
           fontFamily: 'Arial Black',
-        }}>YASKAWA</div>
+        }} />
         <div style={{ width: '100%' }}>
           {menu.map(item => (
             <button
