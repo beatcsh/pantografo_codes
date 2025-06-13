@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PiPlugsConnectedBold } from "react-icons/pi";
 import StatsRobot from './StatsRobot';
 import Alarms from './Alarms';
 import JobList from './JobList';
@@ -6,8 +7,8 @@ import Diagnostics from './Diagnostics';
 import RobotInfo from './RobotInfo';
 import AboutUs from './AboutUs';
 import React from 'react';
-
-import { FaHome, FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa';
+import HomeButton from '../../components/HomeButton';
+import { FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa';
 
 const YMConnect = (props) => {
   const { onContentReady } = props;
@@ -16,11 +17,11 @@ const YMConnect = (props) => {
   const [sidebarOpen, setSidebarOpen] = useState(false); // default abierto
 
   const menu = [
-    { key: 'home', label: 'Home', icon: <FaHome size={22} />, component: <StatsRobot /> },
+    { key: 'home', label: 'Start', icon: <PiPlugsConnectedBold size={22} />, component: <StatsRobot /> },
     { key: 'joblist', label: 'Job List', icon: <FaList size={22} />, component: <JobList setActive={setActive} /> },
     { key: 'alarms', label: 'Alarms', icon: <FaBell size={22} />, component: <Alarms /> },
-    { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo /> },
     { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics /> },
+    { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo /> },
     { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
   ];
 
@@ -46,6 +47,7 @@ const YMConnect = (props) => {
       position: 'relative',
       background: 'rgb(1,9,35,255)'
     }}>
+      <HomeButton/>
 
       {/* Botón menú (visible siempre para toggle sidebar) */}
       <button
@@ -90,14 +92,15 @@ const YMConnect = (props) => {
         borderBottomRightRadius: isMobile ? 16 : 0,
         overflowY: 'auto',
       }}>
-        <div style={{
+        <img src='../assets/yaskawa.png' style={{
+          width: '180px',
+          margin: '40px 40px 40px 20px',
           fontWeight: 900,
           fontSize: '2em',
           color: '#1976d2',
           letterSpacing: 1,
-          margin: '32px 0 28px 32px',
           fontFamily: 'Arial Black',
-        }}>YASKAWA</div>
+        }} />
         <div style={{ width: '100%' }}>
           {menu.map(item => (
             <button

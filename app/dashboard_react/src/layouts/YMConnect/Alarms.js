@@ -86,10 +86,8 @@ const Alarms = () => {
     document.body.removeChild(link)
   }
 
-  // backgroundColor: "#010923",
-
   return (
-    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem" , marginTop: '200px',marginBottom: '50px' }}>
+    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem", marginTop: '200px', marginBottom: '50px' }}>
       <Row className="mb-4 mt-5 justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <h1 style={{ color: "white" }}>Alarms History</h1>

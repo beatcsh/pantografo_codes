@@ -9,7 +9,7 @@ import pandas as pd
 import os
 
 from fastapi.middleware.cors import CORSMiddleware
-
+ 
 """
     .
 ░░░░░███████ ]▄▄▄▄▄▄ `~~~~~~ ~~~~ ~~~~ ~~~
@@ -43,7 +43,9 @@ async def convertir(
         z_altura: float = 7,
         uf: int = 1,
         ut: int = 1,
-        pc: int = 1
+        pc: int = 1,
+        kerf = 0,
+        uso = 0 # al mandar un 1 en la solicitud es dremel, el 0 corresponde al cortador
     ):
     try:
         # Guardar archivo subido
@@ -51,7 +53,7 @@ async def convertir(
         with open(dxf_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        gcode_lines = generate_gcode_from_dxf(dxf_path)
+        gcode_lines = generate_gcode_from_dxf(dxf_path, z_altura, kerf, uso)
 
         nombre_base = os.path.splitext(file.filename)[0]
         

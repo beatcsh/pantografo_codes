@@ -6,8 +6,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const USERS = {
-  admin: { password: 'admin', type: 'admin' },
-  operator: { password: 'operator', type: 'user' }
+    admin: { password: 'admin', type: 'admin' },
+    operator: { password: 'operator', type: 'user' }
 };
 
 const Login = ({ onLogin }) => {
@@ -42,8 +42,12 @@ const Login = ({ onLogin }) => {
                 <Row style={{ height: '100vh' }}>
                     {/* Lado izquierdo: fondo azul, logo, texto, robot */}
                     <Col md={6} style={{
-                        background: 'linear-gradient(180deg, #0072ff 0%, #003366 100%)',
+                        // background: 'linear-gradient(180deg, #0072ff 0%, #003366 100%)',
                         color: '#fff',
+                        backgroundImage: 'url("../assets/bg.jpeg")',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
@@ -53,22 +57,21 @@ const Login = ({ onLogin }) => {
                         minHeight: 480
                     }}>
                         <div style={{ zIndex: 2 }}>
-                            <h1 style={{ fontWeight: 900, fontSize: '2.8em', letterSpacing: 2, marginBottom: 24 }}>YASKAWA</h1>
-                            <h2 style={{ fontWeight: 900, fontSize: '2em', marginBottom: 8 }}>WELCOME BACK!</h2>
-                            <div style={{ fontSize: 18, fontWeight: 400, marginBottom: 32, color: '#e0e6f7' }}>
+                            <img src='../assets/white_yaskawa.png' style={{ width: '280px', fontWeight: 900, fontSize: '2.8em', letterSpacing: 2, marginBottom: 24 }} />
+                            <h2 style={{ marginLeft: '15px', fontWeight: 900, fontSize: '2em', marginBottom: 8 }}>WELCOME BACK!</h2>
+                            <div style={{ marginLeft: '15px', fontSize: 18, fontWeight: 400, marginBottom: 32, color: '#e0e6f7' }}>
                                 This application is developed<br />by the Yaskawa Motoman Mexico engineering team.
                             </div>
                         </div>
-                        <img src={process.env.PUBLIC_URL + '/assets/robot_yaskawa.png'} alt="robot" style={{
+                        {/* <img src='../assets/white_yaskawa.png' style={{
                             position: 'absolute',
                             left: 0,
                             bottom: 0,
-                            width: '60%',
-                            minWidth: 260,
-                            maxWidth: 420,
+                            margin: '15px',
+                            width: '20%',
                             zIndex: 1,
                             filter: 'drop-shadow(0 8px 32px #00336688)'
-                        }} />
+                        }} /> */}
                     </Col>
                     {/* Lado derecho: login */}
                     <Col md={6} style={{
