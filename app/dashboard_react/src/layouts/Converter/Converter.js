@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Converter.css';
-import { FaSignOutAlt } from 'react-icons/fa';
 import HomeButton from '../../components/HomeButton';
 import MenuConverter from './MenuConverter';
 import FormConverter from './FormConverter';
 import FilesConverter from './FilesConverter';
+import LogoutButton from '../../components/LogoutButton';
 import AOS from "aos"
 import 'aos/dist/aos.css'
 
@@ -105,9 +105,8 @@ const Converter = (props) => {
       z_altura: form['Z'] || 7,
       uf: form['User Frame'] || 1,
       ut: form['Tool'] || 0,
-      pc: form['Plasma'] || 1,
-      kerf: form['Kerf'] || 10,
-      uso: form['Uso'] || 0
+      uso: form['Uso'] || 0,
+      kerf: form['Kerf'] || 10
     });
     try {
       const res = await fetch(`${API_URL}/convert/?${params.toString()}`, {
@@ -160,32 +159,7 @@ const Converter = (props) => {
         background: "url('/assets/fondo.jpeg') center center/cover no-repeat fixed"
       }}
     >
-      {/* Logout button top left */}
-      <button
-        onClick={onLogout}
-        style={{
-          position: 'fixed',
-          top: 24,
-          right: 84,
-          zIndex: 1000,
-          background: 'rgba(255,255,255,0.92)',
-          border: '2px solid #1976d2',
-          color: '#1976d2',
-          borderRadius: 12,
-          fontWeight: 700,
-          fontSize: 18,
-          padding: '8px 18px 8px 14px',
-          boxShadow: '0 2px 12px #1976d211',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          cursor: 'pointer',
-          transition: 'background 0.18s',
-        }}
-        title="Logout"
-      >
-        <FaSignOutAlt size={20} /> Logout
-      </button>
+      <LogoutButton onLogout={ onLogout } />
       <HomeButton />
 
       {view === 'select' && (

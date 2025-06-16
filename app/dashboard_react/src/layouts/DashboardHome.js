@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
 import '../App.css';
 
-const DashboardHome = ({ user, onLogout }) => {
+const DashboardHome = ({ onLogout }) => {
   const [hover, setHover] = useState(null); // 'left' | 'right' | null
   const [animating, setAnimating] = useState(null); // 'left' | 'right' | null
   const navigate = useNavigate();

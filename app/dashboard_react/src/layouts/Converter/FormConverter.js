@@ -80,13 +80,13 @@ const FormConverter = ({ setView, tabla, setFile, file, form, handleRowSelect, h
                         <label className="converter-form-label">TOOL</label>
                         <input className="converter-form-input" name="Tool" value={form['Tool']} onChange={handleFormChange} />
                     </div>
-                    <div className="converter-form-field-group">
+                    {/* <div className="converter-form-field-group">
                         <label className="converter-form-label">PLASMA</label>
                         <input className="converter-form-input" name="Plasma" value={form['Plasma']} onChange={handleFormChange} />
-                    </div>
+                    </div> */}
                     <div className="converter-form-field-group">
                         <label className="converter-form-label">Kerf</label>
-                        <input className="converter-form-input" name="Plasma" value={form['Kerf']} onChange={handleFormChange} />
+                        <input className="converter-form-input" name="Kerf" value={form['Kerf']} onChange={handleFormChange} />
                     </div>
                     <div className="converter-form-field-group">
                         <label className="converter-form-label">Tipo de herramienta</label>
