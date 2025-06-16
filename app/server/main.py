@@ -1,13 +1,10 @@
-from fastapi import FastAPI, UploadFile, File
+from utils.converter import generate_gcode_from_dxf, gcode_a_yaskawa
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from utils.converter import generate_gcode_from_dxf, gcode_a_yaskawa
+from fastapi import FastAPI, UploadFile, File
 from utils.ftp_manager import GestorFTP
-
 import pandas as pd
 import os
-
-from fastapi.middleware.cors import CORSMiddleware
  
 """
     .

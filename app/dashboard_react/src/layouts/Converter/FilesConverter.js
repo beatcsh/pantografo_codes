@@ -1,10 +1,11 @@
-import { Button, Spinner, Alert } from 'react-bootstrap';
-import { FaTrashAlt } from 'react-icons/fa';
-import { useState, useEffect } from 'react';
-import AOS from "aos"
+import { Button, Spinner, Alert } from 'react-bootstrap'
+import { FaTrashAlt } from 'react-icons/fa'
+import { useState, useEffect } from 'react'
 import 'aos/dist/aos.css'
+import AOS from 'aos'
 
-const API_URL = 'http://localhost:8000';
+
+const API_URL = 'http://localhost:8000'
 
 const FilesConverter = ({ setView, search, setSearch }) => {
     const [jobs, setJobs] = useState([]);

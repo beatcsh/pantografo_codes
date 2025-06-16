@@ -1,12 +1,13 @@
 import { Container, Table, Row, Col, Badge, Button } from "react-bootstrap"
 import withReactContent from "sweetalert2-react-content"
+import { useState, useEffect } from "react"
 import { CiWarning } from "react-icons/ci"
 import { FaFileCsv } from "react-icons/fa"
-import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
 import axios from "axios"
+import "aos/dist/aos.css"
 import AOS from "aos"
-import 'aos/dist/aos.css'
+
 
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"

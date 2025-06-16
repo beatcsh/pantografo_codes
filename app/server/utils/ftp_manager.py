@@ -1,11 +1,12 @@
 import ftplib
-import os
 import time
+import os
 
 FTP_USER = "rcmaster"
 FTP_PASS = "9999999999999999"
 
 class GestorFTP:
+
     def __init__(self):
         self.user = FTP_USER
         self.password = FTP_PASS

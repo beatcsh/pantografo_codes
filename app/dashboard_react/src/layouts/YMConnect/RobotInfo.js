@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
 import { Container, Table, Badge, Tabs, Tab } from 'react-bootstrap'
-import { FaRobot } from 'react-icons/fa'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import axios from 'axios'
-import AOS from 'aos'
-import 'aos/dist/aos.css'
-import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import { useEffect, useState } from 'react'
+import { FaRobot } from 'react-icons/fa'
+import Swal from 'sweetalert2'
+import axios from 'axios'
+import 'aos/dist/aos.css'
+import AOS from 'aos'
 
 const labels = {
   cycleMode: 'Cycle Mode',

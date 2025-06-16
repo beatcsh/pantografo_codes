@@ -1,10 +1,10 @@
+import { Container, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import { Container, Row, Col } from 'react-bootstrap';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FaUserCog } from "react-icons/fa";
+import Form from 'react-bootstrap/Form';
+import { useState } from 'react';
 
 const USERS = {
     admin: { password: 'admin', type: 'admin' },

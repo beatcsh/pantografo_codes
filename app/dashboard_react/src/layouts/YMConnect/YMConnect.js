@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import { FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa';
+import LogoutButton from '../../components/LogoutButton';
 import { PiPlugsConnectedBold } from "react-icons/pi";
-import StatsRobot from './StatsRobot';
-import Alarms from './Alarms';
-import JobList from './JobList';
+import HomeButton from '../../components/HomeButton';
+import { useState, useEffect } from 'react';
 import Diagnostics from './Diagnostics';
+import StatsRobot from './StatsRobot';
 import RobotInfo from './RobotInfo';
 import AboutUs from './AboutUs';
+import JobList from './JobList';
+import Alarms from './Alarms';
 import React from 'react';
-import LogoutButton from '../../components/LogoutButton';
-import HomeButton from '../../components/HomeButton';
-import { FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa';
 
 const YMConnect = (props) => {
   const { onContentReady, onLogout } = props;

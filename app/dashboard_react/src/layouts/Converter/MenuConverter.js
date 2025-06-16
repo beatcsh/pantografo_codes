@@ -1,6 +1,6 @@
-import { LuFiles } from "react-icons/lu";
 import { SiConvertio } from "react-icons/si";
-import './Converter.css';
+import { LuFiles } from "react-icons/lu";
+import "./Converter.css";
 
 const MenuConverter = ({ setView }) => {
 

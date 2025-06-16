@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
+import { useState } from 'react';
 import '../App.css';
 
 const DashboardHome = ({ onLogout }) => {

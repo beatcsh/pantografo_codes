@@ -1,7 +1,7 @@
 import { FaUpload } from "react-icons/fa"
-import AOS from "aos"
-import 'aos/dist/aos.css'
 import { useEffect } from "react"
+import "aos/dist/aos.css"
+import AOS from "aos"
 
 const FormConverter = ({ setView, tabla, setFile, file, form, handleRowSelect, handleFormChange, handleConvert, downloadUrl, convertError, convertLoading }) => {
     useEffect(() => {
