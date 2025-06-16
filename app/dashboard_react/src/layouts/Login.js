@@ -1,9 +1,10 @@
+import { Container, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
+import { FaUserCog } from "react-icons/fa";
 import Form from 'react-bootstrap/Form';
-import { Container, Row, Col } from 'react-bootstrap';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 const USERS = {
     admin: { password: 'admin', type: 'admin' },
@@ -86,14 +87,7 @@ const Login = ({ onLogin }) => {
                             <div style={{ textAlign: 'center', marginBottom: 24 }}>
                                 <h2 style={{ fontWeight: 900, color: '#111', marginBottom: 0, fontSize: '1.5em', letterSpacing: 1 }}>Log in to Start to Convert Files</h2>
                                 <div style={{ color: '#888', fontWeight: 400, fontSize: 16, marginTop: 2, marginBottom: 18 }}>Put a valid user to operate this application.</div>
-                                <div style={{ textAlign: 'center', margin: '0 auto', marginBottom: 18 }}>
-                                    <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="55" cy="55" r="50" stroke="#111" strokeWidth="6" />
-                                        {/* Solo usuario, sin flecha */}
-                                        <circle cx="55" cy="40" r="13" fill="#111" />
-                                        <rect x="40" y="60" width="30" height="18" rx="9" fill="#111" />
-                                    </svg>
-                                </div>
+                                <FaUserCog size={110} color="#1876d3" />
                             </div>
                             <Form onSubmit={handleSubmit} style={{ width: '100%' }}>
                                 <Row>
@@ -122,7 +116,7 @@ const Login = ({ onLogin }) => {
                                     variant="primary"
                                     type="submit"
                                     className="w-100 mb-2"
-                                    style={{ borderRadius: 8, fontWeight: 700, fontSize: '1.2em', padding: '0.9em 0', background: '#0072ff', border: 'none', letterSpacing: 1 }}>
+                                    style={{ borderRadius: 8, fontWeight: 700, fontSize: '1.2em', padding: '0.9em 0', background: '#1876d3', border: 'none', letterSpacing: 1 }}>
                                     GET STARTED &rarr;
                                 </Button>
                                 {error && <p style={{ color: '#e53935', textAlign: 'center', marginTop: 10 }}>{error}</p>}

@@ -1,14 +1,15 @@
 import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
 import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
-import { CiFileOn } from "react-icons/ci";
 import withReactContent from 'sweetalert2-react-content'
+import ModalJob from "../../components/ModalJob"
 import { GrConfigure } from "react-icons/gr"
 import { useState, useEffect } from "react"
-import ModalJob from "../../components/ModalJob"
-import Swal from 'sweetalert2'
-import axios from 'axios'
+import { CiFileOn } from "react-icons/ci";
+import Swal from "sweetalert2"
+import axios from "axios"
+import "aos/dist/aos.css"
 import AOS from "aos"
-import 'aos/dist/aos.css'
+
 
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"

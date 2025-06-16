@@ -1,12 +1,12 @@
-import os     
-import re
+from shapely.geometry import Polygon, JOIN_STYLE
+from shapely.ops import unary_union
+from typing import List, Tuple                               # Importar el módulo csv para poder usar los archivos .csv para las tablas
+from ezdxf.math import BSpline                                    
+from datetime import datetime
 import ezdxf                                                #Libreria para convertit de dxf a codigo G
 import math
-from shapely.geometry import Polygon, JOIN_STYLE
-from shapely.ops import unary_union                                    
-from datetime import datetime
-from typing import List, Tuple                               # Importar el módulo csv para poder usar los archivos .csv para las tablas
-from ezdxf.math import BSpline
+import os     
+import re
 
 uso = 0                                                     #0 Para corte láser, 1 para dremel
 PULSES_POR_MM = 1                                           #Cuando se requiera obtener el valor en pulsos, se cambia esta variable 

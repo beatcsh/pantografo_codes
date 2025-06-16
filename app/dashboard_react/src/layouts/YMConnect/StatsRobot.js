@@ -1,7 +1,7 @@
-import { Container, Row, Image, Card, Col } from 'react-bootstrap'
-import { useEffect } from 'react'
+import { Container, Row, Card, Col } from "react-bootstrap"
+import { useEffect } from "react"
+import "aos/dist/aos.css"
 import AOS from "aos"
-import 'aos/dist/aos.css'
 
 const StatsRobot = () => {
 
