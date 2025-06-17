@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react'
 import { Container, Table, Badge, Button } from 'react-bootstrap'
+import withReactContent from "sweetalert2-react-content"
 import { GiHealingShield } from "react-icons/gi"
-import { IoMdRefresh } from "react-icons/io";
-import 'bootstrap/dist/css/bootstrap.min.css'
-import axios from 'axios'
-import AOS from 'aos'
-import 'aos/dist/aos.css'
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import "bootstrap/dist/css/bootstrap.min.css"
+import { IoMdRefresh } from "react-icons/io"
+import { useEffect, useState } from "react"
+import Swal from "sweetalert2"
+import axios from "axios"
+import "aos/dist/aos.css"
+import AOS from "aos"
+
 
 const MySwal = withReactContent(Swal)
 const ymConnectService = 'http://localhost:5229'

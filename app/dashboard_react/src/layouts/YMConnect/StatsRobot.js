@@ -1,7 +1,7 @@
-import { Container, Row, Image, Card, Col } from 'react-bootstrap'
-import { useEffect } from 'react'
+import { Container, Row, Card, Col } from "react-bootstrap"
+import { useEffect } from "react"
+import "aos/dist/aos.css"
 import AOS from "aos"
-import 'aos/dist/aos.css'
 
 const StatsRobot = () => {
 
@@ -13,17 +13,8 @@ const StatsRobot = () => {
     <Container data-aos="zoom-in-up" className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
       <Row className="text-center">
         <Col>
-          <div style={{
-            fontWeight: 900,
-            fontSize: '45px',
-            color: '#1976d2',
-            letterSpacing: 1,
-            marginBottom: '20px',
-            fontFamily: 'Arial Black',
-          }}>
-            YMConnect Service
-          </div>
-          <hr/>
+          <img src='../assets/white_ymconnect.png' style={{ width: '400px' }} />
+          <hr />
           <Card style={{ background: 'rgb(1,9,35)', color: '#ffffff', padding: '20px', fontSize: '20px' }}>
             <Card.Body>
               Welcome. In this screen you will be able to see the robot statistics in real time and manipulate all the files.

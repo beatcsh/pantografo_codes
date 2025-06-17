@@ -1,13 +1,14 @@
+import { Container, Row, Col } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
+import { FaUserCog } from "react-icons/fa";
 import Form from 'react-bootstrap/Form';
-import { Container, Row, Col } from 'react-bootstrap';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 const USERS = {
-  admin: { password: 'admin', type: 'admin' },
-  operator: { password: 'operator', type: 'user' }
+    admin: { password: 'admin', type: 'admin' },
+    operator: { password: 'operator', type: 'user' }
 };
 
 const Login = ({ onLogin }) => {
@@ -42,8 +43,12 @@ const Login = ({ onLogin }) => {
                 <Row style={{ height: '100vh' }}>
                     {/* Lado izquierdo: fondo azul, logo, texto, robot */}
                     <Col md={6} style={{
-                        background: 'linear-gradient(180deg, #0072ff 0%, #003366 100%)',
+                        // background: 'linear-gradient(180deg, #0072ff 0%, #003366 100%)',
                         color: '#fff',
+                        backgroundImage: 'url("../assets/bg.jpeg")',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
@@ -53,22 +58,21 @@ const Login = ({ onLogin }) => {
                         minHeight: 480
                     }}>
                         <div style={{ zIndex: 2 }}>
-                            <h1 style={{ fontWeight: 900, fontSize: '2.8em', letterSpacing: 2, marginBottom: 24 }}>YASKAWA</h1>
-                            <h2 style={{ fontWeight: 900, fontSize: '2em', marginBottom: 8 }}>WELCOME BACK!</h2>
-                            <div style={{ fontSize: 18, fontWeight: 400, marginBottom: 32, color: '#e0e6f7' }}>
+                            <img src='../assets/white_yaskawa.png' style={{ width: '280px', fontWeight: 900, fontSize: '2.8em', letterSpacing: 2, marginBottom: 24 }} />
+                            <h2 style={{ marginLeft: '15px', fontWeight: 900, fontSize: '2em', marginBottom: 8 }}>WELCOME BACK!</h2>
+                            <div style={{ marginLeft: '15px', fontSize: 18, fontWeight: 400, marginBottom: 32, color: '#e0e6f7' }}>
                                 This application is developed<br />by the Yaskawa Motoman Mexico engineering team.
                             </div>
                         </div>
-                        <img src={process.env.PUBLIC_URL + '/assets/robot_yaskawa.png'} alt="robot" style={{
+                        {/* <img src='../assets/white_yaskawa.png' style={{
                             position: 'absolute',
                             left: 0,
                             bottom: 0,
-                            width: '60%',
-                            minWidth: 260,
-                            maxWidth: 420,
+                            margin: '15px',
+                            width: '20%',
                             zIndex: 1,
                             filter: 'drop-shadow(0 8px 32px #00336688)'
-                        }} />
+                        }} /> */}
                     </Col>
                     {/* Lado derecho: login */}
                     <Col md={6} style={{
@@ -83,14 +87,7 @@ const Login = ({ onLogin }) => {
                             <div style={{ textAlign: 'center', marginBottom: 24 }}>
                                 <h2 style={{ fontWeight: 900, color: '#111', marginBottom: 0, fontSize: '1.5em', letterSpacing: 1 }}>Log in to Start to Convert Files</h2>
                                 <div style={{ color: '#888', fontWeight: 400, fontSize: 16, marginTop: 2, marginBottom: 18 }}>Put a valid user to operate this application.</div>
-                                <div style={{ textAlign: 'center', margin: '0 auto', marginBottom: 18 }}>
-                                    <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="55" cy="55" r="50" stroke="#111" strokeWidth="6" />
-                                        {/* Solo usuario, sin flecha */}
-                                        <circle cx="55" cy="40" r="13" fill="#111" />
-                                        <rect x="40" y="60" width="30" height="18" rx="9" fill="#111" />
-                                    </svg>
-                                </div>
+                                <FaUserCog size={110} color="#1876d3" />
                             </div>
                             <Form onSubmit={handleSubmit} style={{ width: '100%' }}>
                                 <Row>
@@ -119,7 +116,7 @@ const Login = ({ onLogin }) => {
                                     variant="primary"
                                     type="submit"
                                     className="w-100 mb-2"
-                                    style={{ borderRadius: 8, fontWeight: 700, fontSize: '1.2em', padding: '0.9em 0', background: '#0072ff', border: 'none', letterSpacing: 1 }}>
+                                    style={{ borderRadius: 8, fontWeight: 700, fontSize: '1.2em', padding: '0.9em 0', background: '#1876d3', border: 'none', letterSpacing: 1 }}>
                                     GET STARTED &rarr;
                                 </Button>
                                 {error && <p style={{ color: '#e53935', textAlign: 'center', marginTop: 10 }}>{error}</p>}

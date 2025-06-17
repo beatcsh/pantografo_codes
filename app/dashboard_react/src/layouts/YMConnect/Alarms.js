@@ -1,12 +1,13 @@
 import { Container, Table, Row, Col, Badge, Button } from "react-bootstrap"
 import withReactContent from "sweetalert2-react-content"
+import { useState, useEffect } from "react"
 import { CiWarning } from "react-icons/ci"
 import { FaFileCsv } from "react-icons/fa"
-import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
 import axios from "axios"
+import "aos/dist/aos.css"
 import AOS from "aos"
-import 'aos/dist/aos.css'
+
 
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"
@@ -86,10 +87,8 @@ const Alarms = () => {
     document.body.removeChild(link)
   }
 
-  // backgroundColor: "#010923",
-
   return (
-    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem" , marginTop: '200px',marginBottom: '50px' }}>
+    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem", marginTop: '200px', marginBottom: '50px' }}>
       <Row className="mb-4 mt-5 justify-content-center">
         <Col xs={12} md={10} lg={8}>
           <h1 style={{ color: "white" }}>Alarms History</h1>

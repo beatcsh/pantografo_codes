@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
+import { useState } from 'react';
 import '../App.css';
 
-const DashboardHome = ({ user, onLogout }) => {
+const DashboardHome = ({ onLogout }) => {
   const [hover, setHover] = useState(null); // 'left' | 'right' | null
   const [animating, setAnimating] = useState(null); // 'left' | 'right' | null
   const navigate = useNavigate();
@@ -103,12 +103,12 @@ const DashboardHome = ({ user, onLogout }) => {
           left: 48,
           zIndex: 2,
         }}>
-          <h1 style={{ color: '#fff', fontWeight: 900, fontSize: '2.5em', letterSpacing: 1 }}>YMCONNECT</h1>
-          <div style={{ color: '#e0e6f7', fontWeight: 400, fontSize: 22, marginTop: 8, maxWidth: 420 }}>
+          <img src='../assets/white_ymconnect.png' style={{ width: '300px' }} />
+          <div style={{ color: '#e0e6f7', fontWeight: 400, fontSize: 22, marginTop: 8, maxWidth: 420, marginLeft: '33px' }}>
             This section allows you to see<br />the robot's data, as well as its status.
           </div>
         </div>
-        <div style={{ position: 'absolute', left: 32, bottom: 24, color: '#fff', fontWeight: 900, fontSize: 22, letterSpacing: 1, zIndex: 2 }}>YASKAWA</div>
+        <img src='../assets/white_yaskawa.png' style={{ position: 'absolute', left: 32, bottom: 24, color: '#fff', fontWeight: 900, fontSize: 22, letterSpacing: 1, zIndex: 2, width: '190px' }} />
       </div>
 
       {/* Lado derecho: código */}
