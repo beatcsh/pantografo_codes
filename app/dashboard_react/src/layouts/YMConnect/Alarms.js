@@ -1,8 +1,11 @@
 import { Container, Table, Row, Col, Badge, Button } from "react-bootstrap"
 import withReactContent from "sweetalert2-react-content"
+import InfoButton from "../../components/InfoButton"
+import InfoModal from "../../components/InfoModal"
 import { useState, useEffect } from "react"
 import { CiWarning } from "react-icons/ci"
 import { FaFileCsv } from "react-icons/fa"
+import { FaBell } from "react-icons/fa";
 import Swal from "sweetalert2"
 import axios from "axios"
 import "aos/dist/aos.css"
@@ -14,6 +17,26 @@ const ymConnectService = "http://localhost:5229"
 
 const Alarms = () => {
   const [almHistory, setAlmHistory] = useState([])
+  const [showInfoModal, setShowInfoModal] = useState(false)
+
+  const info = `
+ℹ️ Alarm History Screen - User Guide
+
+This screen provides a clear overview of the robot's complete alarm history. Each entry includes:
+
+🆔 Alarm Code and Location – Essential for troubleshooting and identifying issues.  
+🎮 Robot Mode – Indicates whether the robot was in Play, Remote, or Teach mode when the alarm occurred.  
+📝 Alarm Description – The message reported by the system.  
+📅 Timestamp – Date and time when the alarm was triggered.
+
+📤 At the bottom of the screen, you can download the entire alarm history as a CSV file for your records.
+
+📂 Note: This information is retrieved directly from the robot's \`ALMHIST.dat\` file.
+`;
+
+  const handleShowInfo = () => {
+    setShowInfoModal(true)
+  }
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -88,55 +111,65 @@ const Alarms = () => {
   }
 
   return (
-    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem", marginTop: '200px', marginBottom: '50px' }}>
-      <Row className="mb-4 mt-5 justify-content-center">
-        <Col xs={12} md={10} lg={8}>
-          <h1 style={{ color: "white" }}>Alarms History</h1>
-          <Badge bg="secondary">{almHistory.length} alarms found <CiWarning /></Badge>
-          <hr />
-        </Col>
-      </Row>
-      <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8}>
-          <div
-            style={{
-              backgroundColor: "white",
-              borderRadius: "1rem",
-              padding: "1rem",
-              maxHeight: "500px",  // Altura máxima visible
-              overflowY: "auto",   // Scroll vertical si se excede
-              boxShadow: "0 0 10px rgba(0,0,0,0.1)"
-            }}
-          >
-            <Table responsive borderless className="mb-0">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Description</th>
-                  <th>Location</th>
-                  <th>Mode</th>
-                  <th>Datetime</th>
-                </tr>
-              </thead>
-              <tbody>
-                {almHistory.map((alarm, idx) => (
-                  <tr key={idx}>
-                    <td>{alarm.code}</td>
-                    <td>{alarm.description}</td>
-                    <td>{alarm.location}</td>
-                    <td>{alarm.mode}</td>
-                    <td>{alarm.timestamp}</td>
+    <>
+      <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem", marginTop: '200px', marginBottom: '50px' }}>
+        <Row className="mb-4 mt-5 justify-content-center">
+          <Col xs={12} md={10} lg={8}>
+            <h1 style={{ color: "white" }}><FaBell className="mb-2"/> Alarms History</h1>
+            <Badge bg="secondary">{almHistory.length} alarms found <CiWarning /></Badge>
+            <hr />
+          </Col>
+        </Row>
+        <Row className="justify-content-center">
+          <Col xs={12} md={10} lg={8}>
+            <div
+              style={{
+                backgroundColor: "white",
+                borderRadius: "1rem",
+                padding: "1rem",
+                maxHeight: "500px",  // Altura máxima visible
+                overflowY: "auto",   // Scroll vertical si se excede
+                boxShadow: "0 0 10px rgba(0,0,0,0.1)"
+              }}
+            >
+              <Table responsive borderless className="mb-0">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Mode</th>
+                    <th>Datetime</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-          <Button className="mt-3" variant="success" onClick={() => alarmsCSV(almHistory)}>
-            <FaFileCsv /> Download CSV
-          </Button>
-        </Col>
-      </Row>
-    </Container>
+                </thead>
+                <tbody>
+                  {Array.isArray(almHistory) && almHistory.length > 0 ? (
+                    almHistory.map((alarm, idx) => (
+                      <tr key={idx}>
+                        <td>{alarm.code}</td>
+                        <td>{alarm.description}</td>
+                        <td>{alarm.location}</td>
+                        <td>{alarm.mode}</td>
+                        <td>{alarm.timestamp}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="text-center text-muted">No data available.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            </div>
+            <Button className="mt-3" variant="success" onClick={() => alarmsCSV(almHistory)}>
+              <FaFileCsv /> Download CSV
+            </Button>
+          </Col>
+        </Row>
+        <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
+      </Container>
+      <InfoButton onClick={handleShowInfo} />
+    </>
   )
 }
 

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import AOS from "aos"
 import 'aos/dist/aos.css'
 
-const ModalJob = ({ content, show, close }) => {
+const InfoModal = ({ content, show, close }) => {
 
     useEffect(() => {
         AOS.init()
@@ -15,10 +15,12 @@ const ModalJob = ({ content, show, close }) => {
     return (
         <Modal show={show} onHide={close} centered data-aos="zoom-in-up">
             <Modal.Header closeButton>
-                <Modal.Title>Job Content</Modal.Title>
+                <Modal.Title>Instructions</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <pre>{content}</pre>
+                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                    {content}
+                </pre>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={close}>Close</Button>
@@ -27,4 +29,4 @@ const ModalJob = ({ content, show, close }) => {
     )
 }
 
-export default ModalJob
+export default InfoModal
