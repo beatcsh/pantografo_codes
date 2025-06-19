@@ -6,8 +6,7 @@ import DashboardHome from './layouts/DashboardHome';
 import React, { useEffect, useState } from 'react';
 import Login from './layouts/Login';
 import './App.css';
-
-
+import SelectRobotIP from "./layouts/SelectRobotIP";
 
 // ProtectedRoute component
 function ProtectedRoute({ user, allowed, children, redirectTo }) {
@@ -42,9 +41,10 @@ function App() {
       <Routes>
         <Route path="/" element={
           user
-            ? (user.type === 'admin' ? <Navigate to="/home" replace /> : <Navigate to="/ymconnect" replace />)
+            ? <Navigate to="/select-ip" replace />
             : <Login onLogin={handleLogin} />
         } />
+        <Route path="/select-ip" element={<SelectRobotIP userType={user?.type} />} />
         <Route path="/home" element={
           <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
             <DashboardHome user={user} onLogout={handleLogout} />
