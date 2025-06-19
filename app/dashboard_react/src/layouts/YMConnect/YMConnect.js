@@ -1,4 +1,5 @@
 import { FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa'
+import LogoutButton from '../../components/LogoutButton'
 import { PiPlugsConnectedBold } from "react-icons/pi"
 import HomeButton from '../../components/HomeButton'
 import { useState, useEffect } from 'react'
@@ -11,7 +12,7 @@ import Alarms from './Alarms'
 import React from 'react'
 
 const YMConnect = (props) => {
-  const { onContentReady, robot_ip } = props
+  const { onContentReady, robot_ip, onLogout } = props
   const [active, setActive] = useState('home')
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -47,6 +48,8 @@ const YMConnect = (props) => {
       position: 'relative',
       background: 'rgb(1,9,35,255)'
     }}>
+      
+      <LogoutButton onLogout={ onLogout } />
       <HomeButton/>
 
       {/* Botón menú (visible siempre para toggle sidebar) */}

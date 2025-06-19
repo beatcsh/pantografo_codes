@@ -8,7 +8,7 @@ const LogoutButton = ({ onLogout }) => {
                 position: 'fixed',
                 top: 24,
                 right: 84,
-                zIndex: 1000,
+                zIndex: 9999,
                 background: '#ffffff',
                 border: '2px solid #1976d2',
                 color: '#1976d2',
