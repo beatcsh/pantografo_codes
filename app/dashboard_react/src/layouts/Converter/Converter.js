@@ -1,4 +1,3 @@
-import LogoutButton from '../../components/LogoutButton'
 import HomeButton from '../../components/HomeButton'
 import { useEffect, useState, useRef } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -8,16 +7,15 @@ import FormConverter from './FormConverter'
 import 'aos/dist/aos.css'
 import './Converter.css'
 import AOS from "aos"
+import axios from 'axios'
 
 const API_URL = 'http://localhost:8000';
 
 const Converter = (props) => {
-  const { onContentReady, user, onLogout } = props;
-  // Estados para la tabla de parámetros
+  const { onContentReady, robot_ip, onLogout } = props;
   const [tabla, setTabla] = useState([]);
   const [tablaHeaders, setTablaHeaders] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
-  // Estados para formulario de conversión
   const [form, setForm] = useState({
     'Material': '',
     'Corriente (A)': '',
@@ -38,29 +36,24 @@ const Converter = (props) => {
   const [convertError, setConvertError] = useState('');
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [search, setSearch] = useState('');
-  const [view, setView] = useState('select'); // 'select', 'convert', 'files'
+  const [view, setView] = useState('select');
   const fileInputRef = useRef();
 
-  // Cargar tabla de parámetros al montar
   useEffect(() => {
     AOS.init()
-    fetch(`${API_URL}/tabla`)
-      .then(res => res.json())
-      .then(data => {
+    axios.get(`${API_URL}/tabla`)
+      .then(res => {
+        const data = res.data;
         if (Array.isArray(data) && data.length > 0) {
           setTabla(data);
           setTablaHeaders(Object.keys(data[0]));
-          if (onContentReady) onContentReady(); // Llama aquí cuando la info está lista
+          if (onContentReady) onContentReady();
         }
       })
       .catch(() => setTabla([]));
   }, [onContentReady]);
 
-  // Efecto para llamar a onContentReady cuando los datos están listos
-
-  // Selección de fila de tabla
   const handleRowSelect = (row) => {
-    // Si ya está seleccionada, deselecciona y limpia los parámetros
     if (selectedRow === row) {
       setSelectedRow(null);
       setForm(f => ({
@@ -73,7 +66,6 @@ const Converter = (props) => {
       return;
     }
     setSelectedRow(row);
-    // Autollenar campos del formulario
     setForm(f => ({
       ...f,
       'Material': row['Material'] || '',
@@ -83,13 +75,11 @@ const Converter = (props) => {
     }));
   };
 
-  // Cambios en formulario
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
   };
 
-  // Subir archivo y convertir
   const handleConvert = async (e) => {
     e.preventDefault();
     setConvertError('');
@@ -101,7 +91,7 @@ const Converter = (props) => {
     setConvertLoading(true);
     const formData = new FormData();
     formData.append('file', file);
-    const params = new URLSearchParams({
+    const params = {
       velocidad: form['Velocidad corte (mm/s)'] || 100,
       velocidadj: form['Velocidad J'] || 30,
       z_altura: form['Z'] || 7,
@@ -111,36 +101,35 @@ const Converter = (props) => {
       kerf: form['Kerf'] || 10,
       zp: form['Profundidad de Corte'] || 1,
       pa: form['Pasadas'] || 1
-    });
+    };
     try {
-      const res = await fetch(`${API_URL}/convert/?${params.toString()}`, {
-        method: 'POST',
-        body: formData
+      const res = await axios.post(`${API_URL}/convert/`, formData, {
+        params,
+        responseType: 'blob'
       });
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        setDownloadUrl(url);
-        // Preguntar si se quiere enviar por FTP
-        setTimeout(() => {
-          if (window.confirm('¿Quieres enviar el archivo JBI al robot por FTP?')) {
-            enviarPorFTP(file.name.replace(/\.[^.]+$/, '.JBI'));
-          }
-        }, 100);
-      } else {
-        setConvertError('Error al convertir el archivo.');
-      }
+      const blob = new Blob([res.data], { type: res.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setTimeout(() => {
+        if (window.confirm('¿Quieres enviar el archivo JBI al robot por FTP?')) {
+          enviarPorFTP(file.name.replace(/\.[^.]+$/, '.JBI'));
+        }
+      }, 100);
     } catch (err) {
-      setConvertError('Error de red o del servidor.');
+      setConvertError('Error al convertir el archivo.');
     }
     setConvertLoading(false);
   };
 
-  // Enviar archivo por FTP
   const enviarPorFTP = async (jbiFileName) => {
     try {
-      const res = await fetch(`${API_URL}/enviar-ftp?filename=${encodeURIComponent(jbiFileName)}&FTP_HOST=`);
-      if (res.ok) {
+      const res = await axios.get(`${API_URL}/enviar-ftp`, {
+        params: {
+          filename: jbiFileName,
+          FTP_HOST: robot_ip
+        }
+      });
+      if (res.status === 200) {
         alert('Archivo enviado exitosamente al robot.');
       } else {
         alert('Error al enviar el archivo por FTP.');
@@ -150,7 +139,6 @@ const Converter = (props) => {
     }
   };
 
-  // Render
   return (
     <div
       data-aos="zoom-in-up"
@@ -163,47 +151,30 @@ const Converter = (props) => {
         background: "url('/assets/fondo.jpeg') center center/cover no-repeat fixed"
       }}
     >
-      <LogoutButton onLogout={ onLogout } />
       <HomeButton />
 
       {view === 'select' && (
         <MenuConverter setView={setView} />
       )}
-      {/* CONVERT VIEW: solo el convertidor */}
       {view === 'convert' && (
-        <FormConverter setView={setView} tabla={tabla} setFile={setFile} file={file} form={form} handleFormChange={handleFormChange} handleRowSelect={handleRowSelect} handleConvert={handleConvert} convertError={convertError} convertLoading={convertLoading} />
+        <FormConverter
+          setView={setView}
+          tabla={tabla}
+          setFile={setFile}
+          file={file}
+          form={form}
+          handleFormChange={handleFormChange}
+          handleRowSelect={handleRowSelect}
+          handleConvert={handleConvert}
+          convertError={convertError}
+          convertLoading={convertLoading}
+        />
       )}
-      {/* FILES VIEW: solo gestor de archivos */}
       {view === 'files' && (
-        <FilesConverter setView={setView} search={search} setSearch={setSearch} />
+        <FilesConverter setView={setView} search={search} setSearch={setSearch} robot_ip={robot_ip}/>
       )}
     </div>
   );
 };
 
 export default Converter;
-/*
-CSS extra sugerido para Converter.css:
-
-.home-card-select {
-  position: relative;
-  overflow: hidden;
-}
-.home-card-select:hover, .home-card-select:focus {
-  box-shadow: 0 8px 40px 0 #007bff44, 0 1.5px 8px 0 #fff8;
-  transform: translateY(-4px) scale(1.035);
-  background: rgba(255,255,255,0.19);
-  border: 1.5px solid #007bff44;
-}
-.card-hover-overlay {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg,rgba(0,123,255,0.08) 0%,rgba(0,123,255,0.13) 100%);
-  opacity: 0;
-  transition: opacity 0.18s;
-}
-.home-card-select:hover .card-hover-overlay, .home-card-select:focus .card-hover-overlay {
-  opacity: 1;
-}
-*/

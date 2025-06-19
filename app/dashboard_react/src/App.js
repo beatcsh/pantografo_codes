@@ -53,7 +53,7 @@ function App() {
         } />
         <Route path="/converter" element={
           <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
-            <PageTransitionWrapper><Converter user={user} onLogout={handleLogout} /></PageTransitionWrapper>
+            <PageTransitionWrapper><Converter robot_ip={selectedIP} user={user} onLogout={handleLogout} /></PageTransitionWrapper>
           </ProtectedRoute>
         } />
         <Route path="/ymconnect" element={
