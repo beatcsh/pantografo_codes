@@ -112,4 +112,4 @@ def enviar_ftp(filename: str = "", FTP_HOST = ""):  # No async para evitar probl
         gestor.cerrar_conexion()
         return JSONResponse(content={"ok": True}, status_code=200)
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        return JSONResponse(content={"error": str(e)}, status_code=500) 
