@@ -14,12 +14,13 @@ const HomeButton = () => {
             onClick={goHome}
             style={{
                 position: 'fixed',
-                top: 21,
+                top: 24,
                 right: 21,
                 zIndex: 9999,
                 borderRadius: 8, 
                 padding: 10,
-                background: '#ffffff'    
+                background: '#ffffff',
+                border: '2px solid #1976d2',    
             }}
         >
             <FaHome color="#1876d3" size={20} />

@@ -104,7 +104,7 @@ const DashboardHome = ({ onLogout }) => {
           zIndex: 2,
         }}>
           <img src='../assets/white_ymconnect.png' style={{ width: '300px' }} />
-          <div style={{ color: '#e0e6f7', fontWeight: 400, fontSize: 22, marginTop: 8, maxWidth: 420, marginLeft: '33px' }}>
+          <div style={{ color: '#e0e6f7', fontWeight: 400, fontSize: 20, marginTop: 8, maxWidth: 300, marginLeft: '33px' }}>
             This section allows you to see<br />the robot's data, as well as its status.
           </div>
         </div>
@@ -161,7 +161,7 @@ const DashboardHome = ({ onLogout }) => {
           textAlign: 'right',
         }}>
           <h1 style={{ color: '#0066cc', fontWeight: 900, fontSize: '2.2em', letterSpacing: 1 }}>CONVERTER</h1>
-          <div style={{ color: '#222', fontWeight: 400, fontSize: 18, marginTop: 8, maxWidth: 420 }}>
+          <div style={{ color: '#222', fontWeight: 400, fontSize: 18, marginTop: 8, maxWidth: 300 }}>
             It is an application that allows the<br />conversion of .dxf files to inform II language.
           </div>
         </div>
