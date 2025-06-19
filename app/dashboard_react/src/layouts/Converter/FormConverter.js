@@ -89,6 +89,14 @@ const FormConverter = ({ setView, tabla, setFile, file, form, handleRowSelect, h
                         <input className="converter-form-input" name="Kerf" value={form['Kerf']} onChange={handleFormChange} />
                     </div>
                     <div className="converter-form-field-group">
+                        <label className="converter-form-label">N° Pasadas</label>
+                        <input className="converter-form-input" name="Pasadas" value={form['Pasadas']} onChange={handleFormChange} />
+                    </div>
+                    <div className="converter-form-field-group">
+                        <label className="converter-form-label">Profundidad Corte</label>
+                        <input className="converter-form-input" name="Profundidad de Corte" value={form['Profundidad de Corte']} onChange={handleFormChange} />
+                    </div>
+                    <div className="converter-form-field-group">
                         <label className="converter-form-label">Tipo de herramienta</label>
                         <select
                             name='Uso'

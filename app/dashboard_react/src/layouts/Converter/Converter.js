@@ -29,7 +29,9 @@ const Converter = (props) => {
     'Tool': 0,
     'Plasma': 1,
     'Kerf': 10,
-    'Uso': 0
+    'Uso': 0,
+    'Profundidad de Corte': 1,
+    'Pasadas': 1
   });
   const [file, setFile] = useState(null);
   const [convertLoading, setConvertLoading] = useState(false);
@@ -106,7 +108,9 @@ const Converter = (props) => {
       uf: form['User Frame'] || 1,
       ut: form['Tool'] || 0,
       uso: form['Uso'] || 0,
-      kerf: form['Kerf'] || 10
+      kerf: form['Kerf'] || 10,
+      zp: form['Profundidad de Corte'] || 1,
+      pa: form['Pasadas'] || 1
     });
     try {
       const res = await fetch(`${API_URL}/convert/?${params.toString()}`, {
@@ -135,7 +139,7 @@ const Converter = (props) => {
   // Enviar archivo por FTP
   const enviarPorFTP = async (jbiFileName) => {
     try {
-      const res = await fetch(`${API_URL}/enviar-ftp?filename=${encodeURIComponent(jbiFileName)}`);
+      const res = await fetch(`${API_URL}/enviar-ftp?filename=${encodeURIComponent(jbiFileName)}&FTP_HOST=`);
       if (res.ok) {
         alert('Archivo enviado exitosamente al robot.');
       } else {

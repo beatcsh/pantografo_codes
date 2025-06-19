@@ -1,21 +1,20 @@
-import { FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa';
-import LogoutButton from '../../components/LogoutButton';
-import { PiPlugsConnectedBold } from "react-icons/pi";
-import HomeButton from '../../components/HomeButton';
-import { useState, useEffect } from 'react';
-import Diagnostics from './Diagnostics';
-import StatsRobot from './StatsRobot';
-import RobotInfo from './RobotInfo';
-import AboutUs from './AboutUs';
-import JobList from './JobList';
-import Alarms from './Alarms';
-import React from 'react';
+import { FaBell, FaList, FaChartLine, FaRobot, FaInfoCircle, FaTimes, FaBars } from 'react-icons/fa'
+import { PiPlugsConnectedBold } from "react-icons/pi"
+import HomeButton from '../../components/HomeButton'
+import { useState, useEffect } from 'react'
+import Diagnostics from './Diagnostics'
+import StatsRobot from './StatsRobot'
+import RobotInfo from './RobotInfo'
+import AboutUs from './AboutUs'
+import JobList from './JobList'
+import Alarms from './Alarms'
+import React from 'react'
 
 const YMConnect = (props) => {
-  const { onContentReady, onLogout } = props;
-  const [active, setActive] = useState('home');
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // default abierto
+  const { onContentReady } = props
+  const [active, setActive] = useState('home')
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const menu = [
     { key: 'home', label: 'Start', icon: <PiPlugsConnectedBold size={22} />, component: <StatsRobot /> },
@@ -24,21 +23,21 @@ const YMConnect = (props) => {
     { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics /> },
     { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo /> },
     { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
-  ];
+  ]
 
-  const handleResize = () => setIsMobile(window.innerWidth <= 768);
+  const handleResize = () => setIsMobile(window.innerWidth <= 768)
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
-  const sidebarWidth = isMobile ? 240 : 321;
+  const sidebarWidth = isMobile ? 240 : 321
 
   // Llama a onContentReady al montar (puedes mejorar para esperar datos reales)
   React.useEffect(() => {
-    if (onContentReady) onContentReady();
-  }, [onContentReady]);
+    if (onContentReady) onContentReady()
+  }, [onContentReady])
 
   return (
     <div style={{
@@ -48,7 +47,6 @@ const YMConnect = (props) => {
       position: 'relative',
       background: 'rgb(1,9,35,255)'
     }}>
-      <LogoutButton onLogout={ onLogout }/>
       <HomeButton/>
 
       {/* Botón menú (visible siempre para toggle sidebar) */}
@@ -94,7 +92,7 @@ const YMConnect = (props) => {
         borderBottomRightRadius: isMobile ? 16 : 0,
         overflowY: 'auto',
       }}>
-        <img src='../assets/yaskawa.png' style={{
+        <img src='../assets/yaskawa.png' alt='logo' style={{
           width: '180px',
           margin: '40px 40px 40px 20px',
           fontWeight: 900,
@@ -156,7 +154,7 @@ const YMConnect = (props) => {
         {menu.find(m => m.key === active)?.component}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default YMConnect;
+export default YMConnect

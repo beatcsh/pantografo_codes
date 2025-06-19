@@ -1,22 +1,24 @@
-from shapely.geometry import Polygon, JOIN_STYLE
-from shapely.ops import unary_union
-from typing import List, Tuple                               # Importar el módulo csv para poder usar los archivos .csv para las tablas
-from ezdxf.math import BSpline                                    
-from datetime import datetime
+from shapely.geometry import Polygon, JOIN_STYLE, Point
+from shapely.ops import unary_union                                    
+from typing import List, Tuple                                                  # Importar el módulo csv para poder usar los archivos .csv para las tablas
+from ezdxf.math import BSpline
+from datetime import datetime                          
 import ezdxf                                                #Libreria para convertit de dxf a codigo G
 import math
 import os     
 import re
 
 uso = 0                                                     #0 Para corte láser, 1 para dremel
+of = 0
 PULSES_POR_MM = 1                                           #Cuando se requiera obtener el valor en pulsos, se cambia esta variable 
 offset = 10                                                #Valor compensación de la herramienta
+
 
 #Configuración de usuario para entrar al servidor del robot
 FTP_HOST = "192.168.1.31"                                   #IP del servidor                                
 FTP_USER = "rcmaster"                                       #Nombre de usuario con todos los privilegios
 FTP_PASS = "9999999999999999"                               #Contraseña del modo mantenimiento
-    
+
 def get_area(points):
     area = 0
     n = len(points)
@@ -65,16 +67,18 @@ def linear_lead_in(points, kerf, uso, is_exterior, tolerance=4):
     return [lead_start] 
 
 
-def connect_polylines(polylines: List[List[Tuple[float, float]]]) -> List[List[Tuple[float, float]]]:
+def connect_polylines_with_layers(polylines_with_layers):
     result = []
-    unused = polylines[:]
-    
+    unused = polylines_with_layers[:]
+
     while unused:
-        current = unused.pop(0)
+        current, layer = unused.pop(0)
         changed = True
         while changed:
             changed = False
-            for i, other in enumerate(unused):
+            for i, (other, other_layer) in enumerate(unused):
+                if layer != other_layer:
+                    continue  # no combinar figuras de distintas capas
                 if points_equal(current[-1], other[0]):
                     current += other[1:]
                     unused.pop(i)
@@ -95,15 +99,17 @@ def connect_polylines(polylines: List[List[Tuple[float, float]]]) -> List[List[T
                     unused.pop(i)
                     changed = True
                     break
-        result.append(current)
-    
+        result.append((current, layer))
+
     return result
+
 
 def points_equal(p1, p2, eps=1e-6):
     return abs(p1[0] - p2[0]) < eps and abs(p1[1] - p2[1]) < eps
 
 def extract_entities_as_segments(msp) -> List[List[Tuple[float, float]]]:
     segments = []
+    texts = []
 
     for entity in msp:
         points = []
@@ -200,69 +206,119 @@ def extract_entities_as_segments(msp) -> List[List[Tuple[float, float]]]:
                     if poly:
                         segments.append(poly)
                     continue
+        elif entity.dxftype() in ('TEXT', 'MTEXT'):
+            print("Aqui se detectó un texto papito")
+            try:
+                insert = entity.dxf.insert if entity.dxftype() == 'TEXT' else entity.dxf.insert
+                content = entity.text if entity.dxftype() == 'TEXT' else entity.plain_text()
+                texts.append({
+                    'position': (insert.x, insert.y),
+                    'text': content.strip(),
+                    'rotation': getattr(entity.dxf, 'rotation', 0),
+                    'height': getattr(entity.dxf, 'height', 1),
+                })
+            except Exception as e:
+                print(f"Error leyendo texto: {e}")
+        
+        else:
+            print("No se encontró una figura")
+
         if points:
-            segments.append(points)
+            segments.append((points, entity.dxf.layer))
 
-    return segments
+    return segments, texts
 
 
-def generate_gcode_from_dxf(filename, z_value, kerf, uso):                      #Empieza a crear el código G
-    doc = ezdxf.readfile(filename)                          #Lee el archivo .dxf con ezdxf
-    msp = doc.modelspace()                                  #Crea un modelo en el espacio para ser utilizado
-    gcode = []       
+def generate_gcode_from_dxf(filename, z_value, kerf, uso, zp, pa):
+    z_value = float(z_value)
+    kerf = float(kerf)
+    uso = int(uso)
+    zp = float(zp)
+    pa = int(pa)
 
-    def code_impr():
+    doc = ezdxf.readfile(filename)
+    msp = doc.modelspace()
+    gcode = []
+
+    def code_impr(corte_por_pasada):
         gcode.append(f"( {kind} corte )")
-        gcode.append(f"G0 X{lead[0][0]:.3f} Y{lead[0][1]:.3f} Z{z_value +10:.3f}")
-        gcode.append(f"G0 X{lead[0][0]:.3f} Y{lead[0][1]:.3f} Z{z_value:.3f}")
+        gcode.append(f"G0 X{float(lead[0][0]):.3f} Y{float(lead[0][1]):.3f} Z{z_value + 10:.3f}")
+        gcode.append(f"G0 X{float(lead[0][0]):.3f} Y{float(lead[0][1]):.3f} Z{z_value:.3f}")
         gcode.append("M03 ; plasma ON")
         for pt in ord:
-            gcode.append(f"G1 X{pt[0]:.3f} Y{pt[1]:.3f} Z{z_value:.3f}")
+            gcode.append(f"G1 X{float(pt[0]):.3f} Y{float(pt[1]):.3f} Z{z_value - corte_por_pasada:.3f}")
         gcode.append("M05 ; plasma OFF")
-        gcode.append(f"G0 X{pt[0]:.3f} Y{pt[1]:.3f} Z{z_value +10:.3f}")
+        gcode.append(f"G0 X{float(pt[0]):.3f} Y{float(pt[1]):.3f} Z{z_value + 10:.3f}")
 
-    gcode.append("G21 ; mm")                                #Declara que las unidades son milimetros
-    gcode.append("G90 ; abs")                               #Las coordenadas serán absolutas
-    gcode.append("M05 ; plasma off")                        #Inicia el programa con el cortador de plasma desenergizado
+    gcode.append("G21 ; mm")
+    gcode.append("G90 ; abs")
+    gcode.append("M05 ; plasma off")
 
-    acc_points = extract_entities_as_segments(msp)
-    ord_points = connect_polylines(acc_points)
+    acc_data, texts = extract_entities_as_segments(msp)
+    orden_capas = connect_polylines_with_layers(acc_data)
 
-    areas = [(get_area(polygon), polygon) for polygon in ord_points]    # Calcular áreas de cada polígono
-    areas.sort(key=lambda x: abs(x[0]), reverse=True)                   # Ordenar por área absoluta descendente
-    clasificados = []                                                   # El de mayor área se marca como 'Exterior', los demás 'Interior'
-    
-    for idx, (area, polygon) in enumerate(areas):
-        is_outer = idx == 0                                             # El más grande es exterior
-        clasificados.append((polygon, is_outer))
-    interiores = [item for item in clasificados if not item[1]]         # Separar interiores y exteriores
+    areas = [(get_area(polygon), polygon, layer) for polygon, layer in orden_capas]
+    areas.sort(key=lambda x: abs(x[0]), reverse=True)
+
+    clasificados = []
+    for idx, (area, polygon, layer) in enumerate(areas):
+        is_outer = idx == 0
+        clasificados.append((polygon, is_outer, layer))
+
+    interiores = [item for item in clasificados if not item[1]]
     exteriores = [item for item in clasificados if item[1]]
-    orden_dibujo = interiores + exteriores                              # Unir: primero interiores, luego exteriores
+    orden_dibujo = interiores + exteriores
+    save = zp
 
+    capas_detectadas = set()
+    for entity in msp:
+        if hasattr(entity.dxf, "layer"):
+            capas_detectadas.add(entity.dxf.layer)
 
-    for ord, is_outer in orden_dibujo:
-        kind = 'Exterior' if is_outer else 'Interior'
-        
-        # poly = Polygon(ord)                                                         # Convertir a polígono y aplicar desplazamiento por kerf
-        # offset = kerf if is_outer else -kerf
-        # buffered = poly.buffer(offset, join_style=JOIN_STYLE.mitre)
+    if uso == 0:
+        pa = 1
+        zp = 0
 
-        # if not buffered.is_empty and buffered.geom_type == 'Polygon':               # Asegurarse que el buffer resultante sea un polígono válido
-        #     ord = list(buffered.exterior.coords)                                    # Extraer nueva lista de puntos
-        # else:
-        #     continue                                                                # Si hay error en el buffer, saltar figura
+    for n in range(1, pa + 1):
+        gcode.append(f"Pasada: {n}")
+        for ord, is_outer, capa_actual in orden_dibujo:
+            kind = 'Exterior' if is_outer else 'Interior'
+            print(capa_actual)
 
-        lead = linear_lead_in(ord, kerf, uso, is_exterior=is_outer)
-        code_impr()
+            if (of == 0) and ((capa_actual == "LAYER0") or (len(capas_detectadas) == 1)):
+                poly = Polygon(ord)
+                offset_val = kerf if is_outer else -kerf
+                buffered = poly.buffer(offset_val, join_style=JOIN_STYLE.mitre)
+                if not buffered.is_empty and buffered.geom_type == 'Polygon':
+                    ord = list(buffered.exterior.coords)
+                else:
+                    print("Ocurrió un error con el offset")
 
+            if (capa_actual == "LAYER1") and (len(capas_detectadas) > 1):
+                zp = 1.1
+            else:
+                zp = save
 
-    gcode.append("M30 ; fin")                                                   #Cuando ya no hallan más instrucciones, finaliza el programa
-    return (gcode)
+            if len(capas_detectadas) > 1:
+                if capa_actual == "0":
+                    continue
+                else:
+                    lead = linear_lead_in(ord, kerf, uso, is_exterior=is_outer)
+                    corte_por_pasada = float(n) * float(zp) / float(pa)
+                    code_impr(corte_por_pasada)
+            else:
+                lead = linear_lead_in(ord, kerf, uso, is_exterior=is_outer)
+                corte_por_pasada = float(n) * float(zp) / float(pa)
+                code_impr(corte_por_pasada)
+
+    gcode.append("M30 ; fin")
+    return gcode
+
 
 predet = 25                                                                     #Valores predeterminados de velocidad VJ
 velocidades = predet
 
-def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut, pc, velocidadj):     #Traducción del codigo G a inform 2
+def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, uf, ut, pc, velocidadj, zp):     #Traducción del codigo G a inform 2
     nombre, extension = os.path.splitext(nombre_base)                   # Separar nombre y extensión
     nombre_limpio = re.sub(r'[^a-zA-Z0-9]', '', nombre)                 # Limpiar: quitar todo lo que no sea letras o números
     nombre_limpio = nombre_limpio[:9]                                   # Recortar a máximo 6 caracteres
@@ -306,7 +362,7 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write("//INST\n")                                                         #Instrucciones
             f.write(f"///DATE {datetime.now().strftime('%Y/%m/%d %H:%M')}\n")           #Fecha
             f.write("///ATTR SC,RW,RJ\n")                                               #Shared constant, read/write y Relative Job
-            f.write("////FRAME USER 1\n")                                               #User frame 1
+            f.write(f"////FRAME USER {uf}\n")                                               #User frame 1
             f.write("///GROUP1 RB1\n")                                                  #Grupo de coordenadas
             f.write("NOP\n")
             f.write(f"DOUT OT#({pc}) OFF\n")                                            #Al final del programa, apaga la antorcha
