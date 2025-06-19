@@ -22,9 +22,8 @@ const Login = ({ onLogin }) => {
         if (USERS[username] && USERS[username].password === password) {
             const userObj = { username, type: USERS[username].type };
             if (onLogin) onLogin(userObj);
-            // Redirigir según tipo de usuario
-            if (USERS[username].type === 'admin') navigate('/home', { replace: true });
-            else navigate('/ymconnect', { replace: true });
+            // SIEMPRE redirige a la pantalla de selección de IP
+            navigate('/select-ip', { replace: true });
         } else {
             setError('Please enter a valid username and password.');
         }
@@ -43,7 +42,6 @@ const Login = ({ onLogin }) => {
                 <Row style={{ height: '100vh' }}>
                     {/* Lado izquierdo: fondo azul, logo, texto, robot */}
                     <Col md={6} style={{
-                        // background: 'linear-gradient(180deg, #0072ff 0%, #003366 100%)',
                         color: '#fff',
                         backgroundImage: 'url("../assets/bg.jpeg")',
                         backgroundSize: 'cover',
@@ -64,15 +62,6 @@ const Login = ({ onLogin }) => {
                                 This application is developed<br />by the Yaskawa Motoman Mexico engineering team.
                             </div>
                         </div>
-                        {/* <img src='../assets/white_yaskawa.png' style={{
-                            position: 'absolute',
-                            left: 0,
-                            bottom: 0,
-                            margin: '15px',
-                            width: '20%',
-                            zIndex: 1,
-                            filter: 'drop-shadow(0 8px 32px #00336688)'
-                        }} /> */}
                     </Col>
                     {/* Lado derecho: login */}
                     <Col md={6} style={{

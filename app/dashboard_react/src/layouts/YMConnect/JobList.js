@@ -1,5 +1,6 @@
 import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
 import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
+import { CiFileOn } from "react-icons/ci";
 import withReactContent from 'sweetalert2-react-content'
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
@@ -12,7 +13,12 @@ import { FaFile } from "react-icons/fa"
 import Swal from "sweetalert2"
 import axios from "axios"
 import "aos/dist/aos.css"
+
 import AOS from "aos"
+import 'aos/dist/aos.css'
+
+const MySwal = withReactContent(Swal);
+const ymConnectService = "http://localhost:5229";
 
 
 const MySwal = withReactContent(Swal)
@@ -45,21 +51,22 @@ At the top section of the screen, the job that is currently active on the robot 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+
         AOS.init()
         const res = await axios.get(`${ymConnectService}/Jobs/jobList`, { params: { robot_ip: "192.168.1.31" } })
         setJobs(res.data)
+
       } catch (error) {
         MySwal.fire({
           icon: "error",
           title: "Conexión perdida.",
-          timer: 10000,
+          timer: 2000,
           showConfirmButton: false
-        })
+        });
       }
-    }
-
-    fetchJobs()
-  }, [])
+    };
+    fetchJobs();
+  }, []);
 
   const setJob = async (file) => {
     try {
@@ -74,19 +81,18 @@ At the top section of the screen, the job that is currently active on the robot 
         MySwal.fire({
           icon: "success",
           title: "Archivo seleccionado con éxito",
-          timer: 2000,
-          showConfirmButton: false
-        })
+          timer: 1200,
+        });
       }
     } catch (error) {
       MySwal.fire({
         icon: "error",
         title: "Conexión perdida.",
-        timer: 10000,
+        timer: 2000,
         showConfirmButton: false
-      })
+      });
     }
-  }
+  };
 
   const startJob = async () => {
     try {
@@ -110,26 +116,15 @@ At the top section of the screen, the job that is currently active on the robot 
         MySwal.fire({
           icon: "success",
           title: "Archivo ejecutado con éxito",
-          timer: 2000,
-          showConfirmButton: false
-        });
-        // setActive('robotinfo');
-      } else {
-        MySwal.fire({
-          icon: "error",
-          title: "Error al ejecutar el archivo.",
-          text: jobRes?.message || "Respuesta inesperada del servidor.",
-          timer: 8000,
+          timer: 1200,
           showConfirmButton: false
         });
       }
-
     } catch (error) {
       MySwal.fire({
         icon: "error",
         title: "Conexión perdida.",
-        text: error?.message || "No se pudo establecer comunicación con el robot.",
-        timer: 10000,
+        timer: 2000,
         showConfirmButton: false
       });
     }
@@ -143,19 +138,19 @@ At the top section of the screen, the job that is currently active on the robot 
         MySwal.fire({
           icon: "success",
           title: "Archivo detenido",
-          timer: 2000,
+          timer: 1200,
           showConfirmButton: false
-        })
+        });
       }
     } catch (error) {
       MySwal.fire({
         icon: "error",
         title: "Conexión perdida.",
-        timer: 10000,
+        timer: 2000,
         showConfirmButton: false
-      })
+      });
     }
-  }
+  };
 
   const getStringJob = async (job) => {
     try {
@@ -178,25 +173,13 @@ At the top section of the screen, the job that is currently active on the robot 
     try {
       const reqUrl = `${ymConnectService}/Jobs/getStringJob/${job}`;
       const res = await axios.get(reqUrl);
-
-      const content = res.data.content;
-
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${job}.JBI`;
-      document.body.appendChild(a);
-      a.click();
-
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      setModalContent(res.data.content);
+      setShowModal(true);
     } catch (error) {
       MySwal.fire({
         icon: "error",
         title: "Conexión perdida.",
-        timer: 10000,
+        timer: 2000,
         showConfirmButton: false
       });
     }
@@ -277,7 +260,7 @@ At the top section of the screen, the job that is currently active on the robot 
       <ModalJob show={showModal} close={() => setShowModal(false)} content={modalContent} />
       <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
     </Container>
-  )
-}
+  );
+};
 
-export default JobList
+export default JobList;
