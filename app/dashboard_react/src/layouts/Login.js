@@ -92,10 +92,10 @@ const Login = ({ onLogin }) => {
                             <Form onSubmit={handleSubmit} style={{ width: '100%' }}>
                                 <Row>
                                     <Col xs={12} md={6} style={{ marginBottom: 16 }}>
-                                        <Form.Label style={{ color: '#111', fontWeight: 600, fontSize: 15 }}>USER NAME</Form.Label>
+                                        <Form.Label style={{ color: '#111', fontWeight: 600, fontSize: 15 }}>USER ROLE</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="User Name"
+                                            placeholder="User Role"
                                             value={username}
                                             onChange={e => setUsername(e.target.value)}
                                             style={{ background: '#fff', color: '#111', border: '1.5px solid #bbb', borderRadius: 8, fontWeight: 600, fontSize: 16, marginBottom: 6 }}

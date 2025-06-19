@@ -4,6 +4,10 @@ import "aos/dist/aos.css"
 import AOS from "aos"
 
 const StatsRobot = () => {
+  const description = `🤖 Welcome to the Robot Dashboard!  
+Here, you can access detailed robot statistics 📊 and manage all related files 📁 efficiently.  
+As an operator 🧑‍💼, you'll be equipped with tools to evaluate process risks ⚠️ using system data.  
+📂 Use the main menu on the left to explore all sections of the dashboard and streamline your workflow 🚀.`;
 
   useEffect(() => {
     AOS.init()
@@ -13,13 +17,14 @@ const StatsRobot = () => {
     <Container data-aos="zoom-in-up" className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
       <Row className="text-center">
         <Col>
-          <img src='../assets/white_ymconnect.png' style={{ width: '400px' }} />
+          <img alt="ymconnect" src='../assets/white_ymconnect.png' style={{ width: '400px' }} />
           <hr />
           <Card style={{ background: 'rgb(1,9,35)', color: '#ffffff', padding: '20px', fontSize: '20px' }}>
             <Card.Body>
-              Welcome. In this screen you will be able to see the robot statistics in real time and manipulate all the files.
-              As an operator you can preview the JOBS before executing them and prepare the cell to avoid errors.
-              Scroll down the menu on the left to see all the available options.
+              <Card.Title><h2>Welcome!</h2></Card.Title>
+              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+                {description}
+              </pre>
             </Card.Body>
           </Card>
           {/* <Image src="/assets/fondoHomeYM.png" style={{ width: '400px', margin: '30px' }} rounded /> */}

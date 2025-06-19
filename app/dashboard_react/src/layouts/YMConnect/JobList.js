@@ -1,10 +1,14 @@
 import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
 import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
 import withReactContent from 'sweetalert2-react-content'
+import InfoButton from "../../components/InfoButton"
+import InfoModal from "../../components/InfoModal"
 import ModalJob from "../../components/ModalJob"
 import { GrConfigure } from "react-icons/gr"
 import { useState, useEffect } from "react"
-import { CiFileOn } from "react-icons/ci";
+import { CiFileOn } from "react-icons/ci"
+import { FaFile } from "react-icons/fa"
+
 import Swal from "sweetalert2"
 import axios from "axios"
 import "aos/dist/aos.css"
@@ -15,16 +19,34 @@ const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"
 
 const JobList = ({ setActive }) => {
-
+  const [currentJob, setCurrentJob] = useState("Any file selected yet")
   const [jobs, setJobs] = useState([])
   const [showModal, setShowModal] = useState(false)
+  const [showInfoModal, setShowInfoModal] = useState(false)
   const [modalContent, setModalContent] = useState("")
+
+  const info = `
+ℹ️ Job Management Screen - User Guide
+
+In this screen, you can view all the jobs currently loaded in the system. Several actions are available for job management, described below:
+
+🔧 Set Active Job: Use the wrench icon to configure the currently active job in the system.
+👁️ Preview File: Click the eye icon to view the contents of the file. This allows you to understand its structure before execution.
+📥 Download File: Use the download icon to export the job in .JBI format.
+
+At the top section of the screen, the job that is currently active on the robot is clearly indicated. You are also provided with options to:
+
+▶️ Start Job Execution  
+⏹️ Stop Job Execution
+
+⚠️ Warning: Use the execution and stop controls with caution. Ensure all safety protocols are followed before interacting with the robot.
+`
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         AOS.init()
-        const res = await axios.get(`${ymConnectService}/Jobs/jobList`)
+        const res = await axios.get(`${ymConnectService}/Jobs/jobList`, { params: { robot_ip: "192.168.1.31" } })
         setJobs(res.data)
       } catch (error) {
         MySwal.fire({
@@ -45,8 +67,8 @@ const JobList = ({ setActive }) => {
         ? file.substring(0, file.lastIndexOf('.'))
         : file
 
-      const reqUrl = `${ymConnectService}/Process/setJob/${selected}`
-      const res = await axios.get(reqUrl)
+      const res = await axios.get(`${ymConnectService}/Process/setJob`, { params: { nombre: selected, robot_ip: "192.168.1.31" } })
+      setCurrentJob(file)
 
       if (res.data.statusCode === 0) {
         MySwal.fire({
@@ -68,10 +90,10 @@ const JobList = ({ setActive }) => {
 
   const startJob = async () => {
     try {
-      const ioCheckUrl = `${ymConnectService}/Alarms/readSpecificIO/80026`;
+      const ioCheckUrl = `${ymConnectService}/Alarms/readSpecificIO`;
       const jobStartUrl = `${ymConnectService}/Process/startJob`;
 
-      const { data: ioData } = await axios.get(ioCheckUrl);
+      const { data: ioData } = await axios.get(ioCheckUrl, { params: { code: 80026, robot_ip: "192.168.1.31" } });
 
       if (!ioData) {
         return MySwal.fire({
@@ -82,7 +104,7 @@ const JobList = ({ setActive }) => {
         });
       }
 
-      const { data: jobRes } = await axios.get(jobStartUrl);
+      const { data: jobRes } = await axios.get(jobStartUrl, { params: { robot_ip: "192.168.1.31" } });
 
       if (jobRes?.statusCode === 0) {
         MySwal.fire({
@@ -116,7 +138,7 @@ const JobList = ({ setActive }) => {
   const stopJob = async () => {
     try {
       const reqUrl = `${ymConnectService}/Process/stopJob`
-      const res = await axios.get(reqUrl)
+      const res = await axios.get(reqUrl, { params: { robot_ip: "192.168.1.31" } })
       if (res.data.statusCode === 0) {
         MySwal.fire({
           icon: "success",
@@ -137,8 +159,8 @@ const JobList = ({ setActive }) => {
 
   const getStringJob = async (job) => {
     try {
-      const reqUrl = `${ymConnectService}/Jobs/getStringJob/${job}`
-      const res = await axios.get(reqUrl)
+      // const reqUrl = `${ymConnectService}/Jobs/getStringJob/${job}`
+      const res = await axios.get(`${ymConnectService}/Jobs/getStringJob`, { params: { nombre: job, robot_ip: "192.168.1.31" } })
 
       setModalContent(res.data.content)
       setShowModal(true)
@@ -180,6 +202,9 @@ const JobList = ({ setActive }) => {
     }
   };
 
+  const handleShowInfo = () => {
+    setShowInfoModal(true)
+  }
 
   return (
     <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "5rem" }}>
@@ -197,6 +222,7 @@ const JobList = ({ setActive }) => {
           <div style={{ marginBottom: '25px' }}>
             <Button variant="success" className="m-2 pr-1" onClick={startJob}><FaPlay /> Play</Button>
             <Button variant="danger" className="m-2 pr-1" onClick={stopJob}><FaStop /> Stop</Button>
+            <Button variant="primary" className="m-2 pr-1"><FaFile /> {currentJob}</Button>
           </div>
           <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem" }}>
             <Table responsive borderless style={{ width: '90%' }}>
@@ -209,35 +235,47 @@ const JobList = ({ setActive }) => {
                 </tr>
               </thead>
               <tbody>
-                {jobs.map((job, index) => (
-                  index < jobs.length - 1 ? (
-                    <tr key={index}>
-                      <td><h7>{job}</h7></td>
-                      <td>
-                        <Button onClick={() => setJob(job)} variant="primary" size="sm">
-                          <GrConfigure />
-                        </Button>
-                      </td>
-                      <td>
-                        <Button onClick={() => getStringJob(job)} variant="warning" size="sm">
-                          <FaEye />
-                        </Button>
-                      </td>
-                      <td>
-                        <Button onClick={() => downloadJob(job)} variant="dark" size="sm">
-                          <FaDownload />
-                        </Button>
-                      </td>
-                    </tr>
-                  ) : null
-                ))}
-                {/*  */}
+                {Array.isArray(jobs) && jobs.length > 0 ? (
+                  jobs.map((job, index) =>
+                    index < jobs.length - 1 ? (
+                      <tr key={index}>
+                        <td>
+                          <span>{job}</span>
+                        </td>
+                        <td>
+                          <Button onClick={() => setJob(job)} variant="primary" size="sm">
+                            <GrConfigure />
+                          </Button>
+                        </td>
+                        <td>
+                          <Button onClick={() => getStringJob(job)} variant="warning" size="sm">
+                            <FaEye />
+                          </Button>
+                        </td>
+                        <td>
+                          <Button onClick={() => downloadJob(job)} variant="dark" size="sm">
+                            <FaDownload />
+                          </Button>
+                        </td>
+                      </tr>
+                    ) : null
+                  )
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="text-center text-muted">
+                      No data available.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </Table>
+            <InfoButton onClick={handleShowInfo} />
           </div>
         </Col>
       </Row>
+
       <ModalJob show={showModal} close={() => setShowModal(false)} content={modalContent} />
+      <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
     </Container>
   )
 }
