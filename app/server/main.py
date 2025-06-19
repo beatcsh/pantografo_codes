@@ -31,6 +31,7 @@ UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# falta la profundidad de corte - zp    -- numero de pasadas - pa        -- 
 @app.post("/convert/")
 async def convertir(
         file: UploadFile = File(...),
@@ -41,7 +42,9 @@ async def convertir(
         ut: int = 1,
         pc: int = 1,
         kerf = 0,
-        uso = 0 # al mandar un 1 en la solicitud es dremel, el 0 corresponde al cortador
+        uso = 0, # al mandar un 1 en la solicitud es dremel, el 0 corresponde al cortador
+        zp = 1,
+        pa = 1
     ):
     try:
         # Guardar archivo subido
@@ -49,7 +52,7 @@ async def convertir(
         with open(dxf_path, "wb") as buffer:
             buffer.write(await file.read())
 
-        gcode_lines = generate_gcode_from_dxf(dxf_path, z_altura, kerf, uso)
+        gcode_lines = generate_gcode_from_dxf(dxf_path, z_altura, kerf, uso, zp, pa)
 
         nombre_base = os.path.splitext(file.filename)[0]
         
@@ -62,7 +65,8 @@ async def convertir(
             uf = uf,
             ut = ut,
             pc = pc,
-            velocidadj = velocidadj
+            velocidadj = velocidadj,
+            zp = zp
         )
 
         return FileResponse(path = jbi_path, media_type = "application/octet-stream", filename = nombre_base)

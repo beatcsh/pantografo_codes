@@ -3,7 +3,7 @@ import { useEffect } from "react"
 import "aos/dist/aos.css"
 import AOS from "aos"
 
-const StatsRobot = () => {
+const StatsRobot = ({ robot_ip }) => {
   const description = `🤖 Welcome to the Robot Dashboard!  
 Here, you can access detailed robot statistics 📊 and manage all related files 📁 efficiently.  
 As an operator 🧑‍💼, you'll be equipped with tools to evaluate process risks ⚠️ using system data.  

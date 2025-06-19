@@ -13,8 +13,8 @@ const STATIC_IPS = [
 const MySwal = withReactContent(Swal)
 const YASKAWA_BLUE = "#009fe3";
 
-const SelectRobotIP = ({ userType }) => {
-  const [selectedIP, setSelectedIP] = useState("");
+const SelectRobotIP = ({ selectedIP, setSelectedIP, userType }) => {
+  
   const [customIP, setCustomIP] = useState("");
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ show: false, variant: "", message: "" });

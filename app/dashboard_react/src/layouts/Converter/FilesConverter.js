@@ -3,11 +3,11 @@ import { FaTrashAlt } from 'react-icons/fa'
 import { useState, useEffect } from 'react'
 import 'aos/dist/aos.css'
 import AOS from 'aos'
-
+import axios from 'axios' // ✅ Importación agregada
 
 const API_URL = 'http://localhost:8000'
 
-const FilesConverter = ({ setView, search, setSearch }) => {
+const FilesConverter = ({ setView, search, setSearch, robot_ip }) => {
     const [jobs, setJobs] = useState([]);
     const [jobsLoading, setJobsLoading] = useState(false);
     const [jobsError, setJobsError] = useState('');
@@ -16,30 +16,34 @@ const FilesConverter = ({ setView, search, setSearch }) => {
     // Cargar archivos JBI
     const fetchJobs = () => {
         setJobsLoading(true);
-        fetch(`${API_URL}/listar-jobs`)
-            .then(res => res.json())
-            .then(data => {
+        axios.get(`${API_URL}/listar-jobs`, { params: { FTP_HOST: robot_ip } })
+            .then(res => {
+                const data = res.data;
                 setJobs(Array.isArray(data) ? data : []);
-                setJobsLoading(false);
             })
             .catch(() => {
                 setJobs([]);
+            })
+            .finally(() => {
                 setJobsLoading(false);
             });
     };
-    useEffect(fetchJobs, []);
 
+    useEffect(fetchJobs, []);
     useEffect(() => {
         AOS.init()
-    }, [])
+    }, []);
 
     // Eliminar archivo JBI
     const handleDelete = async (idx) => {
         setDeleteLoading(idx);
         try {
-            const res = await fetch(`${API_URL}/borrar?idx=${idx}`, { method: 'DELETE' });
-            if (res.ok) fetchJobs();
-            else setJobsError('No se pudo eliminar el archivo.');
+            const res = await axios.delete(`${API_URL}/borrar`, { params: { idx: idx, FTP_HOST: robot_ip } });
+            if (res.status === 200) {
+                fetchJobs();
+            } else {
+                setJobsError('No se pudo eliminar el archivo.');
+            }
         } catch {
             setJobsError('Error de red al eliminar.');
         }
@@ -79,7 +83,15 @@ const FilesConverter = ({ setView, search, setSearch }) => {
                 ← Back
             </button>
             <div style={{ clear: 'both' }}></div>
-            <div style={{ fontWeight: 900, fontSize: '2.1em', color: '#1976d2', letterSpacing: 1, marginBottom: 10, fontFamily: 'Arial Black, Arial, sans-serif', textAlign: 'left' }}>
+            <div style={{
+                fontWeight: 900,
+                fontSize: '2.1em',
+                color: '#1976d2',
+                letterSpacing: 1,
+                marginBottom: 10,
+                fontFamily: 'Arial Black, Arial, sans-serif',
+                textAlign: 'left'
+            }}>
                 JBI FILES IN TO THE ROBOT
             </div>
             <input

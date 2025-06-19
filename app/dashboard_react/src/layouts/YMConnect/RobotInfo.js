@@ -30,7 +30,7 @@ const soft_labels = {
 const MySwal = withReactContent(Swal)
 const ymConnectService = 'http://localhost:5229'
 
-const RobotInfo = () => {
+const RobotInfo = ({ robot_ip }) => {
   const [showInfoModal, setShowInfoModal] = useState(false)
   const [robotStatus, setRobotStatus] = useState({})
   const [robotInfo, setRobotInfo] = useState({})
@@ -59,7 +59,7 @@ The information is divided into two tabs:
 
   const fetchStatus = async () => {
     try {
-      const res = await axios.get(`${ymConnectService}/Robot/status`)
+      const res = await axios.get(`${ymConnectService}/Robot/status`, { params: { robot_ip: robot_ip } })
       setRobotStatus(res.data)
     } catch (error) {
       MySwal.fire({
@@ -78,7 +78,7 @@ The information is divided into two tabs:
 
   const fetchInfo = async () => {
     try {
-      const res = await axios.get(`${ymConnectService}/Robot/information`)
+      const res = await axios.get(`${ymConnectService}/Robot/information`, { params: { robot_ip: robot_ip } })
       setRobotInfo(res.data)
     } catch (error) {
       MySwal.fire({

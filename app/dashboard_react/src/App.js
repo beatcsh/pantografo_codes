@@ -17,6 +17,7 @@ function ProtectedRoute({ user, allowed, children, redirectTo }) {
 
 function App() {
   const [user, setUser] = useState(null); // { username, type }
+  const [selectedIP, setSelectedIP] = useState("");
 
   // Persist login in sessionStorage (optional)
   useEffect(() => {
@@ -44,7 +45,7 @@ function App() {
             ? <Navigate to="/select-ip" replace />
             : <Login onLogin={handleLogin} />
         } />
-        <Route path="/select-ip" element={<SelectRobotIP userType={user?.type} />} />
+        <Route path="/select-ip" element={<SelectRobotIP selectedIP={selectedIP} setSelectedIP={setSelectedIP} userType={user?.type} />} />
         <Route path="/home" element={
           <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
             <DashboardHome user={user} onLogout={handleLogout} />
@@ -52,12 +53,12 @@ function App() {
         } />
         <Route path="/converter" element={
           <ProtectedRoute user={user} allowed={['admin']} redirectTo="/ymconnect">
-            <PageTransitionWrapper><Converter user={user} onLogout={handleLogout} /></PageTransitionWrapper>
+            <PageTransitionWrapper><Converter robot_ip={selectedIP} user={user} onLogout={handleLogout} /></PageTransitionWrapper>
           </ProtectedRoute>
         } />
         <Route path="/ymconnect" element={
           <ProtectedRoute user={user} allowed={['admin', 'user']} redirectTo={user?.type === 'admin' ? '/home' : '/ymconnect'}>
-            <PageTransitionWrapper><YMConnect user={user} onLogout={handleLogout} /></PageTransitionWrapper>
+            <PageTransitionWrapper><YMConnect robot_ip={selectedIP} user={user} onLogout={handleLogout} /></PageTransitionWrapper>
           </ProtectedRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
