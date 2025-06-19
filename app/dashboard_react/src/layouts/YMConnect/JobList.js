@@ -1,6 +1,5 @@
 import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
 import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
-import { CiFileOn } from "react-icons/ci";
 import withReactContent from 'sweetalert2-react-content'
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
@@ -17,14 +16,10 @@ import "aos/dist/aos.css"
 import AOS from "aos"
 import 'aos/dist/aos.css'
 
-const MySwal = withReactContent(Swal);
-const ymConnectService = "http://localhost:5229";
-
-
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"
 
-const JobList = ({ setActive }) => {
+const JobList = ({ robot_ip, setActive }) => {
   const [currentJob, setCurrentJob] = useState("Any file selected yet")
   const [jobs, setJobs] = useState([])
   const [showModal, setShowModal] = useState(false)
@@ -53,7 +48,7 @@ At the top section of the screen, the job that is currently active on the robot 
       try {
 
         AOS.init()
-        const res = await axios.get(`${ymConnectService}/Jobs/jobList`, { params: { robot_ip: "192.168.1.31" } })
+        const res = await axios.get(`${ymConnectService}/Jobs/jobList`, { params: { robot_ip: robot_ip } })
         setJobs(res.data)
 
       } catch (error) {
@@ -74,7 +69,7 @@ At the top section of the screen, the job that is currently active on the robot 
         ? file.substring(0, file.lastIndexOf('.'))
         : file
 
-      const res = await axios.get(`${ymConnectService}/Process/setJob`, { params: { nombre: selected, robot_ip: "192.168.1.31" } })
+      const res = await axios.get(`${ymConnectService}/Process/setJob`, { params: { nombre: selected, robot_ip: robot_ip } })
       setCurrentJob(file)
 
       if (res.data.statusCode === 0) {
@@ -99,7 +94,7 @@ At the top section of the screen, the job that is currently active on the robot 
       const ioCheckUrl = `${ymConnectService}/Alarms/readSpecificIO`;
       const jobStartUrl = `${ymConnectService}/Process/startJob`;
 
-      const { data: ioData } = await axios.get(ioCheckUrl, { params: { code: 80026, robot_ip: "192.168.1.31" } });
+      const { data: ioData } = await axios.get(ioCheckUrl, { params: { code: 80026, robot_ip: robot_ip } });
 
       if (!ioData) {
         return MySwal.fire({
@@ -110,7 +105,7 @@ At the top section of the screen, the job that is currently active on the robot 
         });
       }
 
-      const { data: jobRes } = await axios.get(jobStartUrl, { params: { robot_ip: "192.168.1.31" } });
+      const { data: jobRes } = await axios.get(jobStartUrl, { params: { robot_ip: robot_ip } });
 
       if (jobRes?.statusCode === 0) {
         MySwal.fire({
@@ -133,7 +128,7 @@ At the top section of the screen, the job that is currently active on the robot 
   const stopJob = async () => {
     try {
       const reqUrl = `${ymConnectService}/Process/stopJob`
-      const res = await axios.get(reqUrl, { params: { robot_ip: "192.168.1.31" } })
+      const res = await axios.get(reqUrl, { params: { robot_ip: robot_ip } })
       if (res.data.statusCode === 0) {
         MySwal.fire({
           icon: "success",
@@ -155,7 +150,7 @@ At the top section of the screen, the job that is currently active on the robot 
   const getStringJob = async (job) => {
     try {
       // const reqUrl = `${ymConnectService}/Jobs/getStringJob/${job}`
-      const res = await axios.get(`${ymConnectService}/Jobs/getStringJob`, { params: { nombre: job, robot_ip: "192.168.1.31" } })
+      const res = await axios.get(`${ymConnectService}/Jobs/getStringJob`, { params: { nombre: job, robot_ip: robot_ip } })
 
       setModalContent(res.data.content)
       setShowModal(true)
@@ -171,10 +166,21 @@ At the top section of the screen, the job that is currently active on the robot 
 
   const downloadJob = async (job) => {
     try {
-      const reqUrl = `${ymConnectService}/Jobs/getStringJob/${job}`;
-      const res = await axios.get(reqUrl);
-      setModalContent(res.data.content);
-      setShowModal(true);
+      const reqUrl = `${ymConnectService}/Jobs/getStringJob`;
+      const res = await axios.get(reqUrl, { params: { nombre: job, robot_ip: robot_ip } });
+      const content = res.data.content;
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${job}.JBI`;
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       MySwal.fire({
         icon: "error",

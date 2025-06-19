@@ -11,17 +11,17 @@ import Alarms from './Alarms'
 import React from 'react'
 
 const YMConnect = (props) => {
-  const { onContentReady } = props
+  const { onContentReady, robot_ip } = props
   const [active, setActive] = useState('home')
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const menu = [
-    { key: 'home', label: 'Start', icon: <PiPlugsConnectedBold size={22} />, component: <StatsRobot /> },
-    { key: 'joblist', label: 'Job List', icon: <FaList size={22} />, component: <JobList setActive={setActive} /> },
-    { key: 'alarms', label: 'Alarms', icon: <FaBell size={22} />, component: <Alarms /> },
-    { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics /> },
-    { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo /> },
+    { key: 'home', label: 'Start', icon: <PiPlugsConnectedBold size={22} />, component: <StatsRobot robot_ip={robot_ip} /> },
+    { key: 'joblist', label: 'Job List', icon: <FaList size={22} />, component: <JobList setActive={setActive} robot_ip={robot_ip} /> },
+    { key: 'alarms', label: 'Alarms', icon: <FaBell size={22} />, component: <Alarms robot_ip={robot_ip} /> },
+    { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics robot_ip={robot_ip} /> },
+    { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo robot_ip={robot_ip} /> },
     { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
   ]
 

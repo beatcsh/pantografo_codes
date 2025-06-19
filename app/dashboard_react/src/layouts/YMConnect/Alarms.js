@@ -15,7 +15,7 @@ import AOS from "aos"
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"
 
-const Alarms = () => {
+const Alarms = ({ robot_ip }) => {
   const [almHistory, setAlmHistory] = useState([])
   const [showInfoModal, setShowInfoModal] = useState(false)
 
@@ -42,7 +42,7 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
     const fetchHistory = async () => {
       try {
         AOS.init()
-        const res = await axios.get(`${ymConnectService}/Alarms/getAlarmsHistory`)
+        const res = await axios.get(`${ymConnectService}/Alarms/getAlarmsHistory`, { params: { robot_ip: robot_ip } })
         parseAlarmHistory(res.data)
         MySwal.fire({
           icon: "success",
