@@ -1,4 +1,4 @@
-import { Container, Table, Badge, Tabs, Tab } from 'react-bootstrap'
+import { Container, Table, Badge, Tabs, Tab, Spinner } from 'react-bootstrap'
 import withReactContent from 'sweetalert2-react-content'
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
@@ -125,16 +125,24 @@ The information is divided into two tabs:
   }
 
   return (
-    <>
-      <Container
+    <Container
+      fluid
+      className="d-flex align-items-center justify-content-center"
+      style={{
+        minHeight: '100vh',
+        padding: '2rem',
+        background: 'transparent',
+      }}
+    >
+      <div
         data-aos="zoom-in"
         style={{
+          width: '100%',
           maxWidth: '800px',
           background: '#ffffff',
           borderRadius: '16px',
           boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-          padding: '40px 30px',
-          margin: '20px',
+          padding: '2rem',
         }}
       >
         <h2
@@ -159,9 +167,9 @@ The information is divided into two tabs:
           className="mb-3"
           activeKey={activeTab}
           onSelect={(k) => {
-            setActiveTab(k)
-            if (k === 'status') fetchStatus()
-            if (k === 'info') fetchInfo()
+            setActiveTab(k);
+            if (k === 'status') fetchStatus();
+            if (k === 'info') fetchInfo();
           }}
           justify
         >
@@ -189,15 +197,16 @@ The information is divided into two tabs:
                       <td style={{ fontWeight: 500, color: '#37474f' }}>
                         {labels[key] || key}
                       </td>
-                      <td>
-                        {valueDisplay(key, value)}
-                      </td>
+                      <td>{valueDisplay(key, value)}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan={2} className="text-center text-muted">
-                      No data available.
+                      <Spinner animation="border" role="status" className="mt-2">
+                        <span className="visually-hidden">Loading...</span>
+                      </Spinner>
+                      <p>No data available</p>
                     </td>
                   </tr>
                 )}
@@ -228,15 +237,16 @@ The information is divided into two tabs:
                       <td style={{ fontWeight: 500, color: '#37474f' }}>
                         {soft_labels[key] || key}
                       </td>
-                      <td>
-                        {valueDisplay(key, value)}
-                      </td>
+                      <td>{valueDisplay(key, value)}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan={2} className="text-center text-muted">
-                      No data available.
+                      <Spinner animation="border" role="status" className="mt-2">
+                        <span className="visually-hidden">Loading...</span>
+                      </Spinner>
+                      <p>No data available</p>
                     </td>
                   </tr>
                 )}
@@ -244,10 +254,13 @@ The information is divided into two tabs:
             </Table>
           </Tab>
         </Tabs>
+
         <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
-      </Container>
+      </div>
+
       <InfoButton onClick={handleShowInfo} />
-    </>
+    </Container>
+
   )
 }
 

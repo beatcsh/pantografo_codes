@@ -48,9 +48,9 @@ const YMConnect = (props) => {
       position: 'relative',
       background: 'rgb(1,9,35,255)'
     }}>
-      
-      <LogoutButton onLogout={ onLogout } />
-      <HomeButton/>
+
+      <LogoutButton onLogout={onLogout} />
+      <HomeButton />
 
       {/* Botón menú (visible siempre para toggle sidebar) */}
       <button
@@ -142,7 +142,7 @@ const YMConnect = (props) => {
         position: 'relative',
         zIndex: 100,
         width: '100vw',
-        height: '100vh',
+        minHeight: '100vh',
         overflow: 'auto',
         boxSizing: 'border-box',
         color: '#fff',
@@ -154,7 +154,11 @@ const YMConnect = (props) => {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}>
-        {menu.find(m => m.key === active)?.component}
+        {menu.find(m => m.key === active)?.component && (
+          <div style={{ width: '100%', padding: '2rem' }}>
+            {menu.find(m => m.key === active)?.component}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { Container, Table, Badge, Button } from 'react-bootstrap'
+import { Spinner, Container, Table, Badge, Button } from 'react-bootstrap'
 import withReactContent from "sweetalert2-react-content"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
@@ -166,7 +166,12 @@ It provides essential status indicators, including:
               ))
             ) : (
               <tr>
-                <td colSpan={2} className="text-center text-muted">No data available.</td>
+                <td colSpan={2} className="text-center text-muted">
+                  <Spinner animation="border" role="status" className="mt-3">
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                  <p>No data available</p>
+                </td>
               </tr>
             )}
           </tbody>
