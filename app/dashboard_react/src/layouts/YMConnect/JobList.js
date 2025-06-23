@@ -1,4 +1,4 @@
-import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
+import { Spinner, Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
 import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
 import withReactContent from 'sweetalert2-react-content'
 import InfoButton from "../../components/InfoButton"
@@ -196,76 +196,80 @@ At the top section of the screen, the job that is currently active on the robot 
   }
 
   return (
-    <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "5rem" }}>
-      {/* Título y contador */}
-      <Row className="mb-4 mt-5 justify-content-center">
-        <Col xs={12} md={10} lg={8}>
-          <h1 style={{ color: "white", marginTop: '30px' }}>Job List</h1>
-          <Badge bg="secondary">{jobs.length - 1} jobs found <CiFileOn /></Badge>
-          <hr />
-        </Col>
-      </Row>
-      {/* Tabla de trabajos */}
-      <Row className="justify-content-center">
-        <Col xs={12} md={10} lg={8}>
-          <div style={{ marginBottom: '25px' }}>
-            <Button variant="success" className="m-2 pr-1" onClick={startJob}><FaPlay /> Play</Button>
-            <Button variant="danger" className="m-2 pr-1" onClick={stopJob}><FaStop /> Stop</Button>
-            <Button variant="primary" className="m-2 pr-1"><FaFile /> {currentJob}</Button>
-          </div>
-          <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem" }}>
-            <Table responsive borderless style={{ width: '90%' }}>
-              <thead>
-                <tr>
-                  <th><h5>Job name</h5></th>
-                  <th><h5>Set</h5></th>
-                  <th><h5>Watch</h5></th>
-                  <th><h5>Download</h5></th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(jobs) && jobs.length > 0 ? (
-                  jobs.map((job, index) =>
-                    index < jobs.length - 1 ? (
-                      <tr key={index}>
-                        <td>
-                          <span>{job}</span>
-                        </td>
-                        <td>
-                          <Button onClick={() => setJob(job)} variant="primary" size="sm">
-                            <GrConfigure />
-                          </Button>
-                        </td>
-                        <td>
-                          <Button onClick={() => getStringJob(job)} variant="warning" size="sm">
-                            <FaEye />
-                          </Button>
-                        </td>
-                        <td>
-                          <Button onClick={() => downloadJob(job)} variant="dark" size="sm">
-                            <FaDownload />
-                          </Button>
-                        </td>
-                      </tr>
-                    ) : null
-                  )
-                ) : (
+    <>
+      <Container data-aos="zoom-in" fluid >
+        {/* Título y contador */}
+        <Row className="mb-4 mt-5 justify-content-center">
+          <Col xs={12} md={10} lg={8}>
+            <h1 style={{ color: "white", marginTop: '30px' }}><FaFile className="mb-2" /> Job List</h1>
+            <Badge bg="secondary">{jobs.length - 1} jobs found</Badge>
+            <hr />
+          </Col>
+        </Row>
+        {/* Tabla de trabajos */}
+        <Row className="justify-content-center">
+          <Col xs={12} md={10} lg={8}>
+            <div style={{ marginBottom: '25px' }}>
+              <Button variant="success" className="m-2 pr-1" onClick={startJob}><FaPlay /> Play</Button>
+              <Button variant="danger" className="m-2 pr-1" onClick={stopJob}><FaStop /> Stop</Button>
+              <Button variant="primary" className="m-2 pr-1"><FaFile /> {currentJob}</Button>
+            </div>
+            <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem" }}>
+              <Table responsive borderless style={{ width: '90%' }}>
+                <thead>
                   <tr>
-                    <td colSpan={4} className="text-center text-muted">
-                      No data available.
-                    </td>
+                    <th><h5>Job name</h5></th>
+                    <th><h5>Set</h5></th>
+                    <th><h5>Watch</h5></th>
+                    <th><h5>Download</h5></th>
                   </tr>
-                )}
-              </tbody>
-            </Table>
-            <InfoButton onClick={handleShowInfo} />
-          </div>
-        </Col>
-      </Row>
-
-      <ModalJob show={showModal} close={() => setShowModal(false)} content={modalContent} />
-      <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
-    </Container>
+                </thead>
+                <tbody>
+                  {Array.isArray(jobs) && jobs.length > 0 ? (
+                    jobs.map((job, index) =>
+                      index < jobs.length - 1 ? (
+                        <tr key={index}>
+                          <td>
+                            <span>{job}</span>
+                          </td>
+                          <td>
+                            <Button onClick={() => setJob(job)} variant="primary" size="sm">
+                              <GrConfigure />
+                            </Button>
+                          </td>
+                          <td>
+                            <Button onClick={() => getStringJob(job)} variant="warning" size="sm">
+                              <FaEye />
+                            </Button>
+                          </td>
+                          <td>
+                            <Button onClick={() => downloadJob(job)} variant="dark" size="sm">
+                              <FaDownload />
+                            </Button>
+                          </td>
+                        </tr>
+                      ) : null
+                    )
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="text-center text-muted">
+                        <Spinner animation="border" role="status" className="mt-5">
+                          <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                        <p>No data available</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            </div>
+          </Col>
+        </Row>
+        <ModalJob show={showModal} close={() => setShowModal(false)} content={modalContent} />
+        <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
+      </Container>
+      <InfoButton onClick={handleShowInfo} />
+    </>
   );
 };
 

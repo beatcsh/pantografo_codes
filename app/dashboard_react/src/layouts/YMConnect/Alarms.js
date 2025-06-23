@@ -1,4 +1,4 @@
-import { Container, Table, Row, Col, Badge, Button } from "react-bootstrap"
+import { Container, Spinner, Table, Row, Col, Badge, Button } from "react-bootstrap"
 import withReactContent from "sweetalert2-react-content"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
@@ -112,10 +112,10 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
 
   return (
     <>
-      <Container data-aos="zoom-in" fluid style={{ minHeight: "100vh", padding: "2rem 1rem", marginTop: '200px', marginBottom: '50px' }}>
+      <Container data-aos="zoom-in" fluid style={{ padding: "1rem" }}>
         <Row className="mb-4 mt-5 justify-content-center">
           <Col xs={12} md={10} lg={8}>
-            <h1 style={{ color: "white" }}><FaBell className="mb-2"/> Alarms History</h1>
+            <h1 style={{ color: "white" }}><FaBell className="mb-2" /> Alarms History</h1>
             <Badge bg="secondary">{almHistory.length} alarms found <CiWarning /></Badge>
             <hr />
           </Col>
@@ -155,7 +155,12 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="text-center text-muted">No data available.</td>
+                      <td colSpan={5} className="text-center text-muted">
+                        <Spinner animation="border" role="status" className="mt-5">
+                          <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                        <p>No data available</p>
+                      </td>
                     </tr>
                   )}
                 </tbody>
