@@ -26,8 +26,13 @@ Interfaz de comunicación desarrollado en FastAPI (Python) para control y monito
 - ReactJS y dependencias instaladas (`npm install` dentro de la carpeta /dashboard_react)
 - Acceso FTP al robot (revisar el manual de conexiones segun el controlador usado)
 
-### 🏃 Iniciar servidores
+### 🏃 Instalar dependencias e Iniciar servidores (por separado)
 
-```PowerShell o CMD
+```Desde Powershell o CMD
+> Instalar dependencias
+cd app/server ------> pip install -r requirements.txt
+cd app/dashboard_react ------> npm install
+
+> PowerShell o CMD
 cd app/server ------ python -m uvicorn main:app --reload
 cd app/dashboard_react ------ npm start
