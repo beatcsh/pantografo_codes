@@ -54,7 +54,7 @@ It provides essential status indicators, including:
 
   const fetchDiagnostic = async () => {
     try {
-      const res = await axios.get(`${ymConnectService}/Alarms/readIO`, { params: { robot_ip: robot_ip } })
+      const res = await axios.get(`${ymConnectService}/IoInterface/readIO`, { params: { robot_ip: robot_ip } })
       const data = res.data
 
       if (typeof data === 'object' && data !== null) {
@@ -82,7 +82,7 @@ It provides essential status indicators, including:
   const checkMaterial = async () => {
     try {
       setMaterialOn(!materialOn)
-      const res = await axios.get(`${ymConnectService}/Alarms/writeIO`, { params: { robot_ip: robot_ip, value: materialOn } })
+      const res = await axios.get(`${ymConnectService}/IoInterface/writeIO`, { params: { robot_ip: robot_ip, value: materialOn } })
       return res
     } catch (error) {
       console.error(error)
