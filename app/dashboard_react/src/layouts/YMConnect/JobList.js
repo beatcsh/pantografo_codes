@@ -91,7 +91,7 @@ At the top section of the screen, the job that is currently active on the robot 
 
   const startJob = async () => {
     try {
-      const ioCheckUrl = `${ymConnectService}/Alarms/readSpecificIO`;
+      const ioCheckUrl = `${ymConnectService}/IoInterface/readSpecificIO`;
       const jobStartUrl = `${ymConnectService}/Process/startJob`;
 
       const { data: ioData } = await axios.get(ioCheckUrl, { params: { code: 80026, robot_ip: robot_ip } });
