@@ -34,7 +34,8 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
 📝 Alarm Description – The message reported by the system.  
 📅 Timestamp – Date and time when the alarm was triggered.
 
-📤 At the bottom of the screen, you can download the entire alarm history as a CSV file for your records.
+📤 At the bottom of the screen, you can download the entire alarm history as a CSV file for your records and you can view a real
+time dashboard clicking on the button of 📊 Graphs, there you can view the analyze of different variables based on alarms behavior.
 
 📂 Note: This information is retrieved directly from the robot's \`ALMHIST.dat\` file.
 `;

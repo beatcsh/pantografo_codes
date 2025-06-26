@@ -22,7 +22,7 @@ const AboutUs = () => {
       />
       <div style={{ maxWidth: 700, color: "#222", background: "#ffffff", borderRadius: 16, padding: 32, boxShadow: "0 2px 16px #009fe344" }}>
         <p style={{ fontSize: 19, textAlign: 'justify' }}>Yaskawa, a leader in industrial automation solutions, is proud to present this platform developed by an interdisciplinary team of interns from universities in Aguascalientes, Mexico. Thanks to their dedication and the capabilities of the proprietary YM Connect technology, this platform offers advanced features for real-time monitoring and control of Yaskawa robots. This project is a testament to Yaskawa's commitment to innovation and the development of new talent in the field of engineering and automation.</p>
-        <Accordion>
+        <Accordion defaultActiveKey="0">
           <Accordion.Item eventKey="0">
             <Accordion.Header>Company Information</Accordion.Header>
             <Accordion.Body>

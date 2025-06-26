@@ -1,4 +1,4 @@
-import { Spinner, Container, Table, Badge, Button } from 'react-bootstrap'
+import { Spinner, Container, Table, Badge, Button, Accordion } from 'react-bootstrap'
 import withReactContent from "sweetalert2-react-content"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
@@ -20,7 +20,7 @@ const stopKeys = ['pendantStop', 'externalStop', 'doorEmergencyStop', 'hold']
 const RobotInfo = ({ robot_ip }) => {
   const [ioList, setIoList] = useState([])
   const [showInfoModal, setShowInfoModal] = useState(false)
-  const [materialOn, setMaterialOn] = useState(false)
+  const [materialOn, setMaterialOn] = useState(true)
 
   const info = `
 ℹ️ Diagnostics Screen – User Guide
@@ -114,34 +114,7 @@ It provides essential status indicators, including:
           <GiHealingShield />
           Diagnostics
         </h2>
-
-        <Table bordered hover responsive>
-          <thead className="table-light">
-            <tr>
-              <th className="text-center" colSpan={2}><h3>Check Material</h3></th>
-            </tr>
-            <tr>
-              <th className="text-center">IO to check</th>
-              <th className="text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                Check Dremel/Torch
-              </td>
-              <td className="text-center">
-                <Button
-                  variant={materialOn ? 'outline-success' : 'danger'}
-                  onClick={() => checkMaterial()}
-                >
-                  {materialOn ? 'ON' : 'OFF'}
-                </Button>
-              </td>
-            </tr>
-          </tbody>
-        </Table>
-
+        
         <Table bordered hover responsive>
           <thead className="table-light">
             <tr>
@@ -176,9 +149,49 @@ It provides essential status indicators, including:
             )}
           </tbody>
         </Table>
-        <Button variant="success" className="m-2 pr-1" onClick={() => fetchDiagnostic()}>
+        <Button variant="success" className="mb-4 mt-4 pr-1" onClick={() => fetchDiagnostic()}>
           <IoMdRefresh /> Refresh
         </Button>
+
+        <Accordion alwaysOpen defaultActiveKey="0">
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>Material Revision</Accordion.Header>
+            <Accordion.Body>
+              <Table bordered hover responsive>
+                <thead className="table-light">
+                  <tr>
+                    <th className="text-center" colSpan={2}><h3>Check Material</h3></th>
+                  </tr>
+                  <tr>
+                    <th className="text-center">Material</th>
+                    <th className="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      Check Dremel/Torch
+                    </td>
+                    <td className="text-center">
+                      <Button
+                        variant={materialOn ? 'outline-success' : 'danger'}
+                        onClick={() => checkMaterial()}
+                      >
+                        {materialOn ? 'ON' : 'OFF'}
+                      </Button>
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey="1">
+            <Accordion.Header>Active Alarms</Accordion.Header>
+            <Accordion.Body>
+              <p>aqui pondre algo para las alarmas activas</p>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
         <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
       </Container>
       <InfoButton onClick={handleShowInfo} />
