@@ -3,7 +3,7 @@ import { MdAutoGraph } from "react-icons/md"
 
 const GraphsModal = ({ show, close, data }) => {
     return (
-        <Modal show={show} onHide={close} centered data-aos="zoom-in-up" >
+        <Modal show={show} onHide={close} centered size="lg" data-aos="zoom-in-up" >
             <Modal.Header closeButton>
                 <Modal.Title><MdAutoGraph className="mb-1"/> Alarm Graphs</Modal.Title>
             </Modal.Header>
