@@ -1,11 +1,13 @@
 import { Container, Spinner, Table, Row, Col, Badge, Button } from "react-bootstrap"
 import withReactContent from "sweetalert2-react-content"
+import GraphsModal from "../../components/GraphsModal"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
+import { MdAutoGraph } from "react-icons/md"
 import { useState, useEffect } from "react"
 import { CiWarning } from "react-icons/ci"
 import { FaFileCsv } from "react-icons/fa"
-import { FaBell } from "react-icons/fa";
+import { FaBell } from "react-icons/fa"
 import Swal from "sweetalert2"
 import axios from "axios"
 import "aos/dist/aos.css"
@@ -14,10 +16,13 @@ import AOS from "aos"
 
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"
+const graphsService = "http://127.0.0.1:8000/graphs"
 
 const Alarms = ({ robot_ip }) => {
   const [almHistory, setAlmHistory] = useState([])
   const [showInfoModal, setShowInfoModal] = useState(false)
+  const [showGraphs, setShowGraphs] = useState(false)
+  const [data, setData] = useState([])
 
   const info = `
 ℹ️ Alarm History Screen - User Guide
@@ -64,7 +69,7 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
     fetchHistory()
   }, [])
 
-  function parseAlarmHistory(data) {
+  const parseAlarmHistory = (data) => {
     const lines = data.split("\n").map(l => l.trim()).filter(l => l.length > 0)
     const alarmEntries = []
     let i = 0
@@ -91,7 +96,7 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
     setAlmHistory(alarmEntries)
   }
 
-  const alarmsCSV = (alarms, file_name = "alarms_history.csv") => {
+  const createCSV = (alarms) => {
     const header = 'N°,Code,Description,Location,Mode,Datetime\n';
     const rows = alarms.map((a, i) =>
       `${i + 1},"${a.code}","${a.description}","${a.location}","${a.mode}","${a.timestamp}"`
@@ -100,6 +105,12 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
     const content = header + rows;
 
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+
+    return blob
+  }
+
+  const alarmsCSV = (alarms, file_name = "alarms_history.csv") => {
+    const blob = createCSV(alarms)
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
@@ -108,6 +119,27 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link)
+  }
+
+  const graphsView = async (alarms) => {
+    try {
+      const blob = createCSV(alarms)
+
+      const formData = new FormData()
+      formData.append("file", blob, "alarms.csv")
+
+      const res = await axios.post(graphsService, formData, { headers: { "Content-Type": "multipart/form-data" } })
+      setData(res.data)
+      setShowGraphs(true)
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        text: error.message,
+        timer: 10000,
+        showConfirmButton: false
+      })
+    }
   }
 
   return (
@@ -169,9 +201,13 @@ This screen provides a clear overview of the robot's complete alarm history. Eac
             <Button className="mt-3" variant="success" onClick={() => alarmsCSV(almHistory)}>
               <FaFileCsv /> Download CSV
             </Button>
+            <Button className="mt-3" variant="warning" style={{ marginLeft: '15px' }} onClick={() => graphsView(almHistory)}>
+              <MdAutoGraph /> Graphs
+            </Button>
           </Col>
         </Row>
         <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
+        <GraphsModal show={showGraphs} close={() => setShowGraphs(false)} data={data}/>
       </Container>
       <InfoButton onClick={handleShowInfo} />
     </>

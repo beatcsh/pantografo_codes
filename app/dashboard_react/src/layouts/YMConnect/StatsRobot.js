@@ -27,8 +27,7 @@ As an operator 🧑‍💼, you'll be equipped with tools to evaluate process ri
               </pre>
             </Card.Body>
           </Card>
-          {/* <Image src="/assets/fondoHomeYM.png" style={{ width: '400px', margin: '30px' }} rounded /> */}
-          {/* `url('/assets/fondoHomeYM.png') center center/cover no-repeat fixed` */}
+          
         </Col>
       </Row>
     </Container>

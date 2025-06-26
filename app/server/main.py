@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, UploadFile, File
 from utils.ftp_manager import GestorFTP
+from utils.alarms import generate_graphs
 import pandas as pd
 import os
  
@@ -113,3 +114,9 @@ def enviar_ftp(filename: str = "", FTP_HOST = ""):  # No async para evitar probl
         return JSONResponse(content={"ok": True}, status_code=200)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500) 
+    
+@app.post("/graphs")
+def alarms_analyze(file: UploadFile = File(...)):
+    df = pd.read_csv(file.file)
+    generated_graphs = generate_graphs(df)
+    return JSONResponse(content={"graphs": generated_graphs})
