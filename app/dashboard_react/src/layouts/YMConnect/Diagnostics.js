@@ -39,9 +39,13 @@ It provides essential status indicators, including:
 - Servo ON status  
 - Active tool signal (e.g., Torch or Dremel)
 
+🔄 A refresh button is located at the bottom of the screen to update the displayed values and ensure signal accuracy.
+
 🛠️ A dedicated button is available to manually toggle the Dremel ON/OFF for quick testing and control.
 
-🔄 A refresh button is located at the bottom of the screen to update the displayed values and ensure signal accuracy.
+🚨 The section of active alarms is available and if you want to get the current alarms on the robot manually yo can 
+click the button of Check Alarms, if your plan is viewing the history you can navigate to the screen by clicking on
+the button or in the side navbar.
 
 🧩 This diagnostic data is vital for evaluating the robot's operating conditions and for troubleshooting potential issues.
 `;
