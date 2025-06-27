@@ -45,7 +45,7 @@ const AboutUs = () => {
               <div className='mt-4'>
                 <img style={{ width: "288px" }} alt='upa logo' src="../assets/unis/upa.png" />
                 <img style={{ width: "330px" }} alt='utma logo' src="../assets/unis/utma.png" />
-                <img style={{ width: "150px" }} alt='uta logo' src="../assets/unis/uta.png" />
+                <img style={{ width: "120px" }} alt='uta logo' src="../assets/unis/uta.png" />
               </div>
             </Accordion.Body>
           </Accordion.Item>

@@ -5,7 +5,7 @@ const GraphsModal = ({ show, close, data }) => {
     return (
         <Modal show={show} onHide={close} centered size="lg" data-aos="zoom-in-up" >
             <Modal.Header closeButton>
-                <Modal.Title><MdAutoGraph className="mb-1"/> Alarm Graphs</Modal.Title>
+                <Modal.Title><MdAutoGraph className="mb-1"/> Alarms Graphs</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {Array.isArray(data?.graphs) && data.graphs.length > 0 ? (

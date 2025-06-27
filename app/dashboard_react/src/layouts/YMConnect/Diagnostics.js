@@ -17,9 +17,13 @@ const ymConnectService = 'http://localhost:5229'
 
 const stopKeys = ['pendantStop', 'externalStop', 'doorEmergencyStop', 'hold']
 
-const RobotInfo = ({ robot_ip }) => {
+const RobotInfo = ({ robot_ip, setActive }) => {
   const [ioList, setIoList] = useState([])
   const [showInfoModal, setShowInfoModal] = useState(false)
+  const [activeAlarms, setActiveAlarms] = useState({
+    count: 0,
+    alarms: []
+  })
   const [materialOn, setMaterialOn] = useState(true)
 
   const info = `
@@ -41,7 +45,6 @@ It provides essential status indicators, including:
 
 🧩 This diagnostic data is vital for evaluating the robot's operating conditions and for troubleshooting potential issues.
 `;
-
 
   const handleShowInfo = () => {
     setShowInfoModal(true)
@@ -96,6 +99,32 @@ It provides essential status indicators, including:
     }
   }
 
+  const checkAlarms = async () => {
+    try {
+      const res = await axios.get(`${ymConnectService}/Alarms/activeAlarms`, { params: { robot_ip: robot_ip } })
+      if (res.data.count === 0) {
+        MySwal.fire({
+          icon: 'success',
+          title: 'No alarms detected.',
+          timer: 10000,
+          showConfirmButton: true,
+        })
+        setActiveAlarms(res.data)
+      } else {
+        setActiveAlarms(res.data)
+      }
+    } catch (error) {
+      console.error(error)
+      MySwal.fire({
+        icon: 'error',
+        title: 'Conexión perdida.',
+        text: error.message,
+        timer: 10000,
+        showConfirmButton: false,
+      })
+    }
+  }
+
   return (
     <>
       <Container
@@ -114,7 +143,7 @@ It provides essential status indicators, including:
           <GiHealingShield />
           Diagnostics
         </h2>
-        
+
         <Table bordered hover responsive>
           <thead className="table-light">
             <tr>
@@ -187,8 +216,55 @@ It provides essential status indicators, including:
           </Accordion.Item>
           <Accordion.Item eventKey="1">
             <Accordion.Header>Active Alarms</Accordion.Header>
-            <Accordion.Body>
-              <p>aqui pondre algo para las alarmas activas</p>
+            <Accordion.Body style={{ textAlign: 'center' }}>
+              {/* {
+              "code": 0,
+              "subcode": 0,
+              "time": "",
+              "name": ""
+            } */}
+              <Table responsive borderless className='mb-0'>
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Subcode</th>
+                    <th>Name</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.isArray(activeAlarms.alarms) && activeAlarms.count > 0 ? (
+                    activeAlarms.alarms.map((alarm, idx) => (
+                      <tr key={idx}>
+                        <td>{alarm.code}</td>
+                        <td>{alarm.subcode}</td>
+                        <td>{alarm.name}</td>
+                        <td>{alarm.time}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4}>
+                        <div style={{ textAlign: 'center' }}>
+                          <p>No data available</p>
+                          <Spinner animation="border" role="status" className="mb-3">
+                            <span className="visually-hidden">Loading...</span>
+                          </Spinner>
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                          <Button variant="primary" onClick={() => checkAlarms()}>
+                            Check Alarms
+                          </Button>
+                          <Button variant="warning" style={{ marginLeft: '15px' }} onClick={() => setActive('alarms')}>
+                            View History
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+              {/*  */}
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>

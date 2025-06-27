@@ -4,6 +4,7 @@ import GraphsModal from "../../components/GraphsModal"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
 import { MdAutoGraph } from "react-icons/md"
+import { IoMdRefresh } from "react-icons/io"
 import { useState, useEffect } from "react"
 import { CiWarning } from "react-icons/ci"
 import { FaFileCsv } from "react-icons/fa"
@@ -43,30 +44,29 @@ time dashboard clicking on the button of 📊 Graphs, there you can view the ana
   const handleShowInfo = () => {
     setShowInfoModal(true)
   }
+  const fetchHistory = async () => {
+    try {
+      AOS.init()
+      const res = await axios.get(`${ymConnectService}/Alarms/getAlarmsHistory`, { params: { robot_ip: robot_ip } })
+      parseAlarmHistory(res.data)
+      MySwal.fire({
+        icon: "success",
+        title: "Historial traido con exito",
+        timer: 2000,
+        showConfirmButton: false
+      })
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        text: error.message,
+        timer: 10000,
+        showConfirmButton: false
+      })
+    }
+  }
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        AOS.init()
-        const res = await axios.get(`${ymConnectService}/Alarms/getAlarmsHistory`, { params: { robot_ip: robot_ip } })
-        parseAlarmHistory(res.data)
-        MySwal.fire({
-          icon: "success",
-          title: "Historial traido con exito",
-          timer: 2000,
-          showConfirmButton: false
-        })
-      } catch (error) {
-        MySwal.fire({
-          icon: "error",
-          title: "Conexión perdida.",
-          text: error.message,
-          timer: 10000,
-          showConfirmButton: false
-        })
-      }
-    }
-
     fetchHistory()
   }, [])
 
@@ -199,16 +199,19 @@ time dashboard clicking on the button of 📊 Graphs, there you can view the ana
                 </tbody>
               </Table>
             </div>
+            <Button variant="primary" className="mt-3" style={{ marginRight: '15px' }} onClick={() => fetchHistory()}>
+              <IoMdRefresh /> Refresh
+            </Button>
+            <Button className="mt-3" variant="warning" style={{ marginRight: '15px' }} onClick={() => graphsView(almHistory)}>
+              <MdAutoGraph /> Graphs
+            </Button>
             <Button className="mt-3" variant="success" onClick={() => alarmsCSV(almHistory)}>
               <FaFileCsv /> Download CSV
-            </Button>
-            <Button className="mt-3" variant="warning" style={{ marginLeft: '15px' }} onClick={() => graphsView(almHistory)}>
-              <MdAutoGraph /> Graphs
             </Button>
           </Col>
         </Row>
         <InfoModal show={showInfoModal} close={() => setShowInfoModal(false)} content={info} />
-        <GraphsModal show={showGraphs} close={() => setShowGraphs(false)} data={data}/>
+        <GraphsModal show={showGraphs} close={() => setShowGraphs(false)} data={data} />
       </Container>
       <InfoButton onClick={handleShowInfo} />
     </>
