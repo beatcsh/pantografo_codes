@@ -16,6 +16,7 @@ pasandolos a texto plano usando caracteres seguros
 sirve para enviar archivos como imagenes dentro de un JSON o meter 
 imagenes directas al codigo sin usar ficheros y ya, en este caso nos servira pa mostrar las graficas
 """
+
 def fig_to_base64(fig):
     buf = io.BytesIO() # esta cosa es un buffer temporal que va pa la ram
     plt.savefig(buf, format='png', bbox_inches='tight') # aaui se guarda la figurita como png en el buffer y lo ultimo le quita los bordes que no se ocupan

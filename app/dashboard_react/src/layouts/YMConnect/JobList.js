@@ -19,8 +19,8 @@ import 'aos/dist/aos.css'
 const MySwal = withReactContent(Swal)
 const ymConnectService = "http://localhost:5229"
 
-const JobList = ({ robot_ip, setActive }) => {
-  const [currentJob, setCurrentJob] = useState("Any file selected yet")
+const JobList = ({ robot_ip }) => {
+  const [currentJob, setCurrentJob] = useState("No file selected")
   const [jobs, setJobs] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [showInfoModal, setShowInfoModal] = useState(false)
