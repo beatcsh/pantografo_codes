@@ -3,8 +3,9 @@ import withReactContent from 'sweetalert2-react-content'
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
 import 'bootstrap/dist/css/bootstrap.min.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { FaRobot } from 'react-icons/fa'
+import * as signalR from '@microsoft/signalr'
 import Swal from 'sweetalert2'
 import axios from 'axios'
 import 'aos/dist/aos.css'
@@ -25,8 +26,6 @@ const soft_labels = {
   modelName: 'Model'
 }
 
-// let alreadyFetchedStatus = false
-
 const MySwal = withReactContent(Swal)
 const ymConnectService = 'http://localhost:5229'
 
@@ -35,6 +34,7 @@ const RobotInfo = ({ robot_ip }) => {
   const [robotStatus, setRobotStatus] = useState({})
   const [robotInfo, setRobotInfo] = useState({})
   const [activeTab, setActiveTab] = useState('status')
+  const connectionRef = useRef(null)
 
   const info = `
 ℹ️ Robot Information Screen - User Guide
@@ -49,36 +49,49 @@ The information is divided into two tabs:
 
 1️⃣ **Status Tab** – General state, mode, active alarms, and job activity.
 2️⃣ **Software Tab** – Displays system software version and firmware information, which are important for diagnostics and updates.
-`;
-
+`
 
   useEffect(() => {
     AOS.init()
-    fetchStatus()
-  }, [])
 
-  const fetchStatus = async () => {
-    try {
-      const res = await axios.get(`${ymConnectService}/Robot/status`, { params: { robot_ip: robot_ip } })
-      setRobotStatus(res.data)
-    } catch (error) {
-      MySwal.fire({
-        icon: 'error',
-        title: 'Conexión perdida.',
-        timer: 10000,
-        showConfirmButton: false,
+    // Crear o reutilizar la conexión SignalR
+    if (!connectionRef.current) {
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(`${ymConnectService}/robotHub`)
+        .withAutomaticReconnect()
+        .build()
+
+      connection.on("RobotStatusUpdated", (status) => {
+        console.log("Estado recibido:", status)
+        setRobotStatus(status)
       })
+
+      connection.start()
+        .then(() => {
+          console.log("Conectado al RobotHub")
+          connection.invoke("SetRobotIp", robot_ip).catch(console.error)
+        })
+        .catch(err => console.error("Error en SignalR:", err))
+
+      connectionRef.current = connection
+    } else {
+      // Si cambia robot_ip avisar al Hub
+      connectionRef.current.invoke("SetRobotIp", robot_ip).catch(console.error)
     }
-  }
 
-  // if (!alreadyFetchedStatus) {
-  //   alreadyFetchedStatus = true
-  //   fetchStatus()
-  // }
+    // Opcional: limpiar la conexión al desmontar el componente
+    return () => {
+      if (connectionRef.current) {
+        connectionRef.current.stop()
+        connectionRef.current = null
+      }
+    }
+  }, [robot_ip])
 
+  // Petición solo para información estática (no en tiempo real)
   const fetchInfo = async () => {
     try {
-      const res = await axios.get(`${ymConnectService}/Robot/information`, { params: { robot_ip: robot_ip } })
+      const res = await axios.get(`${ymConnectService}/Robot/information`, { params: { robot_ip } })
       setRobotInfo(res.data)
     } catch (error) {
       MySwal.fire({
@@ -167,9 +180,8 @@ The information is divided into two tabs:
           className="mb-3"
           activeKey={activeTab}
           onSelect={(k) => {
-            setActiveTab(k);
-            if (k === 'status') fetchStatus();
-            if (k === 'info') fetchInfo();
+            setActiveTab(k)
+            if (k === 'info') fetchInfo()
           }}
           justify
         >
@@ -213,6 +225,7 @@ The information is divided into two tabs:
               </tbody>
             </Table>
           </Tab>
+
           <Tab eventKey="info" title="Software Data">
             <Table
               responsive
@@ -260,7 +273,6 @@ The information is divided into two tabs:
 
       <InfoButton onClick={handleShowInfo} />
     </Container>
-
   )
 }
 

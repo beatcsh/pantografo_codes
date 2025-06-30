@@ -5,7 +5,8 @@ import InfoModal from "../../components/InfoModal"
 import { GiHealingShield } from "react-icons/gi"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { IoMdRefresh } from "react-icons/io"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
+import * as signalR from '@microsoft/signalr'
 import Swal from "sweetalert2"
 import axios from "axios"
 import "aos/dist/aos.css"
@@ -25,6 +26,7 @@ const RobotInfo = ({ robot_ip, setActive }) => {
     alarms: []
   })
   const [materialOn, setMaterialOn] = useState(true)
+  const connectionRef = useRef(null)
 
   const info = `
 ℹ️ Diagnostics Screen – User Guide
@@ -39,9 +41,13 @@ It provides essential status indicators, including:
 - Servo ON status  
 - Active tool signal (e.g., Torch or Dremel)
 
+🔄 A refresh button is located at the bottom of the screen to update the displayed values and ensure signal accuracy.
+
 🛠️ A dedicated button is available to manually toggle the Dremel ON/OFF for quick testing and control.
 
-🔄 A refresh button is located at the bottom of the screen to update the displayed values and ensure signal accuracy.
+🚨 The section of active alarms is available and if you want to get the current alarms on the robot manually yo can 
+click the button of Check Alarms, if your plan is viewing the history you can navigate to the screen by clicking on
+the button or in the side navbar.
 
 🧩 This diagnostic data is vital for evaluating the robot's operating conditions and for troubleshooting potential issues.
 `;
@@ -52,35 +58,46 @@ It provides essential status indicators, including:
 
   useEffect(() => {
     AOS.init()
-    fetchDiagnostic()
-  }, [])
 
-  const fetchDiagnostic = async () => {
-    try {
-      const res = await axios.get(`${ymConnectService}/IoInterface/readIO`, { params: { robot_ip: robot_ip } })
-      const data = res.data
+    // Crear o reutilizar la conexión SignalR
+    if (!connectionRef.current) {
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(`${ymConnectService}/robotHub`)
+        .withAutomaticReconnect()
+        .build()
 
-      if (typeof data === 'object' && data !== null) {
-        const ioArray = Object.entries(data).map(([key, value]) => ({
-          name: key,
-          active: stopKeys.includes(key) ? !value : value // inverso para los stop
-        }))
-        setIoList(ioArray)
-      } else {
-        throw new Error('Respuesta inesperada del servidor')
-      }
-
-    } catch (error) {
-      console.error(error)
-      MySwal.fire({
-        icon: 'error',
-        title: 'Conexión perdida.',
-        text: error.message,
-        timer: 10000,
-        showConfirmButton: false,
+      connection.on("RobotDiagnostic", (results) => {
+        console.log("Diagnostico recibido:", results)
+        if (typeof results === 'object') {
+          const ioArray = Object.entries(results).map(([key, value]) => ({
+            name: key,
+            active: stopKeys.includes(key) ? !value : value // inverso para los stop
+          }))
+          setIoList(ioArray)
+        }
       })
+
+      connection.start()
+        .then(() => {
+          console.log("Conectado al RobotHub")
+          connection.invoke("SetRobotIp", robot_ip).catch(console.error)
+        })
+        .catch(err => console.error("Error en SignalR:", err))
+
+      connectionRef.current = connection
+    } else {
+      // Si cambia robot_ip avisar al Hub
+      connectionRef.current.invoke("SetRobotIp", robot_ip).catch(console.error)
     }
-  }
+
+    // Opcional: limpiar la conexión al desmontar el componente
+    return () => {
+      if (connectionRef.current) {
+        connectionRef.current.stop()
+        connectionRef.current = null
+      }
+    }
+  }, [robot_ip])
 
   const checkMaterial = async () => {
     try {
@@ -178,9 +195,9 @@ It provides essential status indicators, including:
             )}
           </tbody>
         </Table>
-        <Button variant="success" className="mb-4 mt-4 pr-1" onClick={() => fetchDiagnostic()}>
+        {/* <Button variant="success" className="mb-4 mt-4 pr-1" onClick={() => fetchDiagnostic()}>
           <IoMdRefresh /> Refresh
-        </Button>
+        </Button> */}
 
         <Accordion alwaysOpen defaultActiveKey="0">
           <Accordion.Item eventKey="0">
