@@ -56,7 +56,7 @@ const Login = ({ onLogin }) => {
                         minHeight: 480
                     }}>
                         <div style={{ zIndex: 2 }}>
-                            <img src='../assets/white_yaskawa.png' style={{ width: '280px', fontWeight: 900, fontSize: '2.8em', letterSpacing: 2, marginBottom: 24 }} />
+                            <img src='../assets/white_yaskawa.png' alt='logo_yaskawa' style={{ width: '280px', fontWeight: 900, fontSize: '2.8em', letterSpacing: 2, marginBottom: 24 }} />
                             <h2 style={{ marginLeft: '15px', fontWeight: 900, fontSize: '2em', marginBottom: 8 }}>WELCOME BACK!</h2>
                             <div style={{ marginLeft: '15px', fontSize: 18, fontWeight: 400, marginBottom: 32, color: '#e0e6f7' }}>
                                 This application is developed<br />by the Yaskawa Motoman Mexico engineering team.
@@ -109,6 +109,7 @@ const Login = ({ onLogin }) => {
                                     GET STARTED &rarr;
                                 </Button>
                                 {error && <p style={{ color: '#e53935', textAlign: 'center', marginTop: 10 }}>{error}</p>}
+                                
                             </Form>
                         </div>
                     </Col>

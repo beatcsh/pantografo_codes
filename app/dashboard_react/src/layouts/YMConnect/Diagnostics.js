@@ -1,10 +1,10 @@
-import { Spinner, Container, Table, Badge, Button, Accordion } from 'react-bootstrap'
+import { Container, Table, Badge, Button, Accordion } from 'react-bootstrap'
 import withReactContent from "sweetalert2-react-content"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
 import { GiHealingShield } from "react-icons/gi"
 import "bootstrap/dist/css/bootstrap.min.css"
-import { IoMdRefresh } from "react-icons/io"
+import Loader from '../../components/Loader'
 import { useEffect, useState, useRef } from "react"
 import * as signalR from '@microsoft/signalr'
 import Swal from "sweetalert2"
@@ -59,6 +59,7 @@ the button or in the side navbar.
   useEffect(() => {
     AOS.init()
 
+    checkAlarms()
     // Crear o reutilizar la conexión SignalR
     if (!connectionRef.current) {
       const connection = new signalR.HubConnectionBuilder()
@@ -142,6 +143,32 @@ the button or in the side navbar.
     }
   }
 
+  const clearErrors = async () => {
+    try {
+      const res = await axios.get(`${ymConnectService}/Alarms/clearErrors`, { params: { robot_ip: robot_ip } })
+      if (res.data.count === 0) {
+        MySwal.fire({
+          icon: 'success',
+          title: 'Success reset.',
+          timer: 10000,
+          showConfirmButton: true,
+        })
+        setActiveAlarms(res.data)
+      } else {
+        setActiveAlarms(res.data)
+      }
+    } catch (error) {
+      console.error(error)
+      MySwal.fire({
+        icon: 'error',
+        title: 'Conexión perdida.',
+        text: error.message,
+        timer: 10000,
+        showConfirmButton: false,
+      })
+    }
+  }
+
   return (
     <>
       <Container
@@ -185,11 +212,11 @@ the button or in the side navbar.
               ))
             ) : (
               <tr>
-                <td colSpan={2} className="text-center text-muted">
-                  <Spinner animation="border" role="status" className="mt-3">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                  <p>No data available</p>
+                <td colSpan={2} className="text-center text-muted align-middle">
+                  <div className="d-flex flex-column align-items-center justify-content-center mt-2 mb-4">
+                    <p className="mb-3 mt-3">No data available</p>
+                    <Loader />
+                  </div>
                 </td>
               </tr>
             )}
@@ -251,7 +278,7 @@ the button or in the side navbar.
                 </thead>
                 <tbody>
                   {Array.isArray(activeAlarms.alarms) && activeAlarms.count > 0 ? (
-                    activeAlarms.alarms.map((alarm, idx) => (
+                    activeAlarms.alarms.filter((alarm) => alarm.code !== 0).map((alarm, idx) => (
                       <tr key={idx}>
                         <td>{alarm.code}</td>
                         <td>{alarm.subcode}</td>
@@ -261,24 +288,29 @@ the button or in the side navbar.
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={4}>
-                        <div style={{ textAlign: 'center' }}>
-                          <p>No data available</p>
-                          <Spinner animation="border" role="status" className="mb-3">
-                            <span className="visually-hidden">Loading...</span>
-                          </Spinner>
-                        </div>
-                        <div style={{ textAlign: 'center' }}>
-                          <Button variant="primary" onClick={() => checkAlarms()}>
-                            Check Alarms
-                          </Button>
-                          <Button variant="warning" style={{ marginLeft: '15px' }} onClick={() => setActive('alarms')}>
-                            View History
-                          </Button>
+                      <td colSpan={4} className="text-center text-muted align-middle">
+                        <div className="d-flex flex-column align-items-center justify-content-center mt-2">
+                          <p className="mb-3 mt-3">No data available</p>
+                          <Loader />
                         </div>
                       </td>
                     </tr>
                   )}
+                  <tr>
+                    <td colSpan={4}>
+                      <div className='text-center mt-3'>
+                        <Button variant="primary" onClick={() => checkAlarms()}>
+                          Check Alarms
+                        </Button>
+                        <Button variant="warning" style={{ marginLeft: '15px' }} onClick={() => setActive('alarms')}>
+                          View History
+                        </Button>
+                        <Button variant="success" style={{ marginLeft: '15px' }} onClick={() => clearErrors()}>
+                          Clear Alarms
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </Table>
               {/*  */}

@@ -1,0 +1,58 @@
+.loader {
+  width: 50px;
+  height: 50px;
+  position: relative;
+}
+
+.box1,
+.box2,
+.box3 {
+  border: 7px solid #1876d3;
+  box-sizing: border-box;
+  position: absolute;
+  display: block;
+}
+
+.box1 {
+  width: 50px;
+  height: 20px;
+  margin-top: 30px;
+  margin-left: 0px;
+  animation: abox1 4s 1s forwards ease-in-out infinite;
+}
+
+.box2 {
+  width: 20px;
+  height: 20px;
+  margin-top: 0px;
+  margin-left: 0px;
+  animation: abox2 4s 1s forwards ease-in-out infinite;
+}
+
+.box3 {
+  width: 20px;
+  height: 20px;
+  margin-top: 0px;
+  margin-left: 30px;
+  animation: abox3 4s 1s forwards ease-in-out infinite;
+}
+
+@keyframes abox1 {
+  0% { width: 50px; height: 20px; margin-top: 30px; margin-left: 0px; }
+  12.5%, 25%, 37.5%, 50%, 62.5% { width: 20px; height: 20px; margin-top: 30px; margin-left: 0px; }
+  75% { width: 20px; height: 50px; margin-top: 0px; margin-left: 0px; }
+  87.5%, 100% { width: 20px; height: 20px; margin-top: 0px; margin-left: 0px; }
+}
+
+@keyframes abox2 {
+  0%, 12.5%, 25%, 37.5% { width: 20px; height: 20px; margin-top: 0px; margin-left: 0px; }
+  50% { width: 50px; height: 20px; margin-top: 0px; margin-left: 0px; }
+  62.5%, 75%, 87.5%, 100% { width: 20px; height: 20px; margin-top: 0px; margin-left: 30px; }
+}
+
+@keyframes abox3 {
+  0%, 12.5% { width: 20px; height: 20px; margin-top: 0px; margin-left: 30px; }
+  25% { width: 20px; height: 50px; margin-top: 0px; margin-left: 30px; }
+  37.5%, 50%, 62.5%, 75%, 87.5% { width: 20px; height: 20px; margin-top: 30px; margin-left: 30px; }
+  100% { width: 50px; height: 20px; margin-top: 30px; margin-left: 0px; }
+}

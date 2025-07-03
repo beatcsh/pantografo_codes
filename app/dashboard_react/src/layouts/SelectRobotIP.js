@@ -43,7 +43,7 @@ const SelectRobotIP = ({ selectedIP, setSelectedIP, userType }) => {
     setLoading(true);
     
     try {
-      await axios.get(`http://localhost:5229/Robot/status`, { params: { robot_ip: ip } });
+      await axios.get(`http://localhost:5229/Robot/msg`, { params: { robot_ip: ip } });
       Swal.fire({
         icon: "success",
         title: "Successful connection",
