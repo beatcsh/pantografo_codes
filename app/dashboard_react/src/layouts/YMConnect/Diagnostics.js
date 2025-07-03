@@ -59,6 +59,7 @@ the button or in the side navbar.
   useEffect(() => {
     AOS.init()
 
+    checkAlarms()
     // Crear o reutilizar la conexión SignalR
     if (!connectionRef.current) {
       const connection = new signalR.HubConnectionBuilder()
@@ -123,6 +124,32 @@ the button or in the side navbar.
         MySwal.fire({
           icon: 'success',
           title: 'No alarms detected.',
+          timer: 10000,
+          showConfirmButton: true,
+        })
+        setActiveAlarms(res.data)
+      } else {
+        setActiveAlarms(res.data)
+      }
+    } catch (error) {
+      console.error(error)
+      MySwal.fire({
+        icon: 'error',
+        title: 'Conexión perdida.',
+        text: error.message,
+        timer: 10000,
+        showConfirmButton: false,
+      })
+    }
+  }
+
+  const clearErrors = async () => {
+    try {
+      const res = await axios.get(`${ymConnectService}/Alarms/clearErrors`, { params: { robot_ip: robot_ip } })
+      if (res.data.count === 0) {
+        MySwal.fire({
+          icon: 'success',
+          title: 'Success reset.',
           timer: 10000,
           showConfirmButton: true,
         })
@@ -251,7 +278,7 @@ the button or in the side navbar.
                 </thead>
                 <tbody>
                   {Array.isArray(activeAlarms.alarms) && activeAlarms.count > 0 ? (
-                    activeAlarms.alarms.map((alarm, idx) => (
+                    activeAlarms.alarms.filter((alarm) => alarm.code !== 0).map((alarm, idx) => (
                       <tr key={idx}>
                         <td>{alarm.code}</td>
                         <td>{alarm.subcode}</td>
@@ -277,6 +304,9 @@ the button or in the side navbar.
                         </Button>
                         <Button variant="warning" style={{ marginLeft: '15px' }} onClick={() => setActive('alarms')}>
                           View History
+                        </Button>
+                        <Button variant="success" style={{ marginLeft: '15px' }} onClick={() => clearErrors()}>
+                          Clear Alarms
                         </Button>
                       </div>
                     </td>
