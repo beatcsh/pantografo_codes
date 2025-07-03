@@ -1,10 +1,10 @@
-import { Spinner, Container, Table, Badge, Button, Accordion } from 'react-bootstrap'
+import { Container, Table, Badge, Button, Accordion } from 'react-bootstrap'
 import withReactContent from "sweetalert2-react-content"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
 import { GiHealingShield } from "react-icons/gi"
 import "bootstrap/dist/css/bootstrap.min.css"
-import { IoMdRefresh } from "react-icons/io"
+import Loader from '../../components/Loader'
 import { useEffect, useState, useRef } from "react"
 import * as signalR from '@microsoft/signalr'
 import Swal from "sweetalert2"
@@ -185,11 +185,11 @@ the button or in the side navbar.
               ))
             ) : (
               <tr>
-                <td colSpan={2} className="text-center text-muted">
-                  <Spinner animation="border" role="status" className="mt-3">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                  <p>No data available</p>
+                <td colSpan={2} className="text-center text-muted align-middle">
+                  <div className="d-flex flex-column align-items-center justify-content-center mt-2 mb-4">
+                    <p className="mb-3 mt-3">No data available</p>
+                    <Loader />
+                  </div>
                 </td>
               </tr>
             )}
@@ -261,24 +261,26 @@ the button or in the side navbar.
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={4}>
-                        <div style={{ textAlign: 'center' }}>
-                          <p>No data available</p>
-                          <Spinner animation="border" role="status" className="mb-3">
-                            <span className="visually-hidden">Loading...</span>
-                          </Spinner>
-                        </div>
-                        <div style={{ textAlign: 'center' }}>
-                          <Button variant="primary" onClick={() => checkAlarms()}>
-                            Check Alarms
-                          </Button>
-                          <Button variant="warning" style={{ marginLeft: '15px' }} onClick={() => setActive('alarms')}>
-                            View History
-                          </Button>
+                      <td colSpan={4} className="text-center text-muted align-middle">
+                        <div className="d-flex flex-column align-items-center justify-content-center mt-2">
+                          <p className="mb-3 mt-3">No data available</p>
+                          <Loader />
                         </div>
                       </td>
                     </tr>
                   )}
+                  <tr>
+                    <td colSpan={4}>
+                      <div className='text-center mt-3'>
+                        <Button variant="primary" onClick={() => checkAlarms()}>
+                          Check Alarms
+                        </Button>
+                        <Button variant="warning" style={{ marginLeft: '15px' }} onClick={() => setActive('alarms')}>
+                          View History
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </Table>
               {/*  */}

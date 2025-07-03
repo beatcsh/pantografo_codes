@@ -1,10 +1,11 @@
-import { Container, Spinner, Table, Row, Col, Badge, Button } from "react-bootstrap"
+import { Container, Table, Row, Col, Badge, Button } from "react-bootstrap"
 import withReactContent from "sweetalert2-react-content"
 import GraphsModal from "../../components/GraphsModal"
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
 import { MdAutoGraph } from "react-icons/md"
 import { IoMdRefresh } from "react-icons/io"
+import Loader from "../../components/Loader"
 import { useState, useEffect } from "react"
 import { CiWarning } from "react-icons/ci"
 import { FaFileCsv } from "react-icons/fa"
@@ -188,11 +189,11 @@ time dashboard clicking on the button of 📊 Graphs, there you can view the ana
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="text-center text-muted">
-                        <Spinner animation="border" role="status" className="mt-5">
-                          <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                        <p>No data available</p>
+                      <td colSpan={5} className="text-center text-muted align-middle">
+                        <div className="d-flex flex-column align-items-center justify-content-center mt-2 mb-4">
+                          <p className="mb-3 mt-3">No data available</p>
+                          <Loader />
+                        </div>
                       </td>
                     </tr>
                   )}

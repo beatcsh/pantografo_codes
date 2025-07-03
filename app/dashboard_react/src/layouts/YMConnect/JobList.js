@@ -1,12 +1,13 @@
-import { Spinner, Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
+import { Container, Table, Button, Row, Col, Badge } from "react-bootstrap"
 import { FaDownload, FaPlay, FaStop, FaEye } from "react-icons/fa"
 import withReactContent from 'sweetalert2-react-content'
 import InfoButton from "../../components/InfoButton"
+import { IoMdRefresh } from "react-icons/io"
 import InfoModal from "../../components/InfoModal"
 import ModalJob from "../../components/ModalJob"
 import { GrConfigure } from "react-icons/gr"
 import { useState, useEffect } from "react"
-import { CiFileOn } from "react-icons/ci"
+import Loader from "../../components/Loader"
 import { FaFile } from "react-icons/fa"
 
 import Swal from "sweetalert2"
@@ -42,24 +43,23 @@ At the top section of the screen, the job that is currently active on the robot 
 
 ⚠️ Warning: Use the execution and stop controls with caution. Ensure all safety protocols are followed before interacting with the robot.
 `
+  const fetchJobs = async () => {
+    try {
 
+      AOS.init()
+      const res = await axios.get(`${ymConnectService}/Jobs/jobList`, { params: { robot_ip: robot_ip } })
+      setJobs(res.data)
+
+    } catch (error) {
+      MySwal.fire({
+        icon: "error",
+        title: "Conexión perdida.",
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+  };
   useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-
-        AOS.init()
-        const res = await axios.get(`${ymConnectService}/Jobs/jobList`, { params: { robot_ip: robot_ip } })
-        setJobs(res.data)
-
-      } catch (error) {
-        MySwal.fire({
-          icon: "error",
-          title: "Conexión perdida.",
-          timer: 2000,
-          showConfirmButton: false
-        });
-      }
-    };
     fetchJobs();
   }, []);
 
@@ -213,6 +213,7 @@ At the top section of the screen, the job that is currently active on the robot 
               <Button variant="success" className="m-2 pr-1" onClick={startJob}><FaPlay /> Play</Button>
               <Button variant="danger" className="m-2 pr-1" onClick={stopJob}><FaStop /> Stop</Button>
               <Button variant="primary" className="m-2 pr-1"><FaFile /> {currentJob}</Button>
+              <Button variant="warning" className="m-2 pr-1" onClick={fetchJobs}><IoMdRefresh /> Refresh</Button>
             </div>
             <div style={{ backgroundColor: "white", borderRadius: "1rem", padding: "2rem" }}>
               <Table responsive borderless style={{ width: '90%' }}>
@@ -252,11 +253,11 @@ At the top section of the screen, the job that is currently active on the robot 
                     )
                   ) : (
                     <tr>
-                      <td colSpan={4} className="text-center text-muted">
-                        <Spinner animation="border" role="status" className="mt-5">
-                          <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                        <p>No data available</p>
+                      <td colSpan={4} className="text-center text-muted align-middle">
+                        <div className="d-flex flex-column align-items-center justify-content-center mt-2">
+                          <p className="mb-3 mt-3">No data available</p>
+                          <Loader />
+                        </div>
                       </td>
                     </tr>
                   )}

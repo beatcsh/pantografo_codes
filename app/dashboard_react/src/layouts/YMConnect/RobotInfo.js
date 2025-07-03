@@ -1,8 +1,9 @@
-import { Container, Table, Badge, Tabs, Tab, Spinner } from 'react-bootstrap'
+import { Container, Table, Badge, Tabs, Tab } from 'react-bootstrap'
 import withReactContent from 'sweetalert2-react-content'
 import InfoButton from "../../components/InfoButton"
 import InfoModal from "../../components/InfoModal"
 import 'bootstrap/dist/css/bootstrap.min.css'
+import Loader from '../../components/Loader'
 import { useEffect, useState, useRef } from 'react'
 import { FaRobot } from 'react-icons/fa'
 import * as signalR from '@microsoft/signalr'
@@ -214,11 +215,11 @@ The information is divided into two tabs:
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2} className="text-center text-muted">
-                      <Spinner animation="border" role="status" className="mt-2">
-                        <span className="visually-hidden">Loading...</span>
-                      </Spinner>
-                      <p>No data available</p>
+                    <td colSpan={2} className="text-center text-muted align-middle">
+                      <div className="d-flex flex-column align-items-center justify-content-center mt-2 mb-4">
+                        <p className="mb-3 mt-3">No data available</p>
+                        <Loader />
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -255,11 +256,11 @@ The information is divided into two tabs:
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2} className="text-center text-muted">
-                      <Spinner animation="border" role="status" className="mt-2">
-                        <span className="visually-hidden">Loading...</span>
-                      </Spinner>
-                      <p>No data available</p>
+                    <td colSpan={2} className="text-center text-muted align-middle">
+                      <div className="d-flex flex-column align-items-center justify-content-center mt-2 mb-4">
+                        <p className="mb-3 mt-3">No data available</p>
+                        <Loader />
+                      </div>
                     </td>
                   </tr>
                 )}
