@@ -75,7 +75,7 @@ const SelectRobotIP = ({ selectedIP, setSelectedIP, userType }) => {
 
   return (
     <Container fluid style={{ minHeight: "100vh", background: "#f7fafd" }}>
-      <Row style={{ background: YASKAWA_BLUE, height: 200, marginBottom: 0 }} />
+      <Row style={{ background: "url('/assets/fondo.jpeg') center center/cover no-repeat fixed", height: 200, marginBottom: 0 }} />
       <Row className="justify-content-center align-items-center" style={{ minHeight: "calc(100vh - 200px)" }}>
         <Col xs={12} md={8} lg={6}>
           <div style={{ marginBottom: 32, textAlign: "center" }}>
