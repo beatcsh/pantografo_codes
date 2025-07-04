@@ -108,17 +108,11 @@ The information is divided into two tabs:
     if (typeof value === 'boolean') {
       return (
         <Badge
-          bg={value ? 'primary' : 'secondary'}
-          style={{
-            fontSize: '1rem',
-            padding: '0.55em 1.4em',
-            fontWeight: 600,
-            borderRadius: '2em',
-            boxShadow: value ? '0 0 10px #8fffa040' : '0 0 10px #ff5a5a40',
-            transition: 'all 0.3s ease-in-out',
-          }}
+          bg={value ? 'primary' : 'light'}
+          className="rounded-circle border border-primary p-2"
+          style={{ width: '22px', height: '22px' }}
         >
-          {value ? 'Yes' : 'No'}
+          &nbsp;
         </Badge>
       )
     }
@@ -200,7 +194,7 @@ The information is divided into two tabs:
               <thead style={{ backgroundColor: '#e3f2fd' }}>
                 <tr>
                   <th style={{ width: '50%', fontWeight: '600', color: '#0d47a1' }}>Parameter</th>
-                  <th style={{ width: '50%', fontWeight: '600', color: '#0d47a1' }}>Value</th>
+                  <th style={{ width: '50%', fontWeight: '600', color: '#0d47a1' }} className='text-center'>Value</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +204,7 @@ The information is divided into two tabs:
                       <td style={{ fontWeight: 500, color: '#37474f' }}>
                         {labels[key] || key}
                       </td>
-                      <td>{valueDisplay(key, value)}</td>
+                      <td className='text-center'>{valueDisplay(key, value)}</td>
                     </tr>
                   ))
                 ) : (

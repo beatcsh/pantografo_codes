@@ -59,7 +59,7 @@ the button or in the side navbar.
   useEffect(() => {
     AOS.init()
 
-    checkAlarms()
+    // checkAlarms()
     // Crear o reutilizar la conexión SignalR
     if (!connectionRef.current) {
       const connection = new signalR.HubConnectionBuilder()
@@ -204,8 +204,12 @@ the button or in the side navbar.
                 <tr key={idx}>
                   <td className="text-center text-uppercase">{io.name}</td>
                   <td className="text-center">
-                    <Badge bg={io.active ? 'primary' : 'secondary'} pill>
-                      {io.active ? 'ACTIVE' : 'INACTIVE'}
+                    <Badge
+                      bg={io.active ? 'primary' : 'light'}
+                      className="rounded-circle border border-primary p-2"
+                      style={{ width: '12px', height: '12px' }}
+                    >
+                      &nbsp;
                     </Badge>
                   </td>
                 </tr>
