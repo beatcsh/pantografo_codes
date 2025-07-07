@@ -18,7 +18,7 @@ const ymConnectService = 'http://localhost:5229'
 
 const stopKeys = ['pendantStop', 'externalStop', 'doorEmergencyStop', 'hold']
 
-const RobotInfo = ({ robot_ip, setActive }) => {
+const RobotInfo = ({ robot_ip }) => {
   const [ioList, setIoList] = useState([])
   const [showInfoModal, setShowInfoModal] = useState(false)
   const [activeAlarms, setActiveAlarms] = useState({
@@ -75,6 +75,13 @@ the button or in the side navbar.
             active: stopKeys.includes(key) ? !value : value // inverso para los stop
           }))
           setIoList(ioArray)
+        }
+      })
+
+      connection.on("ActiveAlarms", (alarms) => {
+        console.log("Alarmas Recibidas:", alarms)
+        if (typeof alarms === 'object') {
+          setActiveAlarms(alarms)
         }
       })
 
@@ -294,7 +301,7 @@ the button or in the side navbar.
                     <tr>
                       <td colSpan={4} className="text-center text-muted align-middle">
                         <div className="d-flex flex-column align-items-center justify-content-center mt-2">
-                          <p className="mb-3 mt-3">No data available</p>
+                          <p className="mb-3 mt-3">No alarms to show</p>
                           <Loader />
                         </div>
                       </td>
@@ -303,12 +310,9 @@ the button or in the side navbar.
                   <tr>
                     <td colSpan={4}>
                       <div className='text-center mt-3'>
-                        <Button variant="primary" onClick={() => checkAlarms()}>
+                        {/* <Button variant="primary" onClick={() => checkAlarms()}>
                           Check Alarms
-                        </Button>
-                        <Button variant="warning" style={{ marginLeft: '15px' }} onClick={() => setActive('alarms')}>
-                          View History
-                        </Button>
+                        </Button> */}
                         <Button variant="success" style={{ marginLeft: '15px' }} onClick={() => clearErrors()}>
                           Clear Alarms
                         </Button>
