@@ -21,7 +21,7 @@ const YMConnect = (props) => {
     { key: 'home', label: 'Start', icon: <PiPlugsConnectedBold size={22} />, component: <StatsRobot robot_ip={robot_ip} /> },
     { key: 'joblist', label: 'Job List', icon: <FaList size={22} />, component: <JobList setActive={setActive} robot_ip={robot_ip} /> },
     { key: 'alarms', label: 'Alarms', icon: <FaBell size={22} />, component: <Alarms robot_ip={robot_ip} /> },
-    { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics robot_ip={robot_ip} setActive={setActive} /> },
+    { key: 'diagnostics', label: 'Diagnostics', icon: <FaChartLine size={22} />, component: <Diagnostics robot_ip={robot_ip} /> },
     { key: 'robotinfo', label: 'Robot Info', icon: <FaRobot size={22} />, component: <RobotInfo robot_ip={robot_ip} /> },
     { key: 'aboutus', label: 'About Us', icon: <FaInfoCircle size={22} />, component: <AboutUs /> },
   ]
