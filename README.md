@@ -1,6 +1,9 @@
 # 🤖 PANTOGRAFO PLASMA
 
-Interfaz de comunicación desarrollado en FastAPI (Python) para control y monitoreo de robots industriales Yaskawa. Permite el manejo de movimientos, analisis de datos y estado en tiempo real, conversion de archivos .DXF a .JBI y transferencia de archivos vía FTP. Se integra con otro servicio, el cual se encuentra en https://github.com/beatcsh/YMConnectApi .
+Interfaz de comunicación desarrollado en FastAPI (Python) para control y monitoreo de robots industriales Yaskawa. Permite el manejo de movimientos, analisis de datos y estado en tiempo real, conversion de archivos .DXF a .JBI y transferencia de archivos vía FTP. Se integra con otro servicio, el cual se encuentra en https://github.com/beatcsh/YMConnectApi.
+
+Los servicios de YMConnect y de la aplicacion se encuentran en repositorios separados para proteger el flujo de trabajo y no
+generar problemas a la hora de subir las versiones al repositorio remoto.
 
 ---
 
