@@ -28,7 +28,7 @@ def generate_graphs(df: pd.DataFrame):
     graphs = []
 
     df_copy = df.copy()
-    df_copy.dropna(inplace=True)
+    df_copy['Location'] = df_copy['Location'].fillna('UNKNOWN LOCATION')
     
     # grafica 1 con un histograma por codes
     fig1, ax1 = plt.subplots() # se crea una figura y un set de ejes para dibujar una grafica
@@ -86,6 +86,22 @@ def generate_graphs(df: pd.DataFrame):
     graphs.append({
         "title": "Alarms Over Time",
         "image": fig_to_base64(fig4)
+    })
+
+    # new graph maybe
+    fig5, ax5 = plt.subplots(figsize=(8, 6))
+
+    description_counts = df_copy['Description'].value_counts().reset_index()
+    description_counts.columns = ['Description', 'Count']
+    description_counts = description_counts.sort_values(by='Count', ascending=False)
+
+    sns.barplot(x='Count', y='Description', data=description_counts)
+    ax5.set_title('Alarms Counts by Description')
+    ax5.set_xlabel('Number of alarms')
+    ax5.set_ylabel('Description')
+    graphs.append({
+        "title": "Alarm Counts by Description",
+        "image": fig_to_base64(fig5)
     })
 
     return graphs
