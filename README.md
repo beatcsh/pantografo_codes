@@ -39,3 +39,9 @@ cd app/dashboard_react ------> npm install
 > PowerShell o CMD
 cd app/server ------ python -m uvicorn main:app --reload
 cd app/dashboard_react ------ npm start
+```
+---
+
+## Historial de estrellas
+
+[![Star History Chart](https://api.star-history.com/svg?repos=beatcsh/pantografo_codes&type=Date)](https://www.star-history.com/#beatcsh/pantografo_codes&Date)
