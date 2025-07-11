@@ -44,4 +44,4 @@ cd app/dashboard_react ------ npm start
 
 ## Historial de estrellas
 
-[![Star History Chart](https://api.star-history.com/svg?repos=beatcsh/pantografo_codes&type=Date)](https://www.star-history.com/#beatcsh/pantografo_codes&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=beatcsh/pantografo_codes&type=Timeline)](https://www.star-history.com/#beatcsh/pantografo_codes&Timeline)
