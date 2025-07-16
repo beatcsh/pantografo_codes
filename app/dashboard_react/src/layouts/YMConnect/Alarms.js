@@ -52,14 +52,14 @@ time dashboard clicking on the button of 📊 Graphs, there you can view the ana
       parseAlarmHistory(res.data)
       MySwal.fire({
         icon: "success",
-        title: "Historial traido con exito",
+        title: "Operation successed",
         timer: 2000,
         showConfirmButton: false
       })
     } catch (error) {
       MySwal.fire({
         icon: "error",
-        title: "Conexión perdida.",
+        title: "Lost connection.",
         text: error.message,
         timer: 10000,
         showConfirmButton: false

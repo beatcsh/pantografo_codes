@@ -79,7 +79,6 @@ the button or in the side navbar.
       })
 
       connection.on("ActiveAlarms", (alarms) => {
-        console.log("Alarmas Recibidas:", alarms)
         if (typeof alarms === 'object') {
           setActiveAlarms(alarms)
         }
@@ -87,7 +86,6 @@ the button or in the side navbar.
 
       connection.start()
         .then(() => {
-          console.log("Conectado al RobotHub")
           connection.invoke("SetRobotIp", robot_ip).catch(console.error)
         })
         .catch(err => console.error("Error en SignalR:", err))
@@ -116,7 +114,7 @@ the button or in the side navbar.
       console.error(error)
       MySwal.fire({
         icon: 'error',
-        title: 'Conexión perdida.',
+        title: 'Lost connection.',
         text: error.message,
         timer: 10000,
         showConfirmButton: false,
@@ -142,7 +140,7 @@ the button or in the side navbar.
       console.error(error)
       MySwal.fire({
         icon: 'error',
-        title: 'Conexión perdida.',
+        title: 'Lost connection.',
         text: error.message,
         timer: 10000,
         showConfirmButton: false,
@@ -168,7 +166,7 @@ the button or in the side navbar.
       console.error(error)
       MySwal.fire({
         icon: 'error',
-        title: 'Conexión perdida.',
+        title: 'Lost connection.',
         text: error.message,
         timer: 10000,
         showConfirmButton: false,

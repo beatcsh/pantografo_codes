@@ -63,13 +63,11 @@ The information is divided into two tabs:
         .build()
 
       connection.on("RobotStatusUpdated", (status) => {
-        console.log("Estado recibido:", status)
         setRobotStatus(status)
       })
 
       connection.start()
         .then(() => {
-          console.log("Conectado al RobotHub")
           connection.invoke("SetRobotIp", robot_ip).catch(console.error)
         })
         .catch(err => console.error("Error en SignalR:", err))
@@ -97,7 +95,7 @@ The information is divided into two tabs:
     } catch (error) {
       MySwal.fire({
         icon: 'error',
-        title: 'Conexión perdida.',
+        title: 'Lost connection.',
         timer: 10000,
         showConfirmButton: false,
       })

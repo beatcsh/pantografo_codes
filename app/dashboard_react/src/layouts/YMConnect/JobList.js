@@ -53,7 +53,7 @@ At the top section of the screen, the job that is currently active on the robot 
     } catch (error) {
       MySwal.fire({
         icon: "error",
-        title: "Conexión perdida.",
+        title: "Lost connection.",
         timer: 2000,
         showConfirmButton: false
       });
@@ -75,14 +75,14 @@ At the top section of the screen, the job that is currently active on the robot 
       if (res.data.statusCode === 0) {
         MySwal.fire({
           icon: "success",
-          title: "Archivo seleccionado con éxito",
+          title: "File configured",
           timer: 1200,
         });
       }
     } catch (error) {
       MySwal.fire({
         icon: "error",
-        title: "Conexión perdida.",
+        title: "Lost connection.",
         timer: 2000,
         showConfirmButton: false
       });
@@ -99,7 +99,7 @@ At the top section of the screen, the job that is currently active on the robot 
       if (!ioData) {
         return MySwal.fire({
           icon: "error",
-          title: "El robot se encuentra en paro por una emergencia.",
+          title: "The robot is stopped by an emergency.",
           timer: 10000,
           showConfirmButton: false
         });
@@ -110,7 +110,7 @@ At the top section of the screen, the job that is currently active on the robot 
       if (jobRes?.statusCode === 0) {
         MySwal.fire({
           icon: "success",
-          title: "Archivo ejecutado con éxito",
+          title: "Job Executed.",
           timer: 1200,
           showConfirmButton: false
         });
@@ -118,7 +118,7 @@ At the top section of the screen, the job that is currently active on the robot 
     } catch (error) {
       MySwal.fire({
         icon: "error",
-        title: "Conexión perdida.",
+        title: "Lost connection.",
         timer: 2000,
         showConfirmButton: false
       });
@@ -131,8 +131,8 @@ At the top section of the screen, the job that is currently active on the robot 
       const res = await axios.get(reqUrl, { params: { robot_ip: robot_ip } })
       if (res.data.statusCode === 0) {
         MySwal.fire({
-          icon: "success",
-          title: "Archivo detenido",
+          icon: "warning",
+          title: "Stopped.",
           timer: 1200,
           showConfirmButton: false
         });
@@ -140,7 +140,7 @@ At the top section of the screen, the job that is currently active on the robot 
     } catch (error) {
       MySwal.fire({
         icon: "error",
-        title: "Conexión perdida.",
+        title: "Lost connection.",
         timer: 2000,
         showConfirmButton: false
       });
@@ -157,7 +157,7 @@ At the top section of the screen, the job that is currently active on the robot 
     } catch (error) {
       MySwal.fire({
         icon: "error",
-        title: "Conexión perdida.",
+        title: "Lost connection.",
         timer: 10000,
         showConfirmButton: false
       })
@@ -184,7 +184,7 @@ At the top section of the screen, the job that is currently active on the robot 
     } catch (error) {
       MySwal.fire({
         icon: "error",
-        title: "Conexión perdida.",
+        title: "Lost connection.",
         timer: 2000,
         showConfirmButton: false
       });

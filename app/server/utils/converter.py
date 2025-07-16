@@ -13,12 +13,6 @@ of = 0
 PULSES_POR_MM = 1                                           #Cuando se requiera obtener el valor en pulsos, se cambia esta variable 
 offset = 10                                                #Valor compensación de la herramienta
 
-
-#Configuración de usuario para entrar al servidor del robot
-FTP_HOST = "192.168.1.31"                                   #IP del servidor                                
-FTP_USER = "rcmaster"                                       #Nombre de usuario con todos los privilegios
-FTP_PASS = "9999999999999999"                               #Contraseña del modo mantenimiento
-
 def get_area(points):
     area = 0
     n = len(points)
@@ -51,8 +45,8 @@ def linear_lead_in(points, kerf, uso, is_exterior, tolerance=4):
             return [centroid, (x0, y0)]
         else:                                                               # Lead-in perpendicular al primer segmento (exterior)
             x1, y1 = points[1]
-            dx = x1 - x0
-            dy = y1 - y0
+            dx = -x1 + x0
+            dy = -y1 + y0
 
             angle = math.atan2(dy, dx)
             angle_perp = angle + math.radians(90)
@@ -168,8 +162,8 @@ def extract_entities_as_segments(msp) -> List[List[Tuple[float, float]]]:
 
         elif entity.dxftype() == 'LWPOLYLINE':
             points = [(pt[0], pt[1]) for pt in entity.get_points()]
-            if entity.closed:
-                points.append(points[0])
+            # if entity.closed:
+            #     points.append(points[0])
 
         elif entity.dxftype() == 'POLYLINE':
             points = [(v.dxf.location.x, v.dxf.location.y) for v in entity.vertices]
@@ -229,34 +223,36 @@ def extract_entities_as_segments(msp) -> List[List[Tuple[float, float]]]:
     return segments, texts
 
 
-def generate_gcode_from_dxf(filename, z_value, kerf, uso, zp, pa):
-    z_value = float(z_value)
-    kerf = float(kerf)
-    uso = int(uso)
-    zp = float(zp)
-    pa = int(pa)
-
-    doc = ezdxf.readfile(filename)
-    msp = doc.modelspace()
-    gcode = []
+def generate_gcode_from_dxf(filename, z_value, kerf, uso, zp, pa):                      #Empieza a crear el código G
+    doc = ezdxf.readfile(filename)                          #Lee el archivo .dxf con ezdxf
+    msp = doc.modelspace()                                  #Crea un modelo en el espacio para ser utilizado
+    gcode = []       
 
     def code_impr(corte_por_pasada):
         gcode.append(f"( {kind} corte )")
-        gcode.append(f"G0 X{float(lead[0][0]):.3f} Y{float(lead[0][1]):.3f} Z{z_value + 10:.3f}")
-        gcode.append(f"G0 X{float(lead[0][0]):.3f} Y{float(lead[0][1]):.3f} Z{z_value:.3f}")
+        gcode.append(f"G0 X{lead[0][0]:.3f} Y{lead[0][1]:.3f} Z{z_value +10:.3f}")                            
+        gcode.append(f"G0 X{lead[0][0]:.3f} Y{lead[0][1]:.3f} Z{z_value:.3f}")
         gcode.append("M03 ; plasma ON")
         for pt in ord:
-            gcode.append(f"G1 X{float(pt[0]):.3f} Y{float(pt[1]):.3f} Z{z_value - corte_por_pasada:.3f}")
+            gcode.append(f"G1 X{pt[0]:.3f} Y{pt[1]:.3f} Z{z_value - corte_por_pasada:.3f}")
         gcode.append("M05 ; plasma OFF")
-        gcode.append(f"G0 X{float(pt[0]):.3f} Y{float(pt[1]):.3f} Z{z_value + 10:.3f}")
+        gcode.append(f"G0 X{pt[0]:.3f} Y{pt[1]:.3f} Z{z_value +10:.3f}")
 
-    gcode.append("G21 ; mm")
-    gcode.append("G90 ; abs")
-    gcode.append("M05 ; plasma off")
+    gcode.append("G21 ; mm")                                #Declara que las unidades son milimetros
+    gcode.append("G90 ; abs")                               #Las coordenadas serán absolutas
+    gcode.append("M05 ; plasma off")                        #Inicia el programa con el cortador de plasma desenergizado
 
-    acc_data, texts = extract_entities_as_segments(msp)
+    acc_data, texts = extract_entities_as_segments(msp)  # acc_data = [(points, layer), ...]
     orden_capas = connect_polylines_with_layers(acc_data)
 
+    capas_detectadas = set()
+    for entity in msp:
+        if hasattr(entity.dxf, "layer"):
+            capas_detectadas.add(entity.dxf.layer)
+    
+    if len(capas_detectadas) > 1:
+        # Filtrar fuera la capa "0"
+        orden_capas = [(poly, layer) for poly, layer in orden_capas if layer != "0"]
     areas = [(get_area(polygon), polygon, layer) for polygon, layer in orden_capas]
     areas.sort(key=lambda x: abs(x[0]), reverse=True)
 
@@ -265,55 +261,56 @@ def generate_gcode_from_dxf(filename, z_value, kerf, uso, zp, pa):
         is_outer = idx == 0
         clasificados.append((polygon, is_outer, layer))
 
+    # Separar interiores y exteriores
     interiores = [item for item in clasificados if not item[1]]
     exteriores = [item for item in clasificados if item[1]]
     orden_dibujo = interiores + exteriores
     save = zp
 
-    capas_detectadas = set()
-    for entity in msp:
-        if hasattr(entity.dxf, "layer"):
-            capas_detectadas.add(entity.dxf.layer)
-
     if uso == 0:
         pa = 1
         zp = 0
-
-    for n in range(1, pa + 1):
+    for n in range(1, pa+1):
         gcode.append(f"Pasada: {n}")
         for ord, is_outer, capa_actual in orden_dibujo:
             kind = 'Exterior' if is_outer else 'Interior'
-            print(capa_actual)
 
-            if (of == 0) and ((capa_actual == "LAYER0") or (len(capas_detectadas) == 1)):
-                poly = Polygon(ord)
-                offset_val = kerf if is_outer else -kerf
-                buffered = poly.buffer(offset_val, join_style=JOIN_STYLE.mitre)
-                if not buffered.is_empty and buffered.geom_type == 'Polygon':
-                    ord = list(buffered.exterior.coords)
-                else:
-                    print("Ocurrió un error con el offset")
+            if (of == 0) and ((capa_actual == "LAYER0") or (len(capas_detectadas)==1)):
+                                                                                    # Verificar si el contorno está cerrado antes de crear el polígono
+                if len(ord) > 2 and (ord[0][0] == ord[-1][0] and ord[0][1] == ord[-1][1]):
+                    poly = Polygon(ord)                                                         # Solo crear el polígono si está cerrado
+                    offset = kerf if is_outer else -kerf
+                    buffered = poly.buffer(offset, join_style=JOIN_STYLE.mitre)
 
-            if (capa_actual == "LAYER1") and (len(capas_detectadas) > 1):
-                zp = 1.1
+                    if not buffered.is_empty and buffered.geom_type == 'Polygon':
+                        ord = list(buffered.exterior.coords)
+                    else:                                                                        # Si hay error en el buffer, saltar figura
+                        print("Ocurrió un error con el offset")
+                                                                            # Si la figura no está cerrada, no aplicar offset ni crear polígono
+                          
+
+            if (capa_actual == "LAYER1") and (len(capas_detectadas)>1):
+                zp = 0.1
             else:
                 zp = save
-
+                
             if len(capas_detectadas) > 1:
                 if capa_actual == "0":
+                    # No hacer nada si hay más de una capa y esta es la capa 0
                     continue
-                else:
+                elif capa_actual != "0":
                     lead = linear_lead_in(ord, kerf, uso, is_exterior=is_outer)
-                    corte_por_pasada = float(n) * float(zp) / float(pa)
-                    code_impr(corte_por_pasada)
-            else:
+                    corte_por_pasada = n*zp/pa
+                    code_impr(corte_por_pasada) 
+                    
+            elif len(capas_detectadas)==1:
                 lead = linear_lead_in(ord, kerf, uso, is_exterior=is_outer)
-                corte_por_pasada = float(n) * float(zp) / float(pa)
+                corte_por_pasada = n*zp/pa
                 code_impr(corte_por_pasada)
 
-    gcode.append("M30 ; fin")
-    return gcode
 
+    gcode.append("M30 ; fin")                                                       #Finaliza el programa
+    return (gcode)
 
 predet = 25                                                                     #Valores predeterminados de velocidad VJ
 velocidades = predet
@@ -356,8 +353,8 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
                     idx += 1
             f.write("///POSTYPE PULSE\n")
             f.write("///PULSE\n")
-            f.write(f"C{idx:05d}=0,0,0,0,0,0\n") 
-            f.write(f"C{idx +1:05d}=0,0,0,0,0,0\n")  
+            # f.write(f"C{idx:05d}=0,0,0,0,0,0\n") 
+            # f.write(f"C{idx +1:05d}=0,0,0,0,0,0\n")  
 
             f.write("//INST\n")                                                         #Instrucciones
             f.write(f"///DATE {datetime.now().strftime('%Y/%m/%d %H:%M')}\n")           #Fecha
@@ -365,8 +362,8 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
             f.write(f"////FRAME USER {uf}\n")                                               #User frame 1
             f.write("///GROUP1 RB1\n")                                                  #Grupo de coordenadas
             f.write("NOP\n")
-            f.write(f"DOUT OT#({pc}) OFF\n")                                            #Al final del programa, apaga la antorcha
-            f.write(f"MOVJ C{idx +1:05d} VJ=10.0\n")
+            # f.write(f"DOUT OT#({pc}) OFF\n")                                            #Al final del programa, apaga la antorcha
+            # f.write(f"MOVJ C{idx +1:05d} VJ=10.0\n")
             #Escribe los movimientos, junto con el prendido y apagado de la antorcha y timers
             if velocidades == predet:                                                   
                 j = 0
@@ -390,8 +387,8 @@ def gcode_a_yaskawa(gcode_lines, z_altura, velocidad, nombre_base, output_dir, u
                     i += 1  # Siempre pasa a la siguiente línea
 
                     
-            f.write(f"DOUT OT#({pc}) OFF\n")                                            #Al final del programa, apaga la antorcha
-            f.write(f"MOVJ C{j:05d} VJ=10.0\n")
+            # f.write(f"DOUT OT#({pc}) OFF\n")                                            #Al final del programa, apaga la antorcha
+            # f.write(f"MOVJ C{j:05d} VJ=10.0\n")
             f.write("END\n")                                                            #Fin del programa
 
         return jbi_path, g_path 
