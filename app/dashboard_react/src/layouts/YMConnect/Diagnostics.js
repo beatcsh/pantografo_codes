@@ -5,7 +5,7 @@ import InfoModal from "../../components/InfoModal"
 import { GiHealingShield } from "react-icons/gi"
 import "bootstrap/dist/css/bootstrap.min.css"
 import Loader from '../../components/Loader'
-import { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import * as signalR from '@microsoft/signalr'
 import Swal from "sweetalert2"
 import axios from "axios"
@@ -20,6 +20,7 @@ const stopKeys = ['pendantStop', 'externalStop', 'doorEmergencyStop', 'hold']
 
 const RobotInfo = ({ robot_ip }) => {
   const [ioList, setIoList] = useState([])
+  const [entry, setEntry] = useState(10010)
   const [showInfoModal, setShowInfoModal] = useState(false)
   const [activeAlarms, setActiveAlarms] = useState({
     count: 0,
@@ -27,6 +28,7 @@ const RobotInfo = ({ robot_ip }) => {
   })
   const [materialOn, setMaterialOn] = useState(true)
   const connectionRef = useRef(null)
+  const entries = [10010,10011,10012,10013,10014,10015,10016,10017,10018,10019,10020,10021,10020,10023,10024,10025,10026,10027]
 
   const info = `
 ℹ️ Diagnostics Screen – User Guide
@@ -79,7 +81,6 @@ the button or in the side navbar.
       })
 
       connection.on("ActiveAlarms", (alarms) => {
-        console.log("Alarmas Recibidas:", alarms)
         if (typeof alarms === 'object') {
           setActiveAlarms(alarms)
         }
@@ -87,7 +88,6 @@ the button or in the side navbar.
 
       connection.start()
         .then(() => {
-          console.log("Conectado al RobotHub")
           connection.invoke("SetRobotIp", robot_ip).catch(console.error)
         })
         .catch(err => console.error("Error en SignalR:", err))
@@ -107,16 +107,22 @@ the button or in the side navbar.
     }
   }, [robot_ip])
 
+  const handleEntry = (event) => {
+    setEntry(event.target.value)
+  }
+
+  console.log(entry)
+
   const checkMaterial = async () => {
     try {
       setMaterialOn(!materialOn)
-      const res = await axios.get(`${ymConnectService}/IoInterface/writeIO`, { params: { robot_ip: robot_ip, value: materialOn } })
+      const res = await axios.get(`${ymConnectService}/IoInterface/writeIO`, { params: { robot_ip: robot_ip, value: materialOn, entry: entry } })
       return res
     } catch (error) {
       console.error(error)
       MySwal.fire({
         icon: 'error',
-        title: 'Conexión perdida.',
+        title: 'Lost connection.',
         text: error.message,
         timer: 10000,
         showConfirmButton: false,
@@ -142,7 +148,7 @@ the button or in the side navbar.
       console.error(error)
       MySwal.fire({
         icon: 'error',
-        title: 'Conexión perdida.',
+        title: 'Lost connection.',
         text: error.message,
         timer: 10000,
         showConfirmButton: false,
@@ -168,7 +174,7 @@ the button or in the side navbar.
       console.error(error)
       MySwal.fire({
         icon: 'error',
-        title: 'Conexión perdida.',
+        title: 'Lost connection.',
         text: error.message,
         timer: 10000,
         showConfirmButton: false,
@@ -254,7 +260,19 @@ the button or in the side navbar.
                 <tbody>
                   <tr>
                     <td>
-                      Check Dremel/Torch
+                      Specify the IO Code to check the tool
+                    </td>
+                    <td className='text-center'>
+                      <select name='entry' onChange={handleEntry}>
+                        {entries.map((code) => (
+                          <option value={code}>{code-10000}</option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Check Tool
                     </td>
                     <td className="text-center">
                       <Button

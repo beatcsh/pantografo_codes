@@ -8,8 +8,11 @@ import 'aos/dist/aos.css'
 import './Converter.css'
 import AOS from "aos"
 import axios from 'axios'
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content"
 
 const API_URL = 'http://localhost:8000';
+const MySwal = withReactContent(Swal)
 
 const Converter = (props) => {
   const { onContentReady, robot_ip, onLogout } = props;
@@ -28,8 +31,10 @@ const Converter = (props) => {
     'Plasma': 1,
     'Kerf': 10,
     'Uso': 0,
+    'Numero de Salida': 9,
     'Profundidad de Corte': 1,
-    'Pasadas': 1
+    'Pasadas': 1,
+    'Velocidad de Arco': 20
   });
   const [file, setFile] = useState(null);
   const [convertLoading, setConvertLoading] = useState(false);
@@ -69,9 +74,9 @@ const Converter = (props) => {
     setForm(f => ({
       ...f,
       'Material': row['Material'] || '',
-      'Corriente (A)': row['Corriente (A)'] || '',
-      'Espesor (mm)': row['Espesor (mm)'] || '',
-      'Velocidad corte (mm/s)': row['Velocidad corte (mm/s)'] || ''
+      'Corriente (A)': row['Current (A)'] || '',
+      'Espesor (mm)': row['Thickness (mm)'] || '',
+      'Velocidad corte (mm/s)': row['Cutting speed (mm/s)'] || ''
     }));
   };
 
@@ -84,24 +89,30 @@ const Converter = (props) => {
     e.preventDefault();
     setConvertError('');
     setDownloadUrl(null);
+
     if (!file) {
       setConvertError('Selecciona un archivo DXF.');
       return;
     }
+
     setConvertLoading(true);
     const formData = new FormData();
     formData.append('file', file);
+
     const params = {
-      velocidad: form['Velocidad corte (mm/s)'] || 100,
-      velocidadj: form['Velocidad J'] || 30,
-      z_altura: form['Z'] || 7,
-      uf: form['User Frame'] || 1,
-      ut: form['Tool'] || 0,
-      uso: form['Uso'] || 0,
-      kerf: form['Kerf'] || 10,
-      zp: form['Profundidad de Corte'] || 1,
-      pa: form['Pasadas'] || 1
+      velocidad: parseFloat(form['Velocidad corte (mm/s)']) || 100,
+      velocidadj: parseInt(form['Velocidad J']) || 30,
+      z_altura: parseFloat(form['Z']) || 7,
+      uf: parseInt(form['User Frame']) || 1,
+      ut: parseInt(form['Tool']) || 0,
+      uso: parseInt(form['Uso']) || 0,
+      kerf: parseFloat(form['Kerf']) || 10,
+      pc: parseInt(form['Numero de Salida']) || 9,
+      zp: parseFloat(form['Profundidad de Corte']) || 1,
+      pa: parseInt(form['Pasadas']) || 1,
+      aspeed: parseInt(form['Velocidad de Arco']) || 20
     };
+
     try {
       const res = await axios.post(`${API_URL}/convert/`, formData, {
         params,
@@ -111,15 +122,17 @@ const Converter = (props) => {
       const url = window.URL.createObjectURL(blob);
       setDownloadUrl(url);
       setTimeout(() => {
-        if (window.confirm('¿Quieres enviar el archivo JBI al robot por FTP?')) {
+        if (window.confirm('¿Do you want to send the JBI to the robot?')) {
           enviarPorFTP(file.name.replace(/\.[^.]+$/, '.JBI'));
         }
       }, 100);
     } catch (err) {
-      setConvertError('Error al convertir el archivo.');
+      console.error(err);
+      setConvertError('Conversion error.');
     }
     setConvertLoading(false);
   };
+
 
   const enviarPorFTP = async (jbiFileName) => {
     try {
@@ -129,13 +142,20 @@ const Converter = (props) => {
           FTP_HOST: robot_ip
         }
       });
-      if (res.status === 200) {
-        alert('Archivo enviado exitosamente al robot.');
-      } else {
-        alert('Error al enviar el archivo por FTP.');
+      if (res) {
+        console.log('y el swal?')
+        MySwal.fire({
+          icon: "success",
+          title: "File sent, please confirm on Teach Pendant, if it is not there check the params.",
+          timer: 10000,
+        })
       }
     } catch {
-      alert('Error de red al enviar por FTP.');
+      MySwal.fire({
+          icon: "success",
+          title: "Something is wrong.",
+          timer: 5000,
+        })
     }
   };
 
@@ -171,7 +191,7 @@ const Converter = (props) => {
         />
       )}
       {view === 'files' && (
-        <FilesConverter setView={setView} search={search} setSearch={setSearch} robot_ip={robot_ip}/>
+        <FilesConverter setView={setView} search={search} setSearch={setSearch} robot_ip={robot_ip} />
       )}
     </div>
   );

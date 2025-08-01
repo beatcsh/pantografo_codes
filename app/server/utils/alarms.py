@@ -8,7 +8,7 @@ import io
 import base64
 
 matplotlib.use("Agg") # pa que no chille el matplot
-
+ 
 """
 base64 es un formato de codificacion de binarios como imagenes archivos y mas cosas, 
 pasandolos a texto plano usando caracteres seguros
@@ -28,7 +28,7 @@ def generate_graphs(df: pd.DataFrame):
     graphs = []
 
     df_copy = df.copy()
-    df_copy['Location'] = df_copy['Location'].fillna('UNKNOWN LOCATION')
+    df_copy.dropna(inplace=True)
     
     # grafica 1 con un histograma por codes
     fig1, ax1 = plt.subplots() # se crea una figura y un set de ejes para dibujar una grafica
@@ -88,7 +88,7 @@ def generate_graphs(df: pd.DataFrame):
         "image": fig_to_base64(fig4)
     })
 
-    # new graph maybe
+        # new graph maybe
     fig5, ax5 = plt.subplots(figsize=(8, 6))
 
     description_counts = df_copy['Description'].value_counts().reset_index()

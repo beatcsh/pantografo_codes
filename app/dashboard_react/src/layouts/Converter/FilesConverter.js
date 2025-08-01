@@ -42,10 +42,10 @@ const FilesConverter = ({ setView, search, setSearch, robot_ip }) => {
             if (res.status === 200) {
                 fetchJobs();
             } else {
-                setJobsError('No se pudo eliminar el archivo.');
+                setJobsError('Can´t delete the file.');
             }
         } catch {
-            setJobsError('Error de red al eliminar.');
+            setJobsError('Can´t delete the file.');
         }
         setDeleteLoading(null);
     };
