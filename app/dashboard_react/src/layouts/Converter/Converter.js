@@ -1,124 +1,200 @@
-import { FaUpload } from "react-icons/fa"
-import { useEffect } from "react"
-import "aos/dist/aos.css"
+import HomeButton from '../../components/HomeButton'
+import { useEffect, useState, useRef } from 'react'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import FilesConverter from './FilesConverter'
+import MenuConverter from './MenuConverter'
+import FormConverter from './FormConverter'
+import 'aos/dist/aos.css'
+import './Converter.css'
 import AOS from "aos"
+import axios from 'axios'
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content"
 
-const FormConverter = ({ setView, tabla, setFile, file, form, handleRowSelect, handleFormChange, handleConvert, downloadUrl, convertError, convertLoading }) => {
-    useEffect(() => {
-        AOS.init()
-    }, [])
+const API_URL = 'http://localhost:8000';
+const MySwal = withReactContent(Swal)
 
-    return (
-        <div data-aos="zoom-in-up" className="converter-flex-exact">
-            {/* Panel izquierdo: Tabla de parámetros */}
-            <div className="converter-table-panel-exact">
-                <div className="converter-table-title-row">
-                    <div className="converter-table-title">CUT PARAMETERS</div>
-                    <div className="converter-table-title-underline" />
-                </div>
-                <div className="converter-table-headers-row">
-                    <div className="converter-table-header">MATERIAL</div>
-                    <div className="converter-table-header">CURRENT</div>
-                    <div className="converter-table-header">WIDTH (mm)</div>
-                    <div className="converter-table-header">SPEED CUT (mm/s)</div>
-                </div>
-                <div className="converter-table-list converter-table-scrollable">
-                    {tabla.map((row, i) => (
-                        <div className="converter-table-row" key={i} onClick={() => handleRowSelect(row)}>
-                            <div className="converter-table-cell converter-table-cell-material">{row['Material']}</div>
-                            <div className="converter-table-cell">{row['Corriente (A)']} A</div>
-                            <div className="converter-table-cell">{row['Espesor (mm)']}</div>
-                            <div className="converter-table-cell">{row['Velocidad corte (mm/s)']}</div>
-                        </div>
-                    ))}
-                </div>
-                <button style={{ marginTop: '28px' }} className="converter-back-btn" onClick={() => setView('select')}>
-                    ← Back
-                </button>
-            </div>
-            {/* Panel derecho: Formulario de conversión */}
-            <div className="converter-form-panel-exact">
-                <div className="converter-form-title">CONVERT .DXF TO INFORM II</div>
-                <div className="converter-form-subtitle">(SELECT A .DXF FILE TO CONVERT TO ROBOT YASKAWA LENGUAJE)</div>
-                <div className="converter-form-file-row">
-                    <label className="converter-form-file-btn">
-                        SELECT YOUR FILE
-                        <input type="file" accept=".dxf" style={{ display: 'none' }} onChange={e => setFile(e.target.files[0])} />
-                    </label>
-                    <div className="converter-form-file-name">{file ? file.name : ''}</div>
-                </div>
-                <form onSubmit={handleConvert} className="converter-form-fields-grid">
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">MATERIAL</label>
-                        <input className="converter-form-input" name="Material" value={form['Material']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">J SPEED</label>
-                        <input className="converter-form-input" name="Velocidad J" value={form['Velocidad J']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">CURRENT</label>
-                        <input className="converter-form-input" name="Corriente (A)" value={form['Corriente (A)']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">Z POSITION</label>
-                        <input className="converter-form-input" name="Z" value={form['Z']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">WIDTH</label>
-                        <input className="converter-form-input" name="Espesor (mm)" value={form['Espesor (mm)']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">USER FRAME</label>
-                        <input className="converter-form-input" name="User Frame" value={form['User Frame']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">SPEED CUT</label>
-                        <input className="converter-form-input" name="Velocidad corte (mm/s)" value={form['Velocidad corte (mm/s)']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">TOOL</label>
-                        <input className="converter-form-input" name="Tool" value={form['Tool']} onChange={handleFormChange} />
-                    </div>
-                    {/* <div className="converter-form-field-group">
-                        <label className="converter-form-label">PLASMA</label>
-                        <input className="converter-form-input" name="Plasma" value={form['Plasma']} onChange={handleFormChange} />
-                    </div> */}
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">KERF</label>
-                        <input className="converter-form-input" name="Kerf" value={form['Kerf']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">PASSES</label>
-                        <input className="converter-form-input" name="Pasadas" value={form['Pasadas']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">DEPTH CUT</label>
-                        <input className="converter-form-input" name="Profundidad de Corte" value={form['Profundidad de Corte']} onChange={handleFormChange} />
-                    </div>
-                    <div className="converter-form-field-group">
-                        <label className="converter-form-label">TYPE TOOL</label>
-                        <select
-                            name='Uso'
-                            className="converter-form-input"
-                            value={form['Uso']}
-                            onChange={handleFormChange}
-                        >
-                            <option value="0">Plasma</option>
-                            <option value="1">Dremel</option>
-                        </select>
-                    </div>
-                </form>
-                <button className="converter-form-submit-btn" type="submit" onClick={handleConvert} disabled={convertLoading}>
-                    CONVERT & UPLOAD <FaUpload style={{ marginLeft: 10, marginBottom: -3 }} />
-                </button>
-                {convertError && <div className="converter-form-error">{convertError}</div>}
-                {downloadUrl && (
-                    <a href={downloadUrl} download={file ? file.name.replace(/\.[^.]+$/, '.JBI') : 'programa.jbi'} className="converter-form-download-link">Descargar archivo .JBI</a>
-                )}
-            </div>
-        </div>
-    )
-}
+const Converter = (props) => {
+  const { onContentReady, robot_ip, onLogout } = props;
+  const [tabla, setTabla] = useState([]);
+  const [tablaHeaders, setTablaHeaders] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [form, setForm] = useState({
+    'Material': '',
+    'Corriente (A)': '',
+    'Espesor (mm)': '',
+    'Velocidad corte (mm/s)': '',
+    'Velocidad J': 30,
+    'Z': 7,
+    'User Frame': 1,
+    'Tool': 0,
+    'Plasma': 1,
+    'Kerf': 10,
+    'Uso': 0,
+    'Numero de Salida': 9,
+    'Profundidad de Corte': 1,
+    'Pasadas': 1,
+    'Velocidad de Arco': 20
+  });
+  const [file, setFile] = useState(null);
+  const [convertLoading, setConvertLoading] = useState(false);
+  const [convertError, setConvertError] = useState('');
+  const [downloadUrl, setDownloadUrl] = useState(null);
+  const [search, setSearch] = useState('');
+  const [view, setView] = useState('select');
+  const fileInputRef = useRef();
 
-export default FormConverter
+  useEffect(() => {
+    AOS.init()
+    axios.get(`${API_URL}/tabla`)
+      .then(res => {
+        const data = res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setTabla(data);
+          setTablaHeaders(Object.keys(data[0]));
+          if (onContentReady) onContentReady();
+        }
+      })
+      .catch(() => setTabla([]));
+  }, [onContentReady]);
+
+  const handleRowSelect = (row) => {
+    if (selectedRow === row) {
+      setSelectedRow(null);
+      setForm(f => ({
+        ...f,
+        'Material': '',
+        'Corriente (A)': '',
+        'Espesor (mm)': '',
+        'Velocidad corte (mm/s)': ''
+      }));
+      return;
+    }
+    setSelectedRow(row);
+    setForm(f => ({
+      ...f,
+      'Material': row['Material'] || '',
+      'Corriente (A)': row['Current (A)'] || '',
+      'Espesor (mm)': row['Thickness (mm)'] || '',
+      'Velocidad corte (mm/s)': row['Cutting speed (mm/s)'] || ''
+    }));
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setForm(f => ({ ...f, [name]: value }));
+  };
+
+  const handleConvert = async (e) => {
+    e.preventDefault();
+    setConvertError('');
+    setDownloadUrl(null);
+
+    if (!file) {
+      setConvertError('Selecciona un archivo DXF.');
+      return;
+    }
+
+    setConvertLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const params = {
+      velocidad: parseFloat(form['Velocidad corte (mm/s)']) || 100,
+      velocidadj: parseInt(form['Velocidad J']) || 30,
+      z_altura: parseFloat(form['Z']) || 7,
+      uf: parseInt(form['User Frame']) || 1,
+      ut: parseInt(form['Tool']) || 0,
+      uso: parseInt(form['Uso']) || 0,
+      kerf: parseFloat(form['Kerf']) || 10,
+      pc: parseInt(form['Numero de Salida']) || 9,
+      zp: parseFloat(form['Profundidad de Corte']) || 1,
+      pa: parseInt(form['Pasadas']) || 1,
+      aspeed: parseInt(form['Velocidad de Arco']) || 20
+    };
+
+    try {
+      const res = await axios.post(`${API_URL}/convert/`, formData, {
+        params,
+        responseType: 'blob'
+      });
+      const blob = new Blob([res.data], { type: res.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setTimeout(() => {
+        if (window.confirm('¿Do you want to send the JBI to the robot?')) {
+          enviarPorFTP(file.name.replace(/\.[^.]+$/, '.JBI'));
+        }
+      }, 100);
+    } catch (err) {
+      console.error(err);
+      setConvertError('Conversion error.');
+    }
+    setConvertLoading(false);
+  };
+
+
+  const enviarPorFTP = async (jbiFileName) => {
+    try {
+      const res = await axios.get(`${API_URL}/enviar-ftp`, {
+        params: {
+          filename: jbiFileName,
+          FTP_HOST: robot_ip
+        }
+      });
+      if (res) {
+        console.log('y el swal?')
+        MySwal.fire({
+          icon: "success",
+          title: "File sent, please confirm on Teach Pendant, if it is not there check the params.",
+          timer: 10000,
+        })
+      }
+    } catch {
+      MySwal.fire({
+          icon: "success",
+          title: "Something is wrong.",
+          timer: 5000,
+        })
+    }
+  };
+
+  return (
+    <div
+      data-aos="zoom-in-up"
+      className="converter-bg"
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        position: 'relative',
+        background: "url('/assets/fondo.jpeg') center center/cover no-repeat fixed"
+      }}
+    >
+      <HomeButton />
+
+      {view === 'select' && (
+        <MenuConverter setView={setView} />
+      )}
+      {view === 'convert' && (
+        <FormConverter
+          setView={setView}
+          tabla={tabla}
+          setFile={setFile}
+          file={file}
+          form={form}
+          handleFormChange={handleFormChange}
+          handleRowSelect={handleRowSelect}
+          handleConvert={handleConvert}
+          convertError={convertError}
+          convertLoading={convertLoading}
+        />
+      )}
+      {view === 'files' && (
+        <FilesConverter setView={setView} search={search} setSearch={setSearch} robot_ip={robot_ip} />
+      )}
+    </div>
+  );
+};
+
+export default Converter;

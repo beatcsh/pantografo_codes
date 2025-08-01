@@ -1,51 +1,50 @@
-Material,Corriente (A),Espesor (mm),Velocidad corte (mm/s),Espesor (mm pulg.),Velocidad corte (pulg/s)
-Acero al carbono,30,0.5,89,0.018,4
-Acero al carbono,30,3.0,19,0.135,1
-Acero al carbono,30,6.0,11,6.35,0
-Acero al carbono,80,3.0,102,0.135,3
-Acero al carbono,80,6.0,51,6.35,2
-Acero al carbono,80,20.0,9,19.05,0
-Acero al carbono,130,6.0,67,6.35,3
-Acero al carbono,130,10.0,45,9.525,2
-Acero al carbono,130,25.0,9,25.4,0
-Acero al carbono,200,6.0,87,6.35,3
-Acero al carbono,200,12.0,51,12.7,2
-Acero al carbono,200,25.0,28,25.4,1
-Acero al carbono,200,50.0,4,50.8,0
-Acero al carbono,260,10.0,74,9.525,3
-Acero al carbono,260,20.0,36,19.05,2
-Acero al carbono,260,64.0,3,63.5,0
-Acero al carbono,400,12.0,74,12.7,3
-Acero al carbono,400,25.0,35,25.4,1
-Acero al carbono,400,50.0,13,50.8,1
-Acero inoxidable,60,3.0,46,2.667,2
-Acero inoxidable,60,4.0,38,3.429,2
-Acero inoxidable,60,5.0,33,4.763,1
-Acero inoxidable,60,6.0,27,6.35,1
-Acero inoxidable,130,10.0,16,9.525,1
-Acero inoxidable,130,12.0,14,12.7,1
-Acero inoxidable,130,25.0,8,25.4,0
-Acero inoxidable,260,12.0,29,12.7,1
-Acero inoxidable,260,20.0,18,19.05,1
-Acero inoxidable,260,25.0,13,25.4,1
-Acero inoxidable,260,50.0,9,50.8,0
-Acero inoxidable,400,20.0,30,9.525,1
-Acero inoxidable,400,40.0,12,38.1,1
-Acero inoxidable,400,80.0,3,76.2,0
-Acero inoxidable,800,75.0,8,76.2,0
-Acero inoxidable,800,125.0,3,127.0,0
-Acero inoxidable,800,160.0,2,158.75,0
-Aluminio,45,1.5,74,0.048,4
-Aluminio,45,4.0,43,0.135,2
-Aluminio,6,1690.0,0,60.0,0
-Aluminio,130,12.0,24,0.5,1
-Aluminio,130,20.0,19,0.75,1
-Aluminio,130,25.0,9,1.0,0
-Aluminio,260,12.0,86,0.5,3
-Aluminio,260,20.0,37,0.75,2
-Aluminio,260,25.0,17,1.0,1
-Aluminio,400,20.0,40,0.75,2
-Aluminio,400,40.0,21,1.5,1
-Aluminio,400,75.0,4,3.0,0
-Aluminio,800,75.0,15,3.0,1
-Aluminio,800,160.0,3,6.25,0
+Material           , Current (A), Thickness (mm), Cutting speed (mm/s), Thickness (in), Cutting speed (in/s)
+Carbon steel 30    ,           0,             89,                   40,              0,                    0
+Carbon steel 30    ,           3,             19,                   20,              0,                    0
+Carbon steel 30    ,           6,             11,                   10,              0,                    0
+Carbon steel 80    ,           3,            102,                   50,              0,                    0
+Carbon steel 80    ,           6,             51,                   30,              0,                    0
+Carbon steel 80    ,          20,              9,                   10,              1,                    0
+Carbon steel 130   ,           6,             67,                   30,              0,                    0
+Carbon steel 130   ,          10,             45,                   20,              0,                    0
+Carbon steel 130   ,          25,              9,                   10,              1,                    0
+Carbon steel 200   ,           6,             87,                   40,              0,                    0
+Carbon steel 200   ,          12,             51,                   20,              0,                    0
+Carbon steel 200   ,          25,             28,                   10,              1,                    0
+Carbon steel 200   ,          50,              4,                   10,              2,                    0
+Carbon steel 260   ,          10,             74,                   40,              0,                    0
+Carbon steel 260   ,          20,             36,                   20,              1,                    0
+Carbon steel 260   ,          64,              3,                   10,              3,                    0
+Carbon steel 400   ,          12,             74,                   40,              0,                    0
+Carbon steel 400   ,          25,             35,                   20,              1,                    0
+Carbon steel 400   ,          50,             13,                   10,              2,                    0
+Stainless steel 60 ,           3,             46,                   30,              0,                    0
+Stainless steel 60 ,           4,             38,                   20,              0,                    0
+Stainless steel 60 ,           5,             33,                   20,              0,                    0
+Stainless steel 60 ,           6,             27,                   10,              0,                    0
+Stainless steel 130,          10,             16,                   10,              0,                    0
+Stainless steel 130,          12,             14,                   10,              0,                    0
+Stainless steel 130,          25,              8,                   10,              1,                    0
+Stainless steel 260,          12,             29,                   10,              0,                    0
+Stainless steel 260,          20,             18,                   10,              1,                    0
+Stainless steel 260,          25,             13,                   10,              1,                    0
+Stainless steel 260,          50,              9,                   10,              2,                    0
+Stainless steel 400,          20,             30,                   10,              1,                    0
+Stainless steel 400,          40,             12,                   10,              2,                    0
+Stainless steel 400,          80,              3,                   10,              3,                    0
+Stainless steel 800,          75,              8,                   10,              3,                    0
+Stainless steel 800,         125,              3,                   10,              5,                    0
+Stainless steel 800,         160,              2,                   10,              6,                    0
+Aluminum 45        ,           1,             74,                   50,              0,                    0
+Aluminum 45        ,           4,             43,                   30,              0,                    0
+Aluminum 130       ,          12,             24,                   30,              0,                    0
+Aluminum 130       ,          20,             19,                   20,              1,                    0
+Aluminum 130       ,          25,              9,                   10,              1,                    0
+Aluminum 260       ,          12,             86,                   60,              0,                    0
+Aluminum 260       ,          20,             37,                   30,              1,                    0
+Aluminum 260       ,          25,             17,                   10,              1,                    0
+Aluminum 400       ,          20,             40,                   30,              1,                    0
+Aluminum 400       ,          40,             21,                   20,              2,                    0
+Aluminum 400       ,          75,              4,                   10,              3,                    0
+Aluminum 800       ,          75,             15,                   10,              3,                    0
+Aluminum 800       ,         160,              3,                   10,              6,                    0

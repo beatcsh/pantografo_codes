@@ -33,7 +33,7 @@ const SelectRobotIP = ({ selectedIP, setSelectedIP, userType }) => {
   const handleCheckConnection = async () => {
     const ip = selectedIP || customIP;
     if (!ip) {
-      Swal.fire({
+      MySwal.fire({
         icon: "warning",
         title: "IP not selected",
         text: "Please select a predefined IP or enter one."
